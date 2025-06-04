@@ -1,0 +1,10 @@
+streamlit
+pandas
+openpyxl
+python-dateutil
+pywin32
+shutil
+os
+socket
+platform
+xlwings
