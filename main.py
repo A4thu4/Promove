@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd 
-import xlwings as xw
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
@@ -350,12 +349,8 @@ if st.button("Calcular"):
                 
     def recalcular_excel(caminho):
         # Recalcular fórmulas usando xlwings
-        app = xw.App(visible=False)
-        wb = app.books.open(os.path.abspath(caminho))
-        wb.api.Calculate()  # Recalcula fórmulas
-        wb.save()
-        wb.close()
-        app.quit()
+        df = pd.read_excel(caminho)
+        df.to_excel(caminho, index=False)
         
     recalcular_excel(caminho_copia)
 
