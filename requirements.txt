@@ -1,16 +1,6 @@
-<<<<<<< HEAD
-streamlit 
-pandas
-openpyxl
-datetime
-relativedelta
-shutil
-socket
-os
-=======
-streamlit
-pandas
-openpyxl
+streamlit==1.45.1
+pandas==2.2.3
+openpyxl==3.1.5
 python-dateutil
 pywin32
 shutil
@@ -18,4 +8,3 @@ os
 socket
 platform
 xlwings
->>>>>>> 5bf018106f081688f503eaf78a0ca66a1b663e44
