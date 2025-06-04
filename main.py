@@ -10,9 +10,9 @@ import shutil, os, socket
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
 st.title("Simulador de Progressão Salarial")
 
-hostname = socket.gethostname()
-local_ip = socket.gethostbyname(hostname)
-st.sidebar.info(f"Acesse em outro dispositivo: http://{local_ip}:8501")
+# hostname = socket.gethostname()
+# local_ip = socket.gethostbyname(hostname)
+# st.sidebar.info(f"Acesse em outro dispositivo: http://{local_ip}:8501")
 
 caminho_planilha = "C:\\Users\\arthur.maborges\\OneDrive - Subsecretaria de Tecnologia da Informação\\Documentos\\PROMOVE - Arthur 2.xlsx"
 username = os.getenv("USERNAME")
