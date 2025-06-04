@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 streamlit 
 pandas
 openpyxl
@@ -6,3 +7,15 @@ relativedelta
 shutil
 socket
 os
+=======
+streamlit
+pandas
+openpyxl
+python-dateutil
+pywin32
+shutil
+os
+socket
+platform
+xlwings
+>>>>>>> 5bf018106f081688f503eaf78a0ca66a1b663e44
