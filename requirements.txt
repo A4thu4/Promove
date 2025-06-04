@@ -2,7 +2,6 @@ streamlit==1.45.1
 pandas==2.2.3
 openpyxl==3.1.5
 python-dateutil
-pywin32
 shutil
 os
 socket
