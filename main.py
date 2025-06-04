@@ -1,14 +1,20 @@
+import dateutil
+import openpyxl
 import streamlit as st
 import pandas as pd 
-
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import shutil, os, socket
+import shutil, os, socket, platform
+
+import xlwings
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
 st.title("Simulador de Progressão Salarial")
+# st.info(pd.__version__)
+# st.info(st.__version__)
+# st.info(xlwings.__version__)
 
 # hostname = socket.gethostname()
 # local_ip = socket.gethostbyname(hostname)
@@ -349,9 +355,25 @@ if st.button("Calcular"):
             st.error(f"Error processing file: {str(e)}")
                 
     def recalcular_excel(caminho):
-        # Recalcular fórmulas usando xlwings
-        df = pd.read_excel(caminho)
-        df.to_excel(caminho, index=False)
+        if platform.system == "Windows":
+            import win32com.client
+            # Recalcular fórmulas usando win32com.client
+            excel = win32com.client.Dispatch("Excel.Application")
+            excel.Visible = False
+            wb = excel.Workbooks.Open(os.path.abspath(caminho))
+            wb.Application.Calculate()  # Recalcula todas as fórmulas
+            wb.Save()
+            wb.Close()
+            excel.Quit()
+        elif platform.system == "Linux":
+            import xlwings as xw
+            # Recalcular fórmulas usando xlwings
+            app = xw.App(visible=False)
+            wb = app.books.open(os.path.abspath(caminho))
+            wb.api.Calculate()  # Recalcula fórmulas
+            wb.save()
+            wb.close()
+            app.quit()
         
     recalcular_excel(caminho_copia)
 
