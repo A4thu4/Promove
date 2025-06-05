@@ -1,13 +1,10 @@
-import dateutil
-import openpyxl
 import streamlit as st
 import pandas as pd 
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import shutil, os, socket, platform
-
-import xlwings
+import shutil, os, tempfile
+from io import BytesIO
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
@@ -318,7 +315,6 @@ if st.button("Calcular"):
     caminho_copia = f"C:\\Users\\{username}\\Downloads\\PROMOVE - Resultados.xlsx"
     shutil.copy(caminho_planilha, caminho_copia)
 
-
     pts_mensal = pts_TEE + (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
     pts_extras = pts_titulacao + pts_responsabilidade
     pts_alcancada = pts_mensal + pts_extras
@@ -326,60 +322,38 @@ if st.button("Calcular"):
 
     i = max(1, qntd_meses_tee + 12)
 
-    def escrever_celula(aba, celula_ref, valor):
-        try:            
-            aba[celula_ref] = valor
-        except Exception as e:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+            tmp.write(caminho_planilha.getvalue())
+            tmp_path = tmp.name
+    try:
+        # 5. Edição do Excel
+        workbook = load_workbook(filename=tmp_path)
+        aba = workbook["CARREIRA"]
+        
+        # Função auxiliar para escrever valores
+        def escrever_celula(aba, celula_ref, valor):
+            try:
+                aba[celula_ref] = valor
+            except Exception as e:
                 st.error(f"Erro ao escrever na célula {celula_ref}: {e}")
 
-    #carregar planilha apos atualizacao
-    if caminho_planilha is not None:
-        try:
-            if isinstance(caminho_planilha, str):
-                workbook = load_workbook(filename=caminho_copia)
-            else:
-                workbook = load_workbook(filename=caminho_copia.getvalue())
-
-            aba = workbook["CARREIRA"]
-                
-            escrever_celula(aba, "J6", pts_desempenho)
-            escrever_celula(aba, "L5", pts_aperfeicoamento)
-            escrever_celula(aba, f"O{i}", pts_titulacao)
-            escrever_celula(aba, f"P{i}", pts_responsabilidade)
-            
-            workbook.save(filename=caminho_copia)
-            
-            # st.download_button(label="Download", file_name="Planilha Atualizada.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        escrever_celula(aba, "J6", pts_desempenho)
+        escrever_celula(aba, "L5", pts_aperfeicoamento)
+        escrever_celula(aba, f"O{i}", pts_titulacao)
+        escrever_celula(aba, f"P{i}", pts_responsabilidade)
         
-        except Exception as e:
-            st.error(f"Error processing file: {str(e)}")
-                
-    def recalcular_excel(caminho):
-        import xlwings as xw
-        # Recalcular fórmulas usando xlwings
-        app = xw.App(visible=False)
-        wb = app.books.open(os.path.abspath(caminho))
-        wb.api.Calculate()  # Recalcula fórmulas
-        wb.save()
-        wb.close()
-        app.quit()
+        workbook.save(filename=tmp_path)
         
-    recalcular_excel(caminho_copia)
-
-    workbook = load_workbook(filename=caminho_copia,data_only=True)
-    aba = workbook.active 
-    
-    # Recarregar a planilha atualizada
-    try:            
-    
-        if pts_alcancada >= 96:
-            # 12 meses
-            df_atualizado = pd.read_excel(caminho_copia, sheet_name=nome_planilha,usecols="AG,AK,AM",skiprows= list(range(13)) + [14],  engine="openpyxl")
-        else:
-            # 18 meses 
-            df_atualizado = pd.read_excel(caminho_copia, sheet_name=nome_planilha,usecols="AO,AS,AU",skiprows= list(range(13)) + [14], engine="openpyxl")
+        # 6. Leitura dos resultados
+        df_atualizado = pd.read_excel(
+            tmp_path,
+            sheet_name="CARREIRA",
+            usecols="AG,AK,AM" if pts_alcancada >= 96 else "AO,AS,AU",
+            skiprows=lambda x: x in list(range(13)) + [14],
+            engine="openpyxl"
+        )
         
-        st.subheader("Planilha Atualizada")
+        # 7. Exibição dos resultados
         novos_nomes = {
             "Unnamed: 32": "Nível",
             "Unnamed: 36": "Tempo",
@@ -388,22 +362,26 @@ if st.button("Calcular"):
             "Unnamed: 44": "Tempo",
             "Unnamed: 46": "Entre Niveis"
         }
-        
         df_atualizado.rename(columns=novos_nomes, inplace=True)
 
-        nivel_idx = (df_atualizado[df_atualizado["Nível"] == nivel_atual].index) + 1
+        nivel_idx = df_atualizado[df_atualizado["Nível"] == nivel_atual].index
         if not nivel_idx.empty:
             df_filtrado = df_atualizado.loc[nivel_idx[0]:].reset_index(drop=True)
-        else:
-            df_filtrado = df_atualizado
+            qtd_linhas = min(19 - nivel_idx[0], len(df_filtrado))
+            st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
+        
+        # 8. Download do arquivo modificado
+        with open(tmp_path, "rb") as f:
+            st.download_button(
+                label="Baixar Planilha Atualizada",
+                data=f,
+                file_name="PROMOVE - Resultados.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
             
-        qtd_linhas = 19 - nivel_idx[0] if not nivel_idx.empty else 19
-        st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
-
-        #apagar a planilha atualizada
-        if os.path.exists(caminho_copia):
-            os.remove(caminho_copia)
-
     except Exception as e:
-        st.error(f"Erro ao carregar a planilha atualizada: {e}")
+        st.error(f"Erro ao processar o arquivo: {str(e)}")
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
