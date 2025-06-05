@@ -363,8 +363,11 @@ if st.button("Calcular"):
         nivel_idx = df_atualizado[df_atualizado["Nível"] == nivel_atual].index
         if not nivel_idx.empty:
             df_filtrado = df_atualizado.loc[nivel_idx[0]:].reset_index(drop=True)
-            qtd_linhas = min(19 - nivel_idx[0], len(df_filtrado))
-            st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
+        else : 
+            df_filtrado = df_filtrado
+
+        qtd_linhas = min(19 - nivel_idx[0], len(df_filtrado))
+        st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # 8. Download do arquivo modificado
         with open(tmp_path, "rb") as f:
