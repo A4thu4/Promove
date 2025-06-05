@@ -388,14 +388,14 @@ if st.button("Calcular"):
         qtd_linhas = 19 - nivel_idx[0] if not nivel_idx.empty else 19
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
-        # 8. Download do arquivo modificado
-        # with open(caminho_recalc, "rb") as f:
-        #     st.download_button(
-        #         label="Baixar Planilha Atualizada",
-        #         data=f,
-        #         file_name="PROMOVE - Resultados.xlsx",
-        #         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        #     )
+        8. Download do arquivo modificado
+        with open(caminho_recalc, "rb") as f:
+            st.download_button(
+                label="Baixar Planilha Atualizada",
+                data=f,
+                file_name="PROMOVE - Resultados.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
             
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
