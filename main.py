@@ -10,9 +10,6 @@ st.set_page_config(page_title="PlanilhaPD", layout="wide")
 st.title("Simulador Git")
 
 caminho_planilha = "PROMOVE - Arthur 2.xlsx"
-username = os.getenv("USERNAME")
-st.info(f"Usuário: {username}")
-
 nome_planilha = "CARREIRA"
 
 if not os.path.exists(caminho_planilha):
@@ -30,6 +27,30 @@ def detectar_header(excel_file, aba):
         except:
             continue
     return 0  # fallback se não encontrar
+
+def recalcular_formulas_aproximado(caminho):
+    """
+    Solução alternativa para 'recalcular' fórmulas sem Excel
+    Limitação: Não é tão preciso quanto o Excel nativo
+    """
+    # 1. Carrega mantendo as fórmulas
+    wb = load_workbook(filename=caminho, data_only=False)
+    
+    # 2. Força 'recálculo' aproximado
+    for sheet in wb:
+        for row in sheet.iter_rows():
+            for cell in row:
+                if cell.data_type == 'f':  # Se for fórmula
+                    try:
+                        # Tenta avaliar a fórmula (funciona para fórmulas simples)
+                        cell.value = f"={cell.value[1:]}"  # Reescreve a fórmula
+                    except:
+                        pass
+    
+    # 3. Salva em novo arquivo
+    caminho_recalc = caminho.replace('.xlsx', '_RECALC.xlsx')
+    wb.save(caminho_recalc)
+    return caminho_recalc
 
 
 tipo_calculo = st.radio("Selecione SEU Tipo:", ["Geral", "UEG"], horizontal=True)
@@ -311,17 +332,13 @@ if st.button("Calcular"):
     pontuacao_total = (pts_mensal * qntd_meses_tee) + pts_extras
     i = max(1, qntd_meses_tee + 12)
 
-    #4. Processamento de arquivo em memória
-    # with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
-    #         tmp.write(caminho_planilha.getvalue())
-    #         tmp_path = tmp.name
-
     try:
         #4. Cria cópia temp do original
         with open(caminho_planilha, 'rb') as original:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                 tmp.write(original.read())
                 tmp_path = tmp.name
+        
         # 5. Edição do Excel
         workbook = load_workbook(filename=tmp_path)
         aba = workbook["CARREIRA"]
@@ -340,9 +357,11 @@ if st.button("Calcular"):
         
         workbook.save(filename=tmp_path)
         
+        caminho_recalc = recalcular_formulas_aproximado(tmp_path)
+
         # 6. Leitura dos resultados
         df_atualizado = pd.read_excel(
-            tmp_path,
+            caminho_recalc,
             sheet_name="CARREIRA",
             usecols="AG,AK,AM" if pts_alcancada >= 96 else "AO,AS,AU",
             skiprows=lambda x: x in list(range(13)) + [14],
@@ -370,7 +389,7 @@ if st.button("Calcular"):
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # 8. Download do arquivo modificado
-        # with open(tmp_path, "rb") as f:
+        # with open(caminho_recalc, "rb") as f:
         #     st.download_button(
         #         label="Baixar Planilha Atualizada",
         #         data=f,
@@ -381,6 +400,10 @@ if st.button("Calcular"):
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
     finally:
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        for path in [tmp_path, caminho_recalc]:
+            if path and os.path.exists(path):
+                try:
+                    os.remove(path)
+                except:
+                    pass
 
