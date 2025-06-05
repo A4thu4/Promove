@@ -357,8 +357,6 @@ if st.button("Calcular"):
         escrever_celula(aba, f"P{i}", pts_responsabilidade)
         
         workbook.save(filename=tmp_path)
-        workbook = load_workbook(filename=tmp_path, data_only=True)
-        workbook.save(tmp_path)  # Salva os valores calculados
 
         # Leitura dos resultados
         df_atualizado = pd.read_excel(
