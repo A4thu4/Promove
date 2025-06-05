@@ -388,7 +388,7 @@ if st.button("Calcular"):
         qtd_linhas = 19 - nivel_idx[0] if not nivel_idx.empty else 19
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
-        8. Download do arquivo modificado
+        #8. Download do arquivo modificado
         with open(caminho_recalc, "rb") as f:
             st.download_button(
                 label="Baixar Planilha Atualizada",
