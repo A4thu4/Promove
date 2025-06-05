@@ -311,10 +311,6 @@ st.info("**Pontuação Total de Responsabilidade:** " + str(pts_responsabilidade
 
 ### Calcular Pontuação ###
 if st.button("Calcular"):
-
-    caminho_copia = f"C:\\Users\\{username}\\Downloads\\PROMOVE - Resultados.xlsx"
-    shutil.copy(caminho_planilha, caminho_copia)
-
     pts_mensal = pts_TEE + (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
     pts_extras = pts_titulacao + pts_responsabilidade
     pts_alcancada = pts_mensal + pts_extras
@@ -322,6 +318,7 @@ if st.button("Calcular"):
 
     i = max(1, qntd_meses_tee + 12)
 
+    #4. Processamento de arquivo em memória
     with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
             tmp.write(caminho_planilha.getvalue())
             tmp_path = tmp.name
