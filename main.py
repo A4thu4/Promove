@@ -366,7 +366,7 @@ if st.button("Calcular"):
         else : 
             df_filtrado = df_filtrado
 
-        qtd_linhas = min(19 - nivel_idx[0] if not nivel_idx.empty else 19
+        qtd_linhas = 19 - nivel_idx[0] if not nivel_idx.empty else 19
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # 8. Download do arquivo modificado
