@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import os, tempfile, platform
+import os, tempfile
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
@@ -356,12 +356,12 @@ if st.button("Calcular"):
         escrever_celula(aba, f"P{i}", pts_responsabilidade)
         
         workbook.save(filename=tmp_path)
-        
-        caminho_recalc = recalcular_formulas_aproximado(tmp_path)
+        workbook = load_workbook(filename=tmp_path, data_only=True)
+        workbook.save(tmp_path)  # Salva os valores calculados
 
         # 6. Leitura dos resultados
         df_atualizado = pd.read_excel(
-            caminho_recalc,
+            tmp_path,
             sheet_name="CARREIRA",
             usecols="AG,AK,AM" if pts_alcancada >= 96 else "AO,AS,AU",
             skiprows=lambda x: x in list(range(13)) + [14],
@@ -400,7 +400,7 @@ if st.button("Calcular"):
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
     finally:
-        for path in [tmp_path, caminho_recalc]:
+        for path in [tmp_path]:
             if path and os.path.exists(path):
                 try:
                     os.remove(path)
