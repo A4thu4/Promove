@@ -3,19 +3,11 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import shutil, os, tempfile
-from io import BytesIO
+import os, tempfile, platform
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
 st.title("Simulador de Progressão Salarial")
-# st.info(pd.__version__)
-# st.info(st.__version__)
-# st.info(xlwings.__version__)
-
-# hostname = socket.gethostname()
-# local_ip = socket.gethostbyname(hostname)
-# st.sidebar.info(f"Acesse em outro dispositivo: http://{local_ip}:8501")
 
 caminho_planilha = "PROMOVE - Arthur 2.xlsx"
 username = os.getenv("USERNAME")
@@ -23,6 +15,9 @@ st.info(f"Usuário: {username}")
 
 nome_planilha = "CARREIRA"
 
+if not os.path.exists(caminho_planilha):
+    st.error(f"Arquivo não encontrado")
+    st.stop()
 
 def detectar_header(excel_file, aba):
     """Tenta detectar a linha com a coluna Desejada"""
@@ -40,7 +35,6 @@ def detectar_header(excel_file, aba):
 tipo_calculo = st.radio("Selecione SEU Tipo:", ["Geral", "UEG"], horizontal=True)
 nivel_atual = st.radio("Selecione SEU Nível Atual:", ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S"], horizontal = True)
 possuir_fae = st.radio("Possui Aposentadoria Especial?", ["Sim", "Não"], horizontal=True)
-
 
 # Critérios obrigatórios
 st.header("Critérios Obrigatórios")
@@ -315,14 +309,19 @@ if st.button("Calcular"):
     pts_extras = pts_titulacao + pts_responsabilidade
     pts_alcancada = pts_mensal + pts_extras
     pontuacao_total = (pts_mensal * qntd_meses_tee) + pts_extras
-
     i = max(1, qntd_meses_tee + 12)
 
     #4. Processamento de arquivo em memória
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
-            tmp.write(caminho_planilha.getvalue())
-            tmp_path = tmp.name
+    # with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+    #         tmp.write(caminho_planilha.getvalue())
+    #         tmp_path = tmp.name
+
     try:
+        #4. Cria cópia temp do original
+        with open(caminho_planilha, 'rb') as original:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+                tmp.write(original.read())
+                tmp_path = tmp.name
         # 5. Edição do Excel
         workbook = load_workbook(filename=tmp_path)
         aba = workbook["CARREIRA"]
