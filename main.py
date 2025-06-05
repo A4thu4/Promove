@@ -9,50 +9,6 @@ import os, tempfile
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
 st.title("Simulador Git")
 
-caminho_planilha = "PROMOVE - Arthur 2.xlsx"
-nome_planilha = "CARREIRA"
-
-if not os.path.exists(caminho_planilha):
-    st.error(f"Arquivo não encontrado")
-    st.stop()
-
-def detectar_header(excel_file, aba):
-    """Tenta detectar a linha com a coluna Desejada"""
-    for i in range(10):
-        try:
-            df_temp = pd.read_excel(excel_file, sheet_name=aba, skiprows=i, usecols="G:W")
-            colunas = [str(col).strip().upper() for col in df_temp.columns]
-            if "PERÍODO" in colunas:
-                return i
-        except:
-            continue
-    return 0  # fallback se não encontrar
-
-def recalcular_formulas_aproximado(caminho):
-    """
-    Solução alternativa para 'recalcular' fórmulas sem Excel
-    Limitação: Não é tão preciso quanto o Excel nativo
-    """
-    # 1. Carrega mantendo as fórmulas
-    wb = load_workbook(filename=caminho, data_only=False)
-    
-    # 2. Força 'recálculo' aproximado
-    for sheet in wb:
-        for row in sheet.iter_rows():
-            for cell in row:
-                if cell.data_type == 'f':  # Se for fórmula
-                    try:
-                        # Tenta avaliar a fórmula (funciona para fórmulas simples)
-                        cell.value = f"={cell.value[1:]}"  # Reescreve a fórmula
-                    except:
-                        pass
-    
-    # 3. Salva em novo arquivo
-    caminho_recalc = caminho.replace('.xlsx', '_RECALC.xlsx')
-    wb.save(caminho_recalc)
-    return caminho_recalc
-
-
 tipo_calculo = st.radio("Selecione SEU Tipo:", ["Geral", "UEG"], horizontal=True)
 nivel_atual = st.radio("Selecione SEU Nível Atual:", ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S"], horizontal = True)
 possuir_fae = st.radio("Possui Aposentadoria Especial?", ["Sim", "Não"], horizontal=True)
@@ -324,6 +280,51 @@ if pts_responsabilidade > 144:
     pts_responsabilidade = 144
 st.info("**Pontuação Total de Responsabilidade:** " + str(pts_responsabilidade))
 
+
+
+caminho_planilha = "PROMOVE - Arthur 2.xlsx"
+nome_planilha = "CARREIRA"
+
+if not os.path.exists(caminho_planilha):
+    st.error(f"Arquivo não encontrado")
+    st.stop()
+
+def detectar_header(excel_file, aba):
+    """Tenta detectar a linha com a coluna Desejada"""
+    for i in range(10):
+        try:
+            df_temp = pd.read_excel(excel_file, sheet_name=aba, skiprows=i, usecols="G:W")
+            colunas = [str(col).strip().upper() for col in df_temp.columns]
+            if "PERÍODO" in colunas:
+                return i
+        except:
+            continue
+    return 0  # fallback se não encontrar
+
+def recalcular_formulas_aproximado(caminho):
+    """
+    Solução alternativa para 'recalcular' fórmulas sem Excel
+    Limitação: Não é tão preciso quanto o Excel nativo
+    """
+    # 1. Carrega mantendo as fórmulas
+    wb = load_workbook(filename=caminho, data_only=False)
+    
+    # 2. Força 'recálculo' aproximado
+    for sheet in wb:
+        for row in sheet.iter_rows():
+            for cell in row:
+                if cell.data_type == 'f':  # Se for fórmula
+                    try:
+                        # Tenta avaliar a fórmula (funciona para fórmulas simples)
+                        cell.value = f"={cell.value[1:]}"  # Reescreve a fórmula
+                    except:
+                        pass
+    
+    # 3. Salva em novo arquivo
+    caminho_recalc = caminho.replace('.xlsx', '_RECALC.xlsx')
+    wb.save(caminho_recalc)
+    return caminho_recalc
+
 ### Calcular Pontuação ###
 if st.button("Calcular"):
     pts_mensal = pts_TEE + (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
@@ -333,13 +334,13 @@ if st.button("Calcular"):
     i = max(1, qntd_meses_tee + 12)
 
     try:
-        #4. Cria cópia temp do original
+        # Cria cópia temp do original
         with open(caminho_planilha, 'rb') as original:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
                 tmp.write(original.read())
                 tmp_path = tmp.name
         
-        # 5. Edição do Excel
+        # Edição do Excel
         workbook = load_workbook(filename=tmp_path)
         aba = workbook["CARREIRA"]
         
@@ -359,7 +360,7 @@ if st.button("Calcular"):
         workbook = load_workbook(filename=tmp_path, data_only=True)
         workbook.save(tmp_path)  # Salva os valores calculados
 
-        # 6. Leitura dos resultados
+        # Leitura dos resultados
         df_atualizado = pd.read_excel(
             tmp_path,
             sheet_name="CARREIRA",
@@ -368,7 +369,7 @@ if st.button("Calcular"):
             engine="openpyxl"
         )
         
-        # 7. Exibição dos resultados
+        # Exibição dos resultados
         novos_nomes = {
             "Unnamed: 32": "Nível",
             "Unnamed: 36": "Tempo",
@@ -388,7 +389,7 @@ if st.button("Calcular"):
         qtd_linhas = 19 - nivel_idx[0] if not nivel_idx.empty else 19
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
-        #8. Download do arquivo modificado
+        # Download do arquivo modificado
         with open(tmp_path, "rb") as f:
             st.download_button(
                 label="Baixar Planilha Atualizada",
