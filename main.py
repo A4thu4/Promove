@@ -365,6 +365,11 @@ if st.button("Calcular"):
             wb.close()
             app.quit()
 
+        recalcular_excel(tmp_path)
+
+        workbook = load_workbook(filename=tmp_path,data_only=True)
+        aba = workbook.active 
+
         # workbook.save(filename=tmp_path)
         # workbook = load_workbook(filename=tmp_path, data_only=True)
         # workbook.save(tmp_path)  # Salva os valores calculados
