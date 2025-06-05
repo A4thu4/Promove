@@ -7,7 +7,7 @@ import os, tempfile, platform
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
-st.title("Simulador de Progressão Salarial")
+st.title("Simulador Git")
 
 caminho_planilha = "PROMOVE - Arthur 2.xlsx"
 username = os.getenv("USERNAME")
