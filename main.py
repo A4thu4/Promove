@@ -360,7 +360,7 @@ if st.button("Calcular"):
         }
         df_atualizado.rename(columns=novos_nomes, inplace=True)
 
-        nivel_idx = df_atualizado[df_atualizado["Nível"] == nivel_atual].index
+        nivel_idx = (df_atualizado[df_atualizado["Nível"] == nivel_atual].index) + 1
         if not nivel_idx.empty:
             df_filtrado = df_atualizado.loc[nivel_idx[0]:].reset_index(drop=True)
         else : 
@@ -370,13 +370,13 @@ if st.button("Calcular"):
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # 8. Download do arquivo modificado
-        with open(tmp_path, "rb") as f:
-            st.download_button(
-                label="Baixar Planilha Atualizada",
-                data=f,
-                file_name="PROMOVE - Resultados.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        # with open(tmp_path, "rb") as f:
+        #     st.download_button(
+        #         label="Baixar Planilha Atualizada",
+        #         data=f,
+        #         file_name="PROMOVE - Resultados.xlsx",
+        #         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        #     )
             
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
