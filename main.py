@@ -355,9 +355,19 @@ if st.button("Calcular"):
         escrever_celula(aba, f"O{i}", pts_titulacao)
         escrever_celula(aba, f"P{i}", pts_responsabilidade)
         
-        workbook.save(filename=tmp_path)
-        workbook = load_workbook(filename=tmp_path, data_only=True)
-        workbook.save(tmp_path)  # Salva os valores calculados
+        def recalcular_excel(caminho):
+            import xlwings as xw
+            # Recalcular fórmulas usando xlwings
+            app = xw.App(visible=False)
+            wb = app.books.open(os.path.abspath(caminho))
+            wb.api.Calculate()  # Recalcula fórmulas
+            wb.save()
+            wb.close()
+            app.quit()
+
+        # workbook.save(filename=tmp_path)
+        # workbook = load_workbook(filename=tmp_path, data_only=True)
+        # workbook.save(tmp_path)  # Salva os valores calculados
 
         # 6. Leitura dos resultados
         df_atualizado = pd.read_excel(
