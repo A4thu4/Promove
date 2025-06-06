@@ -336,16 +336,6 @@ if st.button("Calcular"):
 
     def recalcular_excel(caminho):
         if platform.system() == "Windows":
-            import win32com.client
-            # Recalcular fórmulas usando win32com.client
-            excel = win32com.client.Dispatch("Excel.Application")
-            excel.Visible = False
-            wb = excel.Workbooks.Open(os.path.abspath(caminho))
-            wb.Application.Calculate()  # Recalcula fórmulas
-            wb.Save()
-            wb.Close()
-            excel.Quit()
-        else: 
             import xlwings as xw
             # Recalcular fórmulas usando xlwings
             app = xw.App(visible=False)
@@ -354,6 +344,12 @@ if st.button("Calcular"):
             wb.save()
             wb.close()
             app.quit()
+        
+        else:
+            # Fallback para nuvem
+            from openpyxl import load_workbook
+            wb = load_workbook(filename=caminho)
+            wb.save(filename=caminho)
 
     recalcular_excel(caminho_copia)
 
