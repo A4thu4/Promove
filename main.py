@@ -4,6 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
 import os, shutil, platform
+from io import BytesIO 
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
