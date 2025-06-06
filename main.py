@@ -400,9 +400,9 @@ if st.button("Calcular"):
             )
         
         st.download_button(
-            label="⬇️ Baixar Resultados Filtrados",
+            label="Baixar Resultados",
             data=output.getvalue(),
-            file_name="RESULTADOS_FILTRADOS.xlsx",
+            file_name="RESULTADOS - PROMOVE.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
