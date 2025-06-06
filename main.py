@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import os, shutil
+import os, shutil, platform
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
