@@ -3,9 +3,8 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import os, shutil
+import os, shutil, platform
 from io import BytesIO 
-import tempfile
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
@@ -311,9 +310,6 @@ if st.button("Calcular"):
     pontuacao_total = (pts_mensal * qntd_meses_tee) + pts_extras
     i = max(1, qntd_meses_tee + 12)
 
-    wb = load_workbook(caminho_planilha, data_only=False)
-    sheet = wb["CARREIRA"]
-
     def escrever_celula(aba, celula_ref, valor):
         try:            
             aba[celula_ref] = valor
@@ -335,19 +331,31 @@ if st.button("Calcular"):
             escrever_celula(aba, f"P{i}", pts_responsabilidade)
             
             workbook.save(filename=caminho_copia)
-
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-                temp_path = tmp.name
-                wb.save(temp_path)
             
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
 
-    wb = load_workbook(temp_path, data_only=True)
-    wb.save(temp_path)
+    def recalcular_excel(caminho):
+        if platform.system() == "Windows":
+            import xlwings as xw
+            # Recalcular fórmulas usando xlwings
+            app = xw.App(visible=False)
+            wb = app.books.open(os.path.abspath(caminho))
+            wb.api.Calculate()  # Recalcula fórmulas
+            wb.save()
+            wb.close()
+            app.quit()
+        
+        else:
+            # Fallback para nuvem
+            from openpyxl import load_workbook
+            wb = load_workbook(filename=caminho)
+            wb.save(filename=caminho)
 
-    # workbook = load_workbook(filename=caminho_copia,data_only=True)
-    # aba = workbook.active
+    recalcular_excel(caminho_copia)
+
+    workbook = load_workbook(filename=caminho_copia,data_only=True)
+    aba = workbook.active
 
     try:
         # Leitura dos resultados
@@ -382,6 +390,7 @@ if st.button("Calcular"):
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # Download do arquivo modificado
+
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df_filtrado.head(qtd_linhas).to_excel(
@@ -391,7 +400,7 @@ if st.button("Calcular"):
             )
         
         st.download_button(
-            label="Baixar Resultados ",
+            label="⬇️ Baixar Resultados Filtrados",
             data=output.getvalue(),
             file_name="RESULTADOS_FILTRADOS.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
