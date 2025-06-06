@@ -390,21 +390,22 @@ if st.button("Calcular"):
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # Download do arquivo modificado
-        df_export = df_filtrado.head(qtd_linhas).copy()
-    
-        # Cria um novo arquivo Excel simplificado
+
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df_export.to_excel(writer, sheet_name='RESULTADOS', index=False)
+            df_filtrado.head(qtd_linhas).to_excel(
+                writer,
+                sheet_name='RESULTADOS',
+                index=False
+            )
         
-        # Configura o botão de download
         st.download_button(
-            label="Baixar Resultados Simplificados",
+            label="⬇️ Baixar Resultados Filtrados",
             data=output.getvalue(),
-            file_name="RESULTADOS_PROMOVE.xlsx",
+            file_name="RESULTADOS_FILTRADOS.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-            
+
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
     finally:
