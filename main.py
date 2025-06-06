@@ -62,7 +62,6 @@ if tipo_calculo == "Geral":
 else:
     pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=8.40, max_value=13.68)
 
-
 #aperfeicoamento Pontos (min = 5.34 e max = 9.00) Horas (min_value=60, max_value=100) 
 pts_aperfeicoamento = 0
 aperfeicoamento = st.text_input("Aperfeiçoamento (Horas Totais)")
@@ -280,14 +279,11 @@ if pts_responsabilidade > 144:
     pts_responsabilidade = 144
 st.info("**Pontuação Total de Responsabilidade:** " + str(pts_responsabilidade))
 
-
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 caminho_planilha = "PROMOVE - Arthur 2.xlsx"
 nome_planilha = "CARREIRA"
 
-if not os.path.exists(caminho_planilha):
-    st.error(f"Arquivo não encontrado")
-    st.stop()
 
 def detectar_header(excel_file, aba):
     """Tenta detectar a linha com a coluna Desejada"""
@@ -300,30 +296,6 @@ def detectar_header(excel_file, aba):
         except:
             continue
     return 0  # fallback se não encontrar
-
-def recalcular_formulas_aproximado(caminho):
-    """
-    Solução alternativa para 'recalcular' fórmulas sem Excel
-    Limitação: Não é tão preciso quanto o Excel nativo
-    """
-    # 1. Carrega mantendo as fórmulas
-    wb = load_workbook(filename=caminho, data_only=False)
-    
-    # 2. Força 'recálculo' aproximado
-    for sheet in wb:
-        for row in sheet.iter_rows():
-            for cell in row:
-                if cell.data_type == 'f':  # Se for fórmula
-                    try:
-                        # Tenta avaliar a fórmula (funciona para fórmulas simples)
-                        cell.value = f"={cell.value[1:]}"  # Reescreve a fórmula
-                    except:
-                        pass
-    
-    # 3. Salva em novo arquivo
-    caminho_recalc = caminho.replace('.xlsx', '_RECALC.xlsx')
-    wb.save(caminho_recalc)
-    return caminho_recalc
 
 ### Calcular Pontuação ###
 if st.button("Calcular"):
@@ -405,4 +377,3 @@ if st.button("Calcular"):
                     os.remove(path)
                 except:
                     pass
-
