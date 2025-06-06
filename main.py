@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook 
-import os, tempfile
+import os, shutil
 
 #-----------------------------------------------------------------------------------#
 st.set_page_config(page_title="PlanilhaPD", layout="wide")
@@ -284,7 +284,6 @@ st.info("**Pontuação Total de Responsabilidade:** " + str(pts_responsabilidade
 caminho_planilha = "PROMOVE - Arthur 2.xlsx"
 nome_planilha = "CARREIRA"
 
-
 def detectar_header(excel_file, aba):
     """Tenta detectar a linha com a coluna Desejada"""
     for i in range(10):
@@ -299,40 +298,61 @@ def detectar_header(excel_file, aba):
 
 ### Calcular Pontuação ###
 if st.button("Calcular"):
+    if qntd_meses_tee == 0: qntd_meses_tee = 1
+
+    caminho_copia = "PROMOVE - Resultados.xlsx"
+    shutil.copy(caminho_planilha, caminho_copia)
+
     pts_mensal = pts_TEE + (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
     pts_extras = pts_titulacao + pts_responsabilidade
     pts_alcancada = pts_mensal + pts_extras
     pontuacao_total = (pts_mensal * qntd_meses_tee) + pts_extras
     i = max(1, qntd_meses_tee + 12)
 
-    try:
-        # Cria cópia temp do original
-        with open(caminho_planilha, 'rb') as original:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-                tmp.write(original.read())
-                tmp_path = tmp.name
-        
-        # Edição do Excel
-        workbook = load_workbook(filename=tmp_path)
-        aba = workbook["CARREIRA"]
-        
-        # Função auxiliar para escrever valores
-        def escrever_celula(aba, celula_ref, valor):
-            try:
-                aba[celula_ref] = valor
-            except Exception as e:
+    def escrever_celula(aba, celula_ref, valor):
+        try:            
+            aba[celula_ref] = valor
+        except Exception as e:
                 st.error(f"Erro ao escrever na célula {celula_ref}: {e}")
 
-        escrever_celula(aba, "J6", pts_desempenho)
-        escrever_celula(aba, "L5", pts_aperfeicoamento)
-        escrever_celula(aba, f"O{i}", pts_titulacao)
-        escrever_celula(aba, f"P{i}", pts_responsabilidade)
-        
-        workbook.save(filename=tmp_path)
+    if caminho_planilha is not None:
+        try:
+            if isinstance(caminho_planilha, str):
+                workbook = load_workbook(filename=caminho_copia)
+            else:
+                workbook = load_workbook(filename=caminho_copia.getvalue())
 
+            aba = workbook["CARREIRA"]
+                
+            escrever_celula(aba, "J6", pts_desempenho)
+            escrever_celula(aba, "L5", pts_aperfeicoamento)
+            escrever_celula(aba, f"O{i}", pts_titulacao)
+            escrever_celula(aba, f"P{i}", pts_responsabilidade)
+            
+            workbook.save(filename=caminho_copia)
+            
+        except Exception as e:
+            st.error(f"Error processing file: {str(e)}")
+
+    def recalcular_excel(caminho):
+        import xlwings as xw
+        # Recalcular fórmulas usando xlwings
+        app = xw.App(visible=False)
+        wb = app.books.open(os.path.abspath(caminho))
+        wb.api.Calculate()  # Recalcula fórmulas
+        wb.save()
+        wb.close()
+        app.quit()
+
+    recalcular_excel(caminho_copia)
+
+    workbook = load_workbook(filename=caminho_copia,data_only=True)
+    aba = workbook.active
+
+    try:
         # Leitura dos resultados
         df_atualizado = pd.read_excel(
-            tmp_path,
+            caminho_copia,
             sheet_name="CARREIRA",
             usecols="AG,AK,AM" if pts_alcancada >= 96 else "AO,AS,AU",
             skiprows=lambda x: x in list(range(13)) + [14],
@@ -340,6 +360,7 @@ if st.button("Calcular"):
         )
         
         # Exibição dos resultados
+        st.subheader("Planilha Atualizada")
         novos_nomes = {
             "Unnamed: 32": "Nível",
             "Unnamed: 36": "Tempo",
@@ -348,6 +369,7 @@ if st.button("Calcular"):
             "Unnamed: 44": "Tempo",
             "Unnamed: 46": "Entre Niveis"
         }
+
         df_atualizado.rename(columns=novos_nomes, inplace=True)
 
         nivel_idx = (df_atualizado[df_atualizado["Nível"] == nivel_atual].index) + 1
@@ -360,7 +382,7 @@ if st.button("Calcular"):
         st.dataframe(df_filtrado.head(qtd_linhas), hide_index=True)
         
         # Download do arquivo modificado
-        with open(tmp_path, "rb") as f:
+        with open(caminho_copia, "rb") as f:
             st.download_button(
                 label="Baixar Planilha Atualizada",
                 data=f,
@@ -371,7 +393,7 @@ if st.button("Calcular"):
     except Exception as e:
         st.error(f"Erro ao processar o arquivo: {str(e)}")
     finally:
-        for path in [tmp_path]:
+        for path in [caminho_copia]:
             if path and os.path.exists(path):
                 try:
                     os.remove(path)
