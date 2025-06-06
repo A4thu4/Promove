@@ -335,14 +335,25 @@ if st.button("Calcular"):
             st.error(f"Error processing file: {str(e)}")
 
     def recalcular_excel(caminho):
-        import xlwings as xw
-        # Recalcular fórmulas usando xlwings
-        app = xw.App(visible=False)
-        wb = app.books.open(os.path.abspath(caminho))
-        wb.api.Calculate()  # Recalcula fórmulas
-        wb.save()
-        wb.close()
-        app.quit()
+        if platform.system() == "Windows":
+            import win32com.client
+            # Recalcular fórmulas usando win32com.client
+            excel = win32com.client.Dispatch("Excel.Application")
+            excel.Visible = False
+            wb = excel.Workbooks.Open(os.path.abspath(caminho))
+            wb.Application.Calculate()  # Recalcula fórmulas
+            wb.Save()
+            wb.Close()
+            excel.Quit()
+        else: 
+            import xlwings as xw
+            # Recalcular fórmulas usando xlwings
+            app = xw.App(visible=False)
+            wb = app.books.open(os.path.abspath(caminho))
+            wb.api.Calculate()  # Recalcula fórmulas
+            wb.save()
+            wb.close()
+            app.quit()
 
     recalcular_excel(caminho_copia)
 
