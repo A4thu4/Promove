@@ -289,7 +289,7 @@ st.info("**Pontuação Total de Responsabilidade:** " + str(pts_responsabilidade
 username = os.getenv("USERNAME")
 # st.info(f"Usuário: {username}")
 
-caminho_planilha = "C:\\Users\\arthur.maborges\\OneDrive - Subsecretaria de Tecnologia da Informação\\Documentos\\PROMOVE - Arthur 2.xlsx"
+caminho_planilha = f"PROMOVE - Arthur 2.xlsx"
 nome_planilha = "CARREIRA"
 
 def detectar_header(excel_file, aba):
@@ -308,7 +308,7 @@ def detectar_header(excel_file, aba):
 if st.button("Calcular"):
     if qntd_meses_tee == 0: qntd_meses_tee = 1
 
-    caminho_copia = f"C:\\Users\\{username}\\Downloads\\PROMOVE - Resultados.xlsx"
+    caminho_copia = f"PROMOVE - Resultados.xlsx"
     shutil.copy(caminho_planilha, caminho_copia)
 
     pts_mensal = pts_TEE + (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
@@ -345,15 +345,16 @@ if st.button("Calcular"):
                 
     def recalcular_excel(caminho):
         if platform.system() == "Windows":
-            import win32com.client
-            # Recalcular fórmulas usando win32com.client
-            excel = win32com.client.Dispatch("Excel.Application")
-            excel.Visible = False
-            wb = excel.Workbooks.Open(os.path.abspath(caminho))
-            wb.Application.Calculate()  # Recalcula fórmulas
-            wb.Save()
-            wb.Close()
-            excel.Quit()
+            pass
+            # import win32com.client
+            # # Recalcular fórmulas usando win32com.client
+            # excel = win32com.client.Dispatch("Excel.Application")
+            # excel.Visible = False
+            # wb = excel.Workbooks.Open(os.path.abspath(caminho))
+            # wb.Application.Calculate()  # Recalcula fórmulas
+            # wb.Save()
+            # wb.Close()
+            # excel.Quit()
         else: 
             import xlwings as xw
             # Recalcular fórmulas usando xlwings
