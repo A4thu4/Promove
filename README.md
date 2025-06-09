@@ -1,5 +1,3 @@
-# Promove
-
 # Salary Progression Simulator
 
 This project is a salary progression simulator application built using Python. It allows users to input their current progression level details and calculates potential progression based on various criteria.
