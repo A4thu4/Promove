@@ -500,7 +500,7 @@ with tab4:
 
             # Nível C
             mes_i = 12
-            mes_t += 12
+            mes_t += 13
             acumulado = carreira[mes_t - 1][7] - 48
 
             if acumulado >= 96:
