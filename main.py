@@ -463,7 +463,7 @@ with tab4:
                 "Nível": "A",
                 "Mês Alcançado": 1,
                 "Tempo Entre Níveis (meses)": 1,
-                "Total": f"{1} ano(s) {1} mês(es)"
+                "Total": f"{1} mês"
             })
 
             # Nível B
@@ -616,7 +616,7 @@ with tab4:
             
             # Nível E
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 144
 
             if acumulado >= 96:
@@ -665,7 +665,7 @@ with tab4:
 
             # Nível F
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 192
 
             if acumulado >= 96:
@@ -714,7 +714,7 @@ with tab4:
             
             # Nível G
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 240
 
             if acumulado >= 96:
@@ -763,7 +763,7 @@ with tab4:
 
             # Nível H
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 288
 
             if acumulado >= 96:
@@ -812,7 +812,7 @@ with tab4:
 
             # Nível I
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 336
 
             if acumulado >= 96:
@@ -861,7 +861,7 @@ with tab4:
 
             # Nível J
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 384
 
             if acumulado >= 96:
@@ -910,7 +910,7 @@ with tab4:
 
             # Nível K
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 432
 
             if acumulado >= 96:
@@ -959,7 +959,7 @@ with tab4:
 
             # Nível L
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 480
 
             if acumulado >= 96:
@@ -1008,7 +1008,7 @@ with tab4:
 
             # Nível M
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 528
 
             if acumulado >= 96:
@@ -1057,7 +1057,7 @@ with tab4:
 
             # Nível N
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 576
 
             if acumulado >= 96:
@@ -1106,7 +1106,7 @@ with tab4:
 
             # Nível O
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 624
 
             if acumulado >= 96:
@@ -1155,7 +1155,7 @@ with tab4:
 
             # Nível P
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 672
 
             if acumulado >= 96:
@@ -1204,7 +1204,7 @@ with tab4:
 
             # Nível Q
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 720
 
             if acumulado >= 96:
@@ -1253,7 +1253,7 @@ with tab4:
 
             # Nível R
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 768
 
             if acumulado >= 96:
@@ -1302,7 +1302,7 @@ with tab4:
 
             # Nível S
             mes_i = 12
-            mes_t = mes_t + 12
+            mes_t += 12
             acumulado = carreira[mes_t-1][7] - 816
 
             if acumulado >= 96:
