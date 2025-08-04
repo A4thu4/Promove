@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="Simulador PROMOVE-GNCP", layout="wide")
+st.set_page_config(page_title="Simulador4", layout="wide")
 st.markdown(
         """
         <style>
@@ -109,10 +109,11 @@ st.markdown(
         """,unsafe_allow_html=True)
 st.markdown("<h1 style='text-align: center;'>Simulador PROMOVE</h1>", unsafe_allow_html=True)
 
+
 carreira = [[0 for _ in range(10)] for _ in range(721)]
 
 tipo_calculo = "Geral"
-tab1, tab2, tab3, tab4 = st.tabs(["Critérios Obrigatórios", "Titulação Acadêmica", "Assunção de Responsabilidades", "Pontuação Final"])
+tab1, tab2, tab3, tab4 = st.tabs(["**Critérios Obrigatórios**", "**Titulação Acadêmica**", "**Assunção de Responsabilidades**", "**Pontuação Final**"])
 
 ##Critérios obrigatórios##
 with tab1:
@@ -149,7 +150,7 @@ with tab2:
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 
 with tab3:
-    subtabs = st.tabs(["Assunção de Responsabilidade dos últimos 5 anos", "Assunção de Responsabilidades Atuais"])
+    subtabs = st.tabs(["**Assunção de Responsabilidade dos últimos 5 anos**", "**Assunção de Responsabilidades Atuais**"])
     pts_resp_inical = 0
     with subtabs[0]:
             col1,col2 = st.columns(2)
@@ -189,7 +190,7 @@ with tab3:
     pts_resp_inical = pts_resp_inical_mes * 60
 
     with subtabs[1]:
-        sub_tabs = st.tabs(["**Responsabilidades Mensais**", "Responsabilidades Únicas"])
+        sub_tabs = st.tabs(["**Responsabilidades Mensais**", "**Responsabilidades Únicas**"])
         pts_responsabilidade_mensais = 0
         with sub_tabs[0]:
             #cargo de comissao
@@ -344,7 +345,7 @@ with tab3:
                     qntd_periodicos_nid = st.number_input("Quantidade de Artigos Científicos Completos Publicados em Periódicos NÃO Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value=0)
                 with col2: 
                     qntd_periodicos_id = st.number_input("Quantidade de Artigos Científicos Completos Publicados em Periódicos Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value = 0)
-                pts_artigos =  (qntd_periodicos_nid * 0.5) + (qntd_periodicos_id * 4)
+                st.session_state.pts_artigos =  (qntd_periodicos_nid * 0.5) + (qntd_periodicos_id * 4)
 
             #publicação de livros
             pts_livros = 0
@@ -356,7 +357,7 @@ with tab3:
                     qntd_capitulos = st.number_input("Quantidade de Capitulos Publicados",min_value = 0)
                 with col3: 
                     qntd_livros_completos = st.number_input("Quantidade de Livros Completos Publicados",min_value = 0)
-                pts_livros = (qntd_org_livros * 1) + (qntd_capitulos * 4) + (qntd_livros_completos * 6)
+                st.session_state.pts_livros = (qntd_org_livros * 1) + (qntd_capitulos * 4) + (qntd_livros_completos * 6)
 
             #publicação de pesquisas
             pts_pesquisas = 0
@@ -370,7 +371,7 @@ with tab3:
                     qntd_nacional = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Nacionalmente",min_value = 0)
                 with col4: 
                     qntd_internacional = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Internacionalmente",min_value = 0)
-                pts_pesquisas = (qntd_estadual * 1) + (qntd_regional * 3) + (qntd_nacional * 3) + (qntd_internacional * 4)
+                st.session_state.pts_pesquisas = (qntd_estadual * 1) + (qntd_regional * 3) + (qntd_nacional * 3) + (qntd_internacional * 4)
 
             #registro de patente ou cultivar
             pts_registros = 0
@@ -380,7 +381,7 @@ with tab3:
                     qntd_patente = st.number_input("Quantidade de Registros de Patente",min_value = 0)
                 with col2: 
                     qntd_cultivar = st.number_input("Quantidade de Registros de Cultivar",min_value = 0)
-                pts_registros = (qntd_patente * 8) + (qntd_cultivar * 8)
+                st.session_state.pts_registros = (qntd_patente * 8) + (qntd_cultivar * 8)
 
             #cursos
             pts_cursos = 0
@@ -404,8 +405,12 @@ with tab3:
                     pts_doc5 = qntd_curso * 48
                 st.session_state.pts_cursos = pts_doc1 + pts_doc2 + pts_doc3 + pts_doc4 + pts_doc5
 
-    
+    pts_artigos = st.session_state.pts_artigos if 'pts_artigos' in st.session_state else 0
+    pts_livros = st.session_state.pts_livros if 'pts_livros' in st.session_state else 0
+    pts_pesquisas = st.session_state.pts_pesquisas if 'pts_pesquisas' in st.session_state else 0
+    pts_registros = st.session_state.pts_registros if 'pts_registros' in st.session_state else 0
     pts_cursos = st.session_state.pts_cursos if 'pts_cursos' in st.session_state else 0
+
     pts_responsabilidade_unic = pts_artigos + pts_livros + pts_pesquisas + pts_registros + pts_cursos + pts_conselho + pts_prioritaria
     pts_responsabilidade_mensais = pts_comissao + pts_func_comissionada + pts_func_designada + pts_agente + pts_conselho + pts_prioritaria
 
@@ -1355,3 +1360,4 @@ with tab4:
 
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
+
