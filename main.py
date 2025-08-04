@@ -450,7 +450,7 @@ with tab4:
 
     ##Calculo Acumulado##
     resultado_niveis = []
-    if st.button("Calcular"):
+    if st.button("Calcular", type='primary'):
         try:
 
             print("Calculando...")
