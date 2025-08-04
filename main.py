@@ -458,892 +458,112 @@ with tab4:
     if st.button("Calcular", type='primary'):
         try:
 
-            # Nível A
+            print("Calculando...")
+            for linha in carreira:
+                print(" | ".join(f"{valor:10.4f}" for valor in linha))
+
+            # Nível A (sempre 1 mês)
             resultado_niveis.append({
                 "Nível": "A",
                 "Mês Alcançado": 1,
                 "Tempo Entre Níveis (meses)": 1,
-                "Total": f"{1} mês"
+                "Total": "1 mês"
             })
 
-            # Nível B
-            mes_t = 12
+            # Dados dos níveis subsequentes
+            niveis = [
+                {"letra": "B", "subtracao": 0},
+                {"letra": "C", "subtracao": 48},
+                {"letra": "D", "subtracao": 96},
+                {"letra": "E", "subtracao": 144},
+                {"letra": "F", "subtracao": 192},
+                {"letra": "G", "subtracao": 240},
+                {"letra": "H", "subtracao": 288},
+                {"letra": "I", "subtracao": 336},
+                {"letra": "J", "subtracao": 384},
+                {"letra": "K", "subtracao": 432},
+                {"letra": "L", "subtracao": 480},
+                {"letra": "M", "subtracao": 528},
+                {"letra": "N", "subtracao": 576},
+                {"letra": "O", "subtracao": 624},
+                {"letra": "P", "subtracao": 672},
+                {"letra": "Q", "subtracao": 720},
+                {"letra": "R", "subtracao": 768},
+                {"letra": "S", "subtracao": 816}
+            ]
+
+            mes_t = 12  # Começa no mês 12 para o nível B
             mes_i = 12
-            acumulado = carreira[11][7] # mês 12
 
-            encontrado  = False
-            for i in range(12, 18):
-                if carreira[i][7] >= 96:
-                    acumulado = carreira[i][7]
-                    mes_t = i
-                    mes_i = mes_t 
-                    encontrado = True
-                    break
-
-            if not encontrado:
-                i = 17
-                mes_i -= 1  # compensar o último incremento
-                while acumulado < 48:
-                    i += 1
-                    acumulado = carreira[i][7]
-                    mes_t = carreira[i][0]
-                    mes_i += 1
-
-            anos = mes_t // 12
-            resto = mes_t % 12
-            resultado_niveis.append({
-                "Nível": "B",
-                "Mês Alcançado": mes_t,
-                "Tempo Entre Níveis (meses)": mes_i,
-                "Total": f"{anos} ano(s) {resto} mês(es)"
-            })
-
-            # Nível C
-            mes_i = 12
-            mes_t += 13
-            acumulado = carreira[mes_t - 1][7] - 48
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "C",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                encontrado = False
-                for j in range(1, 6):  # Tenta os próximos 5 meses (até mês 18)
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t - 1][7] - 48
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "C",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        encontrado = True
-                        break
-
-                if not encontrado:
-                    if acumulado >= 48:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "C",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                    else:
-                        i = mes_t - 1
-                        while carreira[i][7] - 48 < 48:
-                            i += 1
-                            mes_t = carreira[i][0]
-                            mes_i += 1
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        mes_i -= 1
-                        resultado_niveis.append({
-                            "Nível": "C",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
+            for nivel in niveis:
+                letra = nivel["letra"]
+                subtracao = nivel["subtracao"]
                 
-            # Nível D
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t - 1][7] - 96
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "D",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
+                if letra != "B":
+                    mes_i = 12
+                    mes_t += 12
+                
+                acumulado = carreira[mes_t - 1][7] - subtracao
+                
+                if acumulado >= 96:
+                    anos = mes_t // 12
+                    resto = mes_t % 12
+                    resultado_niveis.append({
+                        "Nível": letra,
+                        "Mês Alcançado": mes_t,
+                        "Tempo Entre Níveis (meses)": mes_i,
+                        "Total": f"{anos} ano(s) {resto} mês(es)"
+                    })
+                    continue
+                
                 encontrado = False
-                for _ in range(6):  # Tentativas de 13 a 18 (mais 6 meses)
+                # Verifica os próximos 6 meses (13 a 18)
+                for j in range(6):
                     mes_i += 1
                     mes_t += 1
-                    acumulado = carreira[mes_t - 1][7] - 96
+                    acumulado = carreira[mes_t - 1][7] - subtracao
+                    
                     if acumulado >= 96:
                         anos = mes_t // 12
                         resto = mes_t % 12
                         resultado_niveis.append({
-                            "Nível": "D",
+                            "Nível": letra,
                             "Mês Alcançado": mes_t,
                             "Tempo Entre Níveis (meses)": mes_i,
                             "Total": f"{anos} ano(s) {resto} mês(es)"
                         })
                         encontrado = True
                         break
-
-                if not encontrado:
-                    if acumulado >= 48:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "D",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                    else:
-                        i = mes_t - 1
-                        while carreira[i][7] - 96 < 48:
-                            i += 1
+                
+                if encontrado:
+                    continue
+                
+                # Se não encontrou nos 6 meses seguintes, procura até atingir 48
+                if acumulado >= 48:
+                    anos = mes_t // 12
+                    resto = mes_t % 12
+                    resultado_niveis.append({
+                        "Nível": letra,
+                        "Mês Alcançado": mes_t,
+                        "Tempo Entre Níveis (meses)": mes_i,
+                        "Total": f"{anos} ano(s) {resto} mês(es)"
+                    })
+                else:
+                    i = mes_t - 1  # Começa no último mês verificado
+                    meses_adicionais = 0
+                    while True:
+                        i += 1
+                        meses_adicionais += 1
+                        acumulado = carreira[i][7] - subtracao
+                        if acumulado >= 48:
                             mes_t = carreira[i][0]
-                            mes_i += 1
-                        mes_i -= 1
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "D",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-            
-            # Nível E
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 144
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "E",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 144
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "E",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 144
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 144
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
+                            mes_i = 12 + 6 + meses_adicionais  # 12 meses base + 6 meses verificados + meses adicionais
+                            break
+                    
                     anos = mes_t // 12
                     resto = mes_t % 12
                     resultado_niveis.append({
-                        "Nível": "E",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível F
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 192
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "F",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 192
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "F",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 192
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 192
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "F",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-            
-            # Nível G
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 240
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "G",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 240
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "G",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 240
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 240
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "G",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível H
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 288
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "H",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 288
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "H",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 288
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 288
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "H",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível I
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 336
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "I",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 336
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "I",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 336
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 336
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "I",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível J
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 384
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "J",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 384
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "J",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 384
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 384
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "J",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível K
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 432
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "K",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 432
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "K",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 432
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 432
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "K",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível L
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 480
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "L",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 480
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "L",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 480
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 480
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "L",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível M
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 528
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "M",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 528
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "M",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 528
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 528
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "M",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível N
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 576
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "N",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 576
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "N",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 576
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 576
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "N",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível O
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 624
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "O",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 624
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "O",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 624
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 624
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "O",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível P
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 672
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "P",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 672
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "P",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 672
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 672
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "P",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível Q
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 720
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "Q",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 720
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "Q",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 720
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 720
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "Q",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível R
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 768
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "R",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 768
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "R",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 768
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 768
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "R",
-                        "Mês Alcançado": mes_t,
-                        "Tempo Entre Níveis (meses)": mes_i,
-                        "Total": f"{anos} ano(s) {resto} mês(es)"
-                    })
-
-            # Nível S
-            mes_i = 12
-            mes_t += 12
-            acumulado = carreira[mes_t-1][7] - 816
-
-            if acumulado >= 96:
-                anos = mes_t // 12
-                resto = mes_t % 12
-                resultado_niveis.append({
-                    "Nível": "S",
-                    "Mês Alcançado": mes_t,
-                    "Tempo Entre Níveis (meses)": mes_i,
-                    "Total": f"{anos} ano(s) {resto} mês(es)"
-                })
-            else:
-                for _ in range(6):  # mês 13 até 18
-                    mes_i += 1
-                    mes_t += 1
-                    acumulado = carreira[mes_t-1][7] - 816
-                    if acumulado >= 96:
-                        anos = mes_t // 12
-                        resto = mes_t % 12
-                        resultado_niveis.append({
-                            "Nível": "S",
-                            "Mês Alcançado": mes_t,
-                            "Tempo Entre Níveis (meses)": mes_i,
-                            "Total": f"{anos} ano(s) {resto} mês(es)"
-                        })
-                        break
-                else:
-                    # se não encontrou dentro de 6 meses, entra em loop até atingir 48
-                    i = mes_t - 1
-                    acumulado = carreira[i][7] - 816
-                    while acumulado < 48:
-                        acumulado = carreira[i][7] - 816
-                        mes_t = carreira[i][0]
-                        i += 1
-                        mes_i += 1
-
-                    mes_i -= 1
-                    anos = mes_t // 12
-                    resto = mes_t % 12
-                    resultado_niveis.append({
-                        "Nível": "S",
+                        "Nível": letra,
                         "Mês Alcançado": mes_t,
                         "Tempo Entre Níveis (meses)": mes_i,
                         "Total": f"{anos} ano(s) {resto} mês(es)"
@@ -1355,4 +575,3 @@ with tab4:
 
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
-
