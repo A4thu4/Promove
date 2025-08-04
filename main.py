@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="Simulador4", layout="wide")
+st.set_page_config(page_title="Simulador PROMOVE-GNCP", layout="wide")
 st.title("Simulador PROMOVE")
 
 carreira = [[0 for _ in range(10)] for _ in range(721)]
