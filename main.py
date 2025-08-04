@@ -428,7 +428,7 @@ for i in range(721):
     carreira[i][3] = pts_aperfeicoamento / 24
     mes_t += 1
 
-for i in range(qntd_meses_comissao):
+for i in range(qntd_meses_comissao if qntd_meses_comissao != 0 else qntd_meses_funcao):
     carreira[i][6] = pts_responsabilidade_mensais
 
 carreira[0][6] = pts_resp_inical + pts_responsabilidade_mensais
