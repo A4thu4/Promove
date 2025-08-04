@@ -458,11 +458,6 @@ with tab4:
     if st.button("Calcular", type='primary'):
         try:
 
-            print("Calculando...")
-            for linha in carreira:
-                print(" | ".join(f"{valor:10.4f}" for valor in linha))
-
-
             # Nível A
             resultado_niveis.append({
                 "Nível": "A",
