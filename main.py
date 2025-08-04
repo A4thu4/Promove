@@ -5,7 +5,109 @@ from dateutil.relativedelta import relativedelta
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 st.set_page_config(page_title="Simulador PROMOVE-GNCP", layout="wide")
-st.title("Simulador PROMOVE")
+st.markdown(
+        """
+        <style>
+            img {
+                margin-top: -3rem !important;
+                margin-bottom: -1.2rem !important;
+                align: center !important;
+            }
+            h1 {
+                font-size: 2.12rem !important;
+                margin-bottom: 1rem !important;
+                margin-left: 1.6rem !important;
+            }
+            :root {
+                --primary-color: #1bb50b !important;  /* Verde */
+                --background-color: #FFFFFF !important;  /* Branco */
+                --secondary-background-color: #FFFFFF !important;  /* Branco */
+                --text-color: #000000 !important;  /* Preto */
+            }
+
+            /* Aplica cinza SOMENTE nos inputs */
+            .stTextInput>div>div>input,
+            .stNumberInput>div>div>input,
+            .stTextArea>div>div>textarea,
+            .stSelectbox>div>div>select,
+            .stDateInput>div>div>input {
+                background-color: #F3F3F3 !important;  /* Cinza claro */
+                border-radius: 8px !important;
+            }
+
+            /* Mantém fundo branco em outros containers */
+            .stApp, .stSidebar, .stAlert, .stMarkdown {
+                background-color: #FFFFFF !important;
+            }
+
+            /* Estilo para botões */
+            .stButton > button {
+                border-radius: 8px !important;
+                border: 1px solid #e0e0e0 !important;
+                transition: all 0.3s ease !important;
+                font-weight: 500 !important;
+                color: #ff666f !important;
+            }
+
+            .stButton > button:hover {
+                background: linear-gradient(135deg, #FFF, #FFF) !important;
+                color: #ff666f !important; /* texto verde */
+                border: 2px solid #ff666f !important; /* borda verde */
+                box-shadow: 0 2px 8px rgba(27,181,11,0.15) !important; /* sombra suave */
+                transform: translateY(-2px) scale(1.03) !important; /* leve efeito de elevação */
+                transition: all 0.2s !important;
+            }
+
+            /* Estilo para botões primários e de Download*/
+            .stButton > button[kind="primary"],
+            .stDownloadButton > button {
+                background: linear-gradient(135deg, #FFF, #FFF) !important;
+                border-radius: 10px !important;
+                color: green !important;
+            }
+            .stButton > button[kind="primary"]:hover,
+            .stDownloadButton > button:hover {
+                background: linear-gradient(135deg, #FFF, #FFF) !important;
+                color: #1bb50b !important; /* texto verde */
+                border: 2px solid #1bb50b !important; /* borda verde */
+                box-shadow: 0 2px 8px rgba(27,181,11,0.15) !important; /* sombra suave */
+                transform: translateY(-2px) scale(1.03) !important; /* leve efeito de elevação */
+                transition: all 0.2s !important;
+            }
+
+            /* Estilo para DataFrames */
+            .stDataFrame {
+                border-radius: 8px !important;
+                border: 1px solid #e0e0e0 !important;
+                overflow: hidden !important;
+            }
+
+            /* Estilo para as abas */
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 10px;
+            }
+            
+            /* Linha da aba ativa */
+            div[data-baseweb="tab-highlight"] {
+                background-color: #1bb50b; 
+            }
+            .stTabs [aria-selected="false"] {
+                color: #000000 !important;
+            }
+            .stTabs [aria-selected="true"] {
+                color: #1bb50b !important;
+            }
+
+            /* Estilo para file uploader */
+            .stFileUploader {
+                border: 2px dashed #e0e0e0 !important;
+                border-radius: 8px !important;
+                padding: 8px !important;
+                text-align: center !important;
+            }
+        </style>
+        """,unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Simulador PROMOVE</h1>", unsafe_allow_html=True)
 
 carreira = [[0 for _ in range(10)] for _ in range(721)]
 
