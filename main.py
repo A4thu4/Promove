@@ -3,8 +3,11 @@ import pandas as pd
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
 
+MIN_DATE = datetime(2000, 1, 1)
+MAX_DATE = datetime(2050, 12, 31)
+
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="Simulador PROMOVE-GNCP", layout="wide")
+st.set_page_config(page_title="Simulador4", layout="wide")
 st.markdown(
         """
         <style>
@@ -118,11 +121,11 @@ tab1, tab2, tab3, tab4 = st.tabs(["**Critérios Obrigatórios**", "**Titulação
 with tab1:
     col1, col2 = st.columns(2)
     with col1:
-        tempo_exercicio = st.date_input("Inicio do Tempo de Efetivo Exercício", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+        tempo_exercicio = st.date_input("Inicio do Efetivo Exercício", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=datetime.now().date())
 
     # Calcular o tempo de exercício em meses
     if tempo_exercicio:
-        data_atual = datetime.now().date()  # Data atual
+        data_atual = datetime.now().date() # Data atual
         if tempo_exercicio <= data_atual:
             delta = relativedelta(data_atual, tempo_exercicio)
             qntd_meses_tee = delta.years * 12 + delta.months
@@ -159,28 +162,27 @@ with tab2:
     if graduacao > 0:
         with st.expander("Data(s) de Conclusão(s)", expanded=True):
             for i in range(1,graduacao+1):
-                datas_tit[f"grad_{i}"] = st.date_input(f"Data de Conclusão da Graduação {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"grad_{i}")  
+                datas_tit[f"grad_{i}"] = st.date_input(f"Data de Conclusão da Graduação {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"grad_{i}")  
     
     especializacao = st.number_input("Especialização", min_value=0, key="especializacao")
     if especializacao > 0:
         with st.expander("Data(s) de Conclusão(s)", expanded=True):
             for i in range(1,especializacao+1):
-                datas_tit[f"esp_{i}"] = st.date_input(f"Data de Conclusão da Especializacao {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"esp_{i}")
+                datas_tit[f"esp_{i}"] = st.date_input(f"Data de Conclusão da Especializacao {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"esp_{i}")
     
     mestrado = st.number_input("Mestrado", min_value=0, key="mestrado")
     if mestrado > 0:
         with st.expander("Data(s) de Conclusão(s)", expanded=True):
             for i in range(1,mestrado+1):
-                datas_tit[f"mest_{i}"] = st.date_input(f"Data de Conclusão do Mestrado {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"mest_{i}")
+                datas_tit[f"mest_{i}"] = st.date_input(f"Data de Conclusão do Mestrado {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"mest_{i}")
     
     doutorado = st.number_input("Doutorado", min_value=0, key="doutorado")
     if doutorado > 0:
         with st.expander("Data(s) de Conclusão(s)", expanded=True):
             for i in range(1,doutorado+1):
-                datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"doc_{i}")
+                datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"doc_{i}")
 
     pts_titulacao = (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48)
-
 
     if pts_titulacao >= 144:
         pts_titulacao = 144
@@ -196,6 +198,8 @@ with tab3:
             col1,col2 = st.columns(2)
             with col1:
                 cargo_comissao_5 = st.selectbox("Exercício em Cargo de Comissão", ["Nenhuma", "AE-1","AE-2","AEG","DAI-1","DAI-2","DAI-3","DAID-1","DAID-2","DAID-3","DAID-4","DAID-5","DAID-6","DAID-7","DAID-8","DAID-9","DAID-10","DAID-11","DAID-12","DAID-13","DAID-14","DAID-1A","DAID-1B","DAS-1","DAS-2","DAS-3","DAS-4","DAS-5","DAS-6","DAS-7"], key="cargo_5anos")
+            with col2:
+                tmp_comissao_5 = st.number_input("Quantidade de Meses em Cargo",  min_value=0, key="meses_cargo_5anos")
 
             if cargo_comissao_5 == "Nenhuma":
                 pts_comissao_5 = 0
@@ -210,8 +214,12 @@ with tab3:
             elif cargo_comissao_5 in ["DAI-2", "DAI-3", "DAID-4", "DAID-5", "DAID-6", "DAID-7", "DAID-8", "DAID-9", "DAID-10", "DAID-11", "DAID-12", "DAID-13", "DAID-14"]:
                 pts_comissao_5 =  0.500
 
-            with col2:
+
+            col1,col2 = st.columns(2)
+            with col1:
                 funcao_comissionada_5 = st.selectbox("Exercício de Função Comissionada ou Gratificada",["Nenhuma", "até R$ 750,00","R$ 751,00 a R$ 1.200,00","R$ 1.201,00 a R$ 1.650,00","R$ 1.651,00 a R$ 2.250,00","acima de 2.250,00"], key="comissao_5anos")
+            with col2:
+                tmp_func_comissionada_5 = st.number_input("Quantidade de Meses em Função",  min_value=0, key="meses_funcao_5anos")
 
             if funcao_comissionada_5 == "Nenhuma":
                 pts_func_comissionada_5 = 0
@@ -226,8 +234,52 @@ with tab3:
             elif funcao_comissionada_5 == "acima de 2.250,00":
                 pts_func_comissionada_5 = 0.500
 
-    pts_resp_inical_mes = pts_comissao_5 + pts_func_comissionada_5
-    pts_resp_inical = pts_resp_inical_mes * 60
+            col1,col2 = st.columns(2)
+            with col1:
+                sn_func_designada_5 = st.selectbox("Exercício de Função Designada", ["Nenhuma", "Sim"], key="designada_5anos")
+            with col2:
+                func_designada_5 = st.number_input("Quantidade de Meses em Exercício de Função Designada", min_value=0, key="funcao_designada_5anos")
+
+            col1,col2 = st.columns(2)
+            with col1:
+                atuacao_agente_5 = st.selectbox("Agente de Contratação, Gestor/Fiscal de Contratos/Convênios",["Nenhum","I","II","III","IV","V"], key="agente_5anos")
+            with col2:
+                tmp_atuacao_agente_5 = st.number_input("Quantidade de Meses em Atuação", min_value=0, key="meses_agente_5anos")
+
+            if atuacao_agente_5 == "Nenhum":
+                pts_agente_5 = 0
+            elif atuacao_agente_5 == "I":
+                pts_agente_5 = 0.333
+            elif atuacao_agente_5 == "II":
+                pts_agente_5 = 0.364
+            elif atuacao_agente_5 == "III":
+                pts_agente_5 = 0.400
+            elif atuacao_agente_5 == "IV":
+                pts_agente_5 = 0.444
+            elif atuacao_agente_5 == "V":
+                pts_agente_5 = 0.500
+
+            col1,col2 = st.columns(2)
+            with col1:
+                atuacao_conselho_5 = st.selectbox("Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", ["Nenhum", "Sim"], key="conselho_5anos")
+            with col2:
+                tmp_atuacao_conselho_5 = st.number_input("Quantidade de Meses de Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", min_value=0, key="meses_conselho_5anos")
+
+            col1,col2 = st.columns(2)
+            with col1:
+                atuacao_prioritaria_5 = st.selectbox("Atuação Prioritária", ["Nenhuma", "Sim"], key="prioritaria_5anos")
+            with col2:
+                tmp_atuacao_prioritaria_5 = st.number_input("Quantidade de Meses de Atuação Prioritária", min_value=0, key="meses_prioritaria_5anos")
+
+    pts_resp_inical_comissao = pts_comissao_5 * tmp_comissao_5
+    pts_resp_inical_func_comissionada = pts_func_comissionada_5 * tmp_func_comissionada_5
+    pts_resp_inicial_func_designada = func_designada_5 * 0.333 if sn_func_designada_5 == "Sim" else 0
+    pts_resp_inicial_agente = pts_agente_5 * tmp_atuacao_agente_5   
+    pts_resp_inical_conselho = tmp_atuacao_conselho_5 * 0.333 if atuacao_conselho_5 == "Sim" else 0
+    pts_resp_inical_prioritaria = tmp_atuacao_prioritaria_5 * 0.333 if atuacao_prioritaria_5 == "Sim" else 0
+
+    pts_resp_inical_mes = pts_comissao_5 + pts_func_comissionada_5 + (0.333 if sn_func_designada_5 == "Sim" else 0) + pts_agente_5 + (0.333 if atuacao_conselho_5 == "Sim" else 0) + (0.333 if atuacao_prioritaria_5 == "Sim" else 0)
+    pts_resp_inical = pts_resp_inical_comissao + pts_resp_inical_func_comissionada + pts_resp_inicial_func_designada + pts_resp_inicial_agente + pts_resp_inical_conselho + pts_resp_inical_prioritaria
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 
@@ -243,9 +295,9 @@ with tab3:
                 with col1:
                     cargo_comissao = st.selectbox("Cargo de Comissão", ["Nenhum", "AE-1","AE-2","AEG","DAI-1","DAI-2","DAI-3","DAID-1","DAID-2","DAID-3","DAID-4","DAID-5","DAID-6","DAID-7","DAID-8","DAID-9","DAID-10","DAID-11","DAID-12","DAID-13","DAID-14","DAID-1A","DAID-1B","DAS-1","DAS-2","DAS-3","DAS-4","DAS-5","DAS-6","DAS-7"])
                 with col2:
-                    data_inicio_comissao = st.date_input("Data de Inicio no Cargo", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_comissao = st.date_input("Data de Inicio no Cargo", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col3:
-                    data_fim_comissao = st.date_input("Data de Encerramento no Cargo", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_comissao = st.date_input("Data de Encerramento no Cargo", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
 
             qntd_meses_comissao = 0
             pts_comissao = 0
@@ -256,7 +308,7 @@ with tab3:
                 else:
                     st.error("A data de início deve ser anterior ou igual à data de fim.")
                 with col4:
-                    st.number_input("Quantidade de Meses em Cargo",  min_value=0, value=qntd_meses_comissao)
+                    qntd_meses_comissao = st.number_input("Quantidade de Meses em Cargo",  min_value=0, value= "" or qntd_meses_comissao)
                 if cargo_comissao in ["DAS-1", "DAS-2"]:
                     pts_comissao =  1.000
                 elif cargo_comissao in ["DAS-3", "DAS-4"]:
@@ -278,14 +330,15 @@ with tab3:
                 with col1: 
                     funcao_comissionada = st.selectbox("Exercício de Função Comissionada ou Gratificada",["Nenhum","até R$ 750,00","R$ 751,00 a R$ 1.200,00","R$ 1.201,00 a R$ 1.650,00","R$ 1.651,00 a R$ 2.250,00","acima de 2.250,00"])
                 with col2: 
-                    data_inicio_fun_com = st.date_input("Data de Inicio na Função", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_fun_com = st.date_input("Data de Inicio na Função", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col3: 
-                    data_fim_func_com = st.date_input("Data de Encerramento na Função", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_func_com = st.date_input("Data de Encerramento na Função", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
 
                 if data_fim_func_com and data_inicio_fun_com:
                     delta = relativedelta(data_fim_func_com, data_inicio_fun_com)
                     qntd_meses_funcao = delta.years * 12 + delta.months
-                with col4: st.text_input("Quantidade de Meses em Função", value=str(qntd_meses_funcao))
+                with col4: 
+                    qntd_meses_funcao = st.number_input("Quantidade de Meses em Função", value="" or qntd_meses_funcao)
                 if funcao_comissionada == "até R$ 750,00":
                     pts_func_comissionada = 0.333
                 elif funcao_comissionada == "R$ 751,00 a R$ 1.200,00":
@@ -303,15 +356,15 @@ with tab3:
             with st.expander("Exercício de Função Designada"):
                 col1, col2, col3 = st.columns(3)
                 with col1: 
-                    data_inicio_fun_des = st.date_input("Data de Inicio do Exercício de Função Designada", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_fun_des = st.date_input("Data de Inicio do Exercício de Função Designada", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col2: 
-                    data_fim_func_des = st.date_input("Data de Encerramento do Exercício de Função Designada", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_func_des = st.date_input("Data de Encerramento do Exercício de Função Designada", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 qntd_meses_func_des = 0
                 if data_fim_func_des and data_inicio_fun_des:
                     delta = relativedelta(data_fim_func_des, data_inicio_fun_des)
                     qntd_meses_func_des = delta.years * 12 + delta.months
                 with col3: 
-                    st.text_input("Quantidade de Meses em Exercício de Função Designada", value=str(qntd_meses_func_des))
+                    qntd_meses_func_des = st.number_input("Quantidade de Meses em Exercício de Função Designada", value="" or qntd_meses_func_des)
 
             pts_func_designada = qntd_meses_func_des * 0.333
 
@@ -321,16 +374,16 @@ with tab3:
                 with col1: 
                     atuacao_agente = st.selectbox("Agente de Contratação, Gestor/Fiscal de Contratos/Convênios",["Nenhum","I","II","III","IV","V"])
                 with col2: 
-                    data_inicio_atuacao = st.date_input("Data de Inicio na Atuação", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_atuacao = st.date_input("Data de Inicio na Atuação", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col3: 
-                    data_fim_atuacao = st.date_input("Data de Encerramento na Atuação", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_atuacao = st.date_input("Data de Encerramento na Atuação", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 qntd_meses_atuacao = 0
                 if atuacao_agente != "Não Atuou":
                     if data_fim_atuacao and data_inicio_atuacao:
                         delta = relativedelta(data_fim_atuacao, data_inicio_atuacao)
                         qntd_meses_atuacao = delta.years * 12 + delta.months
                 with col4: 
-                    st.text_input("Quantidade de Meses em Atuação", value=str(qntd_meses_atuacao))
+                    qntd_meses_atuacao = st.number_input("Quantidade de Meses em Atuação", value="" or qntd_meses_atuacao)
                 pts_agente = 0
                 if atuacao_agente == "I":
                     pts_agente = 0.333
@@ -349,15 +402,15 @@ with tab3:
             with st.expander("Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho"):
                 col1, col2, col3 = st.columns(3)
                 with col1: 
-                    data_inicio_atuacao_cons = st.date_input("Data de Iniciamento da Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_atuacao_cons = st.date_input("Data de Iniciamento da Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col2: 
-                    data_fim_atuacao_cons = st.date_input("Data de Encerramento da Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_atuacao_cons = st.date_input("Data de Encerramento da Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 qntd_meses_atuacao_conselho = 0
                 if data_fim_atuacao_cons and data_inicio_atuacao_cons:
                     delta = relativedelta(data_fim_atuacao_cons, data_inicio_atuacao_cons)
                     qntd_meses_atuacao_conselho = delta.years * 12 + delta.months
                 with col3: 
-                    st.text_input("Quantidade de Meses de Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", value=str(qntd_meses_atuacao_conselho))
+                    qntd_meses_atuacao_conselho = st.number_input("Quantidade de Meses de Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho", value="" or qntd_meses_atuacao_conselho)
             
             pts_conselho = qntd_meses_atuacao_conselho * 0.333
 
@@ -365,17 +418,17 @@ with tab3:
             with st.expander("Exercício de Atuação Prioritária"):
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    data_inicio_atuacao_priori = st.date_input("Data de Início do Exercício de Atuação Prioritária", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_inicio_atuacao_priori = st.date_input("Data de Início do Exercício de Atuação Prioritária", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 with col2:
-                    data_fim_atuacao_priori = st.date_input("Data de Encerramento do Exercício de Atuação Prioritária", format = "DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+                    data_fim_atuacao_priori = st.date_input("Data de Encerramento do Exercício de Atuação Prioritária", format = "DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE)
                 qntd_meses_atuacao_prioritaria = 0
                 if data_fim_atuacao_priori and data_inicio_atuacao_priori:
                     delta = relativedelta(data_fim_atuacao_priori, data_inicio_atuacao_priori)
                     qntd_meses_atuacao_prioritaria = delta.years * 12 + delta.months
                 with col3: 
-                    st.text_input("Quantidade de Meses em Exercício de Atuação Prioritária", value=str(qntd_meses_atuacao_prioritaria))
+                    qntd_meses_atuacao_prioritaria = st.number_input("Quantidade de Meses em Exercício de Atuação Prioritária", value="" or qntd_meses_atuacao_prioritaria)
 
-            pts_prioritaria = qntd_meses_atuacao_prioritaria *0.333
+            pts_prioritaria = qntd_meses_atuacao_prioritaria * 0.333
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 
@@ -383,48 +436,48 @@ with tab3:
         with sub_tabs[1]:
             #publicação de artigos
             pts_artigos = 0
-            if st.checkbox("Publicação de Artigos Científicos", value=False):
+            if st.checkbox("Quantidade de Artigos Científicos Publicados", value=False):
                 col1,col2 = st.columns(2)
                 with col1: 
-                    qntd_periodicos_nid = st.number_input("Quantidade de Artigos Científicos Completos Publicados em Periódicos NÃO Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value=0)
+                    qntd_periodicos_nid = st.number_input("Artigos Científicos Completos Publicados em Periódicos **NÃO** Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value=0)
                 with col2: 
-                    qntd_periodicos_id = st.number_input("Quantidade de Artigos Científicos Completos Publicados em Periódicos Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value = 0)
+                    qntd_periodicos_id = st.number_input("Artigos Científicos Completos Publicados em Periódicos Indexados em Base de Dados Reconhecidos Nacional ou Internacionalmente, com ISSN",min_value = 0)
                 st.session_state.pts_artigos =  (qntd_periodicos_nid * 0.5) + (qntd_periodicos_id * 4)
 
             #publicação de livros
             pts_livros = 0
-            if st.checkbox("Publicação de Livros e Capítulos",value=False):
+            if st.checkbox("Quantidade de Publicações de Livros e Capítulos",value=False):
                 col1,col2,col3 = st.columns(3)
                 with col1: 
-                    qntd_org_livros = st.number_input("Quantidade de Publicações como 'Organizador de Livro' com Editorial e ISBN",min_value = 0)
+                    qntd_org_livros = st.number_input("Publicações como 'Organizador de Livro' com Editorial e ISBN",min_value = 0)
                 with col2: 
-                    qntd_capitulos = st.number_input("Quantidade de Capitulos Publicados",min_value = 0)
+                    qntd_capitulos = st.number_input("Capitulos Publicados",min_value = 0)
                 with col3: 
-                    qntd_livros_completos = st.number_input("Quantidade de Livros Completos Publicados",min_value = 0)
+                    qntd_livros_completos = st.number_input("Livros Completos Publicados",min_value = 0)
                 st.session_state.pts_livros = (qntd_org_livros * 1) + (qntd_capitulos * 4) + (qntd_livros_completos * 6)
 
             #publicação de pesquisas
             pts_pesquisas = 0
-            if st.checkbox("Publicação de Pesquisas Científicas", value=False):
+            if st.checkbox("Quantidade de Publicações de Pesquisas Científicas", value=False):
                 col1,col2,col3,col4 = st.columns(4)
                 with col1: 
-                    qntd_estadual = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Estadualmente",min_value = 0)
+                    qntd_estadual = st.number_input("Pesquisas Científicas Aprovadas Estadualmente",min_value = 0)
                 with col2: 
-                    qntd_regional = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Regionalmente",min_value = 0)
+                    qntd_regional = st.number_input("Pesquisas Científicas Aprovadas Regionalmente",min_value = 0)
                 with col3: 
-                    qntd_nacional = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Nacionalmente",min_value = 0)
+                    qntd_nacional = st.number_input("Pesquisas Científicas Aprovadas Nacionalmente",min_value = 0)
                 with col4: 
-                    qntd_internacional = st.number_input("Quantidade de Pesquisas Científicas Aprovadas Internacionalmente",min_value = 0)
+                    qntd_internacional = st.number_input("Pesquisas Científicas Aprovadas Internacionalmente",min_value = 0)
                 st.session_state.pts_pesquisas = (qntd_estadual * 1) + (qntd_regional * 3) + (qntd_nacional * 3) + (qntd_internacional * 4)
 
             #registro de patente ou cultivar
             pts_registros = 0
-            if st.checkbox("Registro de Patente ou Cultivar", value=False):
+            if st.checkbox("Quantidade de Registros de Patentes ou Cultivar", value=False):
                 col1,col2 = st.columns(2)
                 with col1: 
-                    qntd_patente = st.number_input("Quantidade de Registros de Patente",min_value = 0)
+                    qntd_patente = st.number_input("Registros de Patente",min_value = 0)
                 with col2: 
-                    qntd_cultivar = st.number_input("Quantidade de Registros de Cultivar",min_value = 0)
+                    qntd_cultivar = st.number_input("Registros de Cultivar",min_value = 0)
                 st.session_state.pts_registros = (qntd_patente * 8) + (qntd_cultivar * 8)
 
             #cursos
@@ -433,7 +486,7 @@ with tab3:
             if st.checkbox("Cursos e Treinamentos", value=False):
                 col1,col2 = st.columns(2)
                 with col1: 
-                    tipo_curso = st.selectbox("Tipo de Curso",["Nenhum","Estágio Pós-Doutoral no Orgão(6 meses)","Pós-Doutorado(6 a 12 meses)","Pós-Doutorado(13 a 24 meses)","Pós-Doutorado(25 a 48 meses)","Pós-Doutorado(maior que 48 meses)"])
+                    tipo_curso = st.selectbox("Tipo de Curso",["Nenhum", "Estágio Pós-Doutoral no Orgão(6 meses)", "Pós-Doutorado(6 a 12 meses)", "Pós-Doutorado(13 a 24 meses)", "Pós-Doutorado(25 a 48 meses)", "Pós-Doutorado(maior que 48 meses)"])
                 pts_doc1 = 0;pts_doc2 = 0;pts_doc3 = 0;pts_doc4 = 0;pts_doc5 = 0
                 if tipo_curso != "Estágio Pós-Doutoral(6 meses)" and tipo_curso != "Nenhum":
                     with col2 : qntd_curso = st.number_input("Quantidade de Meses do Curso", min_value=0)
@@ -479,6 +532,7 @@ carreira[0][6] = pts_resp_inical + pts_responsabilidade_mensais
 
 # Adicionar as titulações nos meses correspondentes
 if 'tempo_exercicio' in locals() and tempo_exercicio:  # Verifica se a variável existe e foi definida
+    pts_distribuidos = 0
     for key, data_conclusao in datas_tit.items():
         # Calcula quantos meses após o início do exercício a titulação foi concluída
         delta = relativedelta(data_conclusao, tempo_exercicio)
@@ -488,14 +542,27 @@ if 'tempo_exercicio' in locals() and tempo_exercicio:  # Verifica se a variável
         idx = min(720, max(0, meses_desde_inicio))  # Limita a 720 meses (60 anos)
         
         # Adiciona os pontos conforme o tipo de titulação
+        pts_tit = 0
         if key.startswith('grad_'):
-            carreira[idx][4] += 6  # Pontos por graduação
+            pts_tit = 6  # Pontos por graduação
         elif key.startswith('esp_'):
-            carreira[idx][4] += 12  # Pontos por especialização
+            pts_tit = 12  # Pontos por especialização
         elif key.startswith('mest_'):
-            carreira[idx][4] += 24  # Pontos por mestrado
+            pts_tit = 24  # Pontos por mestrado
         elif key.startswith('doc_'):
-            carreira[idx][4] += 48  # Pontos por doutorado
+            pts_tit = 48  # Pontos por doutorado
+        
+         # Verifica se ainda podemos adicionar pontos sem ultrapassar o limite
+        if (pts_distribuidos + pts_tit) <= pts_titulacao:
+            carreira[idx][4] += pts_tit
+            pts_distribuidos += pts_tit
+        else:
+            # Adiciona apenas o restante necessário para completar 144 pontos
+            restante = pts_titulacao - pts_distribuidos
+            if restante > 0:
+                carreira[idx][4] += restante
+                pts_distribuidos += restante
+            break
 
 
 carreira[0][5] = pts_responsabilidade_unic
@@ -515,7 +582,7 @@ with tab4:
     col4.metric("Responsabilidade Atual", round(pts_responsabilidade, 4))
     col5.metric("Responsabilidade Unicas", round(pts_responsabilidade_unic, 4))
     col5.metric("Responsabilidade Mensais", round(pts_responsabilidade_mensais, 4))
-    col6.metric("Acumulado", round(carreira[0][7], 4))
+    col6.metric("Acumulado (1° Mês)", round(carreira[0][7], 4))
 
     ##Calculo Acumulado##
     resultado_niveis = []
