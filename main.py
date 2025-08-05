@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="Simulador PROMOVE-GNCP", layout="wide")
+st.set_page_config(page_title="Simulador4", layout="wide")
 st.markdown(
         """
         <style>
@@ -109,14 +109,30 @@ st.markdown(
         """,unsafe_allow_html=True)
 st.markdown("<h1 style='text-align: center;'>Simulador PROMOVE</h1>", unsafe_allow_html=True)
 
-
-carreira = [[0 for _ in range(10)] for _ in range(721)]
+carreira = [[0 for _ in range(10)] for _ in range(721)] # matriz de 721 linhas e 10 colunas
 
 tipo_calculo = "Geral"
 tab1, tab2, tab3, tab4 = st.tabs(["**Critérios Obrigatórios**", "**Titulação Acadêmica**", "**Assunção de Responsabilidades**", "**Pontuação Final**"])
 
 ##Critérios obrigatórios##
 with tab1:
+    col1, col2 = st.columns(2)
+    with col1:
+        tempo_exercicio = st.date_input("Inicio do Tempo de Efetivo Exercício", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date())
+
+    # Calcular o tempo de exercício em meses
+    if tempo_exercicio:
+        data_atual = datetime.now().date()  # Data atual
+        if tempo_exercicio <= data_atual:
+            delta = relativedelta(data_atual, tempo_exercicio)
+            qntd_meses_tee = delta.years * 12 + delta.months
+        else:
+            st.error("A data de início deve ser anterior ou igual à data atual.")
+    else:
+        qntd_meses_tee = 0
+    with col2:
+        st.text_input("Quantidade de Meses em Exercício", value=str(qntd_meses_tee))
+
     pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=7.0, max_value=11.4)
 
     pts_aperfeicoamento = 0
@@ -137,12 +153,34 @@ pts_obrigatorios = (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
 
 with tab2:
     pts_titulacao = 0
+    datas_tit = {}
+
     graduacao = st.number_input("Graduação", min_value=0, key="graduacao")
+    if graduacao > 0:
+        with st.expander("Data(s) de Conclusão(s)", expanded=True):
+            for i in range(1,graduacao+1):
+                datas_tit[f"grad_{i}"] = st.date_input(f"Data de Conclusão da Graduação {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"grad_{i}")  
+    
     especializacao = st.number_input("Especialização", min_value=0, key="especializacao")
+    if especializacao > 0:
+        with st.expander("Data(s) de Conclusão(s)", expanded=True):
+            for i in range(1,especializacao+1):
+                datas_tit[f"esp_{i}"] = st.date_input(f"Data de Conclusão da Especializacao {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"esp_{i}")
+    
     mestrado = st.number_input("Mestrado", min_value=0, key="mestrado")
+    if mestrado > 0:
+        with st.expander("Data(s) de Conclusão(s)", expanded=True):
+            for i in range(1,mestrado+1):
+                datas_tit[f"mest_{i}"] = st.date_input(f"Data de Conclusão do Mestrado {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"mest_{i}")
+    
     doutorado = st.number_input("Doutorado", min_value=0, key="doutorado")
+    if doutorado > 0:
+        with st.expander("Data(s) de Conclusão(s)", expanded=True):
+            for i in range(1,doutorado+1):
+                datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=datetime(1990, 1, 1), max_value=datetime.now().date(), key=f"doc_{i}")
 
     pts_titulacao = (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48)
+
 
     if pts_titulacao >= 144:
         pts_titulacao = 144
@@ -151,6 +189,8 @@ with tab2:
 
 with tab3:
     subtabs = st.tabs(["**Assunção de Responsabilidade dos últimos 5 anos**", "**Assunção de Responsabilidades Atuais**"])
+
+    #rsponsabilidades ultimos 5 anos
     pts_resp_inical = 0
     with subtabs[0]:
             col1,col2 = st.columns(2)
@@ -189,8 +229,12 @@ with tab3:
     pts_resp_inical_mes = pts_comissao_5 + pts_func_comissionada_5
     pts_resp_inical = pts_resp_inical_mes * 60
 
+####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
+
+    #responsabilidades atuais
     with subtabs[1]:
         sub_tabs = st.tabs(["**Responsabilidades Mensais**", "**Responsabilidades Únicas**"])
+        
         pts_responsabilidade_mensais = 0
         with sub_tabs[0]:
             #cargo de comissao
@@ -432,10 +476,30 @@ for i in range(qntd_meses_comissao if qntd_meses_comissao != 0 else qntd_meses_f
     carreira[i][6] = pts_responsabilidade_mensais
 
 carreira[0][6] = pts_resp_inical + pts_responsabilidade_mensais
-carreira[0][4] = pts_titulacao
+
+# Adicionar as titulações nos meses correspondentes
+if 'tempo_exercicio' in locals() and tempo_exercicio:  # Verifica se a variável existe e foi definida
+    for key, data_conclusao in datas_tit.items():
+        # Calcula quantos meses após o início do exercício a titulação foi concluída
+        delta = relativedelta(data_conclusao, tempo_exercicio)
+        meses_desde_inicio = delta.years * 12 + delta.months
+        
+        # Ajusta o índice (0 = mês inicial, 1 = mês seguinte, etc.)
+        idx = min(720, max(0, meses_desde_inicio))  # Limita a 720 meses (60 anos)
+        
+        # Adiciona os pontos conforme o tipo de titulação
+        if key.startswith('grad_'):
+            carreira[idx][4] += 6  # Pontos por graduação
+        elif key.startswith('esp_'):
+            carreira[idx][4] += 12  # Pontos por especialização
+        elif key.startswith('mest_'):
+            carreira[idx][4] += 24  # Pontos por mestrado
+        elif key.startswith('doc_'):
+            carreira[idx][4] += 48  # Pontos por doutorado
+
+
 carreira[0][5] = pts_responsabilidade_unic
-    
-    
+
 
 carreira[0][7] = sum(carreira[0][1:7])
 for i in range(721):
@@ -461,6 +525,60 @@ with tab4:
             print("Calculando...")
             for linha in carreira:
                 print(" | ".join(f"{valor:10.4f}" for valor in linha))
+
+            
+             # Criar DataFrame com todas as colunas
+            df_carreira = pd.DataFrame(carreira, columns=[
+                "Mês",
+                "Pontos Base (0.2)",
+                "Desempenho",
+                "Aperfeiçoamento",
+                "Titulação",
+                "Resp. Únicas",
+                "Resp. Mensais",
+                "Total Acumulado",
+                "Coluna 9",  
+                "Coluna 10"  
+            ])
+            
+            # Arredondar para 4 casas decimais
+            df_carreira = df_carreira.round(4)
+            
+            # Selecionar meses para exibição (primeiros 12 + um por ano após)
+            meses_exibir = list(range(721))
+            df_exibir = df_carreira.iloc[meses_exibir]
+            
+            # Configurar formatação de exibição
+            pd.options.display.float_format = '{:.4f}'.format
+            
+            # Mostrar tabela com colunas selecionadas
+            st.dataframe(
+                df_exibir[[
+                    "Mês",
+                    "Pontos Base (0.2)",
+                    "Desempenho",
+                    "Aperfeiçoamento",
+                    "Titulação",
+                    "Resp. Únicas",
+                    "Resp. Mensais",
+                    "Total Acumulado"
+                ]],
+                height=600,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Mês": st.column_config.NumberColumn(format="%d"),
+                    "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
+                    "Desempenho": st.column_config.NumberColumn(format="%.4f"),
+                    "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
+                    "Titulação": st.column_config.NumberColumn(format="%.4f"),
+                    "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
+                    "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
+                    "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
+                }
+            )
+            
+        
 
             # Nível A (sempre 1 mês)
             resultado_niveis.append({
@@ -575,3 +693,4 @@ with tab4:
 
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
+
