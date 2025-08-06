@@ -158,7 +158,7 @@ with tab2:
     pts_titulacao = 0
     datas_tit = {}
 
-    pts_titulação = st.number_input("Pontuação", min_value=0)
+    pts_titulacao_5 = st.number_input("Pontuação", min_value=0)
 
     graduacao = st.number_input("Graduação", min_value=0, key="graduacao")
     if graduacao > 0:
@@ -184,7 +184,7 @@ with tab2:
             for i in range(1,doutorado+1):
                 datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"doc_{i}")
 
-    pts_titulacao = pts_titulação + (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48) 
+    pts_titulacao = pts_titulacao_5 + (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48) 
 
     if pts_titulacao >= 144:
         pts_titulacao = 144
@@ -573,6 +573,7 @@ for i in range(qntd_meses_comissao if qntd_meses_comissao != 0 else qntd_meses_f
 
 carreira[0][6] = pts_resp_inical + pts_responsabilidade_mensais
 
+carreira[0][4] = pts_titulacao_5
 # Adicionar as titulações nos meses correspondentes
 if 'tempo_exercicio' in locals() and tempo_exercicio:  # Verifica se a variável existe e foi definida
     pts_distribuidos = 0
