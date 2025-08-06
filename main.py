@@ -136,7 +136,7 @@ with tab1:
     with col2:
         st.text_input("Quantidade de Meses em Exercício", value=str(qntd_meses_tee))
 
-    pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=0, max_value=11.4)
+    pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=7.0, max_value=11.4)
 
     pts_aperfeicoamento = 0
     aperfeicoamento = st.number_input("Aperfeiçoamento (Horas Totais)", min_value=0, max_value=100)
