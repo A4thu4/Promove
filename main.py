@@ -7,7 +7,7 @@ MIN_DATE = datetime(2000, 1, 1)
 MAX_DATE = datetime(2050, 12, 31)
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="Simulador4", layout="wide")
+st.set_page_config(page_title="PROMOVE - GNCP", layout="wide")
 st.markdown(
         """
         <style>
