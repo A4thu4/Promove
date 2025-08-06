@@ -139,13 +139,12 @@ with tab1:
     pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=7.0, max_value=11.4)
 
     pts_aperfeicoamento = 0
-    aperfeicoamento = st.number_input("Aperfeiçoamento (Horas Totais)", min_value=60, max_value=100)
+    aperfeicoamento = st.number_input("Aperfeiçoamento (Horas Totais)", min_value=0, max_value=100)
     if aperfeicoamento:
         try:
             aperfeicoamento = int(aperfeicoamento)
             if aperfeicoamento < 60 or aperfeicoamento > 100:
-                st.error("Valor Minimo = 60.")
-                
+                st.error("Valores para pontuação 60 - 100.")
             else:
                 pts_aperfeicoamento = aperfeicoamento * 0.09
         except ValueError:
