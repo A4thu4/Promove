@@ -7,7 +7,7 @@ MIN_DATE = datetime(2000, 1, 1)
 MAX_DATE = datetime(2050, 12, 31)
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-st.set_page_config(page_title="PROMOVE - GNCP", layout="wide")
+st.set_page_config(page_title="Simulador4", layout="wide")
 st.markdown(
         """
         <style>
@@ -139,12 +139,13 @@ with tab1:
     pts_desempenho = st.number_input("Avaliação de Desempenho Individual", min_value=7.0, max_value=11.4)
 
     pts_aperfeicoamento = 0
-    aperfeicoamento = st.text_input("Aperfeiçoamento (Horas Totais)")
+    aperfeicoamento = st.number_input("Aperfeiçoamento (Horas Totais)", min_value=60, max_value=100)
     if aperfeicoamento:
         try:
             aperfeicoamento = int(aperfeicoamento)
             if aperfeicoamento < 60 or aperfeicoamento > 100:
-                st.error("Valor Inválido.")
+                st.error("Valor Minimo = 60.")
+                
             else:
                 pts_aperfeicoamento = aperfeicoamento * 0.09
         except ValueError:
@@ -157,6 +158,8 @@ pts_obrigatorios = (pts_desempenho / 6) + (pts_aperfeicoamento / 24)
 with tab2:
     pts_titulacao = 0
     datas_tit = {}
+
+    pts_titulação = st.number_input("Pontuação", min_value=0)
 
     graduacao = st.number_input("Graduação", min_value=0, key="graduacao")
     if graduacao > 0:
@@ -182,7 +185,7 @@ with tab2:
             for i in range(1,doutorado+1):
                 datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"doc_{i}")
 
-    pts_titulacao = (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48)
+    pts_titulacao = pts_titulação + (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48) 
 
     if pts_titulacao >= 144:
         pts_titulacao = 144
@@ -554,6 +557,8 @@ with tab3:
     pts_responsabilidade =  pts_comissao_total + pts_func_comissionada_total + pts_func_designada + pts_agente_total + pts_conselho + pts_prioritaria + pts_artigos + pts_livros + pts_pesquisas + pts_registros + pts_cursos
     if pts_responsabilidade >= 144: pts_responsabilidade = 144
 
+    pts_resp_total = pts_responsabilidade + pts_resp_inical
+
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 
 mes_t = 1
@@ -619,6 +624,7 @@ with tab4:
     col3.metric("Responsabilidade Inicial (5 anos)", round(pts_resp_inical, 4))
     col3.metric("Responsabilidade Mensal", round(pts_resp_inical_mes, 4))
     col4.metric("Responsabilidade Atual", round(pts_responsabilidade, 4))
+    col6.metric("Responsabilidade TOTAL", round(pts_resp_total, 4))
     col5.metric("Responsabilidade Unicas", round(pts_responsabilidade_unic, 4))
     col5.metric("Responsabilidade Mensais", round(pts_responsabilidade_mensais, 4))
     col6.metric("Acumulado (1° Mês)", round(carreira[0][7], 4))
@@ -627,8 +633,12 @@ with tab4:
     resultado_niveis = []
     if st.button("Calcular", type='primary'):
         try:
-            
-             # Criar DataFrame com todas as colunas
+
+            print("Calculando...")
+            for linha in carreira:
+                print(" | ".join(f"{valor:10.4f}" for valor in linha))
+
+            # Criar DataFrame com todas as colunas
             df_carreira = pd.DataFrame(carreira, columns=[
                 "Mês",
                 "Pontos Base (0.2)",
@@ -794,5 +804,4 @@ with tab4:
 
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
-
 
