@@ -689,7 +689,8 @@ with tab4:
 
             # Nível A (sempre 1 mês)
             resultado_niveis.append({
-                "Nível": "A  |  Início",
+                "Nível": "A",
+                "Evolução": "Início",
                 "Mês Alcançado": 1,
                 "Tempo Entre Níveis (meses)": 1,
                 "Total": "1 mês"
@@ -697,24 +698,24 @@ with tab4:
 
             # Dados dos níveis subsequentes
             niveis = [
-                {"letra": "B  |  1° Evolução", "subtracao": 0},
-                {"letra": "C  |  2° Evolução", "subtracao": 48},
-                {"letra": "D  |  3° Evolução", "subtracao": 96},
-                {"letra": "E  |  4° Evolução", "subtracao": 144},
-                {"letra": "F  |  5° Evolução", "subtracao": 192},
-                {"letra": "G  |  6° Evolução", "subtracao": 240},
-                {"letra": "H  |  7° Evolução", "subtracao": 288},
-                {"letra": "I  |  8° Evolução", "subtracao": 336},
-                {"letra": "J  |  9° Evolução", "subtracao": 384},
-                {"letra": "K  |  10° Evolução", "subtracao": 432},
-                {"letra": "L  |  11° Evolução", "subtracao": 480},
-                {"letra": "M  |  12° Evolução", "subtracao": 528},
-                {"letra": "N  |  13° Evolução", "subtracao": 576},
-                {"letra": "O  |  14° Evolução", "subtracao": 624},
-                {"letra": "P  |  15° Evolução", "subtracao": 672},
-                {"letra": "Q  |  16° Evolução", "subtracao": 720},
-                {"letra": "R  |  17° Evolução", "subtracao": 768},
-                {"letra": "S  |  18° Evolução", "subtracao": 816}
+                {"letra": "B",  "evolucao": "1° Evolução", "subtracao": 0},
+                {"letra": "C",  "evolucao": "2° Evolução", "subtracao": 48},
+                {"letra": "D",  "evolucao": "3° Evolução", "subtracao": 96},
+                {"letra": "E",  "evolucao": "4° Evolução", "subtracao": 144},
+                {"letra": "F",  "evolucao": "5° Evolução", "subtracao": 192},
+                {"letra": "G",  "evolucao": "6° Evolução", "subtracao": 240},
+                {"letra": "H",  "evolucao": "7° Evolução", "subtracao": 288},
+                {"letra": "I",  "evolucao": "8° Evolução", "subtracao": 336},
+                {"letra": "J",  "evolucao": "9° Evolução", "subtracao": 384},
+                {"letra": "K",  "evolucao": "10° Evolução", "subtracao": 432},
+                {"letra": "L",  "evolucao": "11° Evolução", "subtracao": 480},
+                {"letra": "M",  "evolucao": "12° Evolução", "subtracao": 528},
+                {"letra": "N",  "evolucao": "13° Evolução", "subtracao": 576},
+                {"letra": "O",  "evolucao": "14° Evolução", "subtracao": 624},
+                {"letra": "P",  "evolucao": "15° Evolução", "subtracao": 672},
+                {"letra": "Q",  "evolucao": "16° Evolução", "subtracao": 720},
+                {"letra": "R",  "evolucao": "17° Evolução", "subtracao": 768},
+                {"letra": "S",  "evolucao": "18° Evolução", "subtracao": 816}
             ]
 
             mes_t = 12  # Começa no mês 12 para o nível B
@@ -723,6 +724,7 @@ with tab4:
             for nivel in niveis:
                 letra = nivel["letra"]
                 subtracao = nivel["subtracao"]
+                evolucao = nivel["evolucao"]
                 
                 if letra != "B":
                     mes_i = 12
@@ -735,6 +737,7 @@ with tab4:
                     resto = mes_t % 12
                     resultado_niveis.append({
                         "Nível": letra,
+                        "Evolução": evolucao,
                         "Mês Alcançado": mes_t,
                         "Tempo Entre Níveis (meses)": mes_i,
                         "Total": f"{anos} ano(s) {resto} mês(es)"
@@ -753,6 +756,7 @@ with tab4:
                         resto = mes_t % 12
                         resultado_niveis.append({
                             "Nível": letra,
+                            "Evolução": evolucao,
                             "Mês Alcançado": mes_t,
                             "Tempo Entre Níveis (meses)": mes_i,
                             "Total": f"{anos} ano(s) {resto} mês(es)"
@@ -769,6 +773,7 @@ with tab4:
                     resto = mes_t % 12
                     resultado_niveis.append({
                         "Nível": letra,
+                        "Evolução": evolucao,
                         "Mês Alcançado": mes_t,
                         "Tempo Entre Níveis (meses)": mes_i,
                         "Total": f"{anos} ano(s) {resto} mês(es)"
@@ -789,6 +794,7 @@ with tab4:
                     resto = mes_t % 12
                     resultado_niveis.append({
                         "Nível": letra,
+                        "Evolução": evolucao,
                         "Mês Alcançado": mes_t,
                         "Tempo Entre Níveis (meses)": mes_i,
                         "Total": f"{anos} ano(s) {resto} mês(es)"
@@ -797,7 +803,7 @@ with tab4:
             df_resultados = pd.DataFrame(resultado_niveis)
             st.subheader("Resumo dos Níveis")
             st.dataframe(df_resultados.head(20), hide_index=True, height=700)
-
+            
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
 
