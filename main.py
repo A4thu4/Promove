@@ -627,11 +627,6 @@ with tab4:
     resultado_niveis = []
     if st.button("Calcular", type='primary'):
         try:
-
-            print("Calculando...")
-            for linha in carreira:
-                print(" | ".join(f"{valor:10.4f}" for valor in linha))
-
             
              # Criar DataFrame com todas as colunas
             df_carreira = pd.DataFrame(carreira, columns=[
