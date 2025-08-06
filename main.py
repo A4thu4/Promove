@@ -158,7 +158,7 @@ with tab2:
     pts_titulacao = 0
     datas_tit = {}
 
-    pts_titulacao_5 = st.number_input("Pontuação", min_value=0)
+    pts_titulacao_5 = st.number_input("Pontuação (5 anos)", min_value=0)
 
     graduacao = st.number_input("Graduação", min_value=0, key="graduacao")
     if graduacao > 0:
