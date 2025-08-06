@@ -634,56 +634,56 @@ with tab4:
     if st.button("Calcular", type='primary'):
         try:
 
-            # Criar DataFrame com todas as colunas
-            df_carreira = pd.DataFrame(carreira, columns=[
-                "Mês",
-                "Pontos Base (0.2)",
-                "Desempenho",
-                "Aperfeiçoamento",
-                "Titulação",
-                "Resp. Únicas",
-                "Resp. Mensais",
-                "Total Acumulado",
-                "Coluna 9",  
-                "Coluna 10"  
-            ])
+            # # Criar DataFrame com todas as colunas
+            # df_carreira = pd.DataFrame(carreira, columns=[
+            #     "Mês",
+            #     "Pontos Base (0.2)",
+            #     "Desempenho",
+            #     "Aperfeiçoamento",
+            #     "Titulação",
+            #     "Resp. Únicas",
+            #     "Resp. Mensais",
+            #     "Total Acumulado",
+            #     "Coluna 9",  
+            #     "Coluna 10"  
+            # ])
             
-            # Arredondar para 4 casas decimais
-            df_carreira = df_carreira.round(4)
+            # # Arredondar para 4 casas decimais
+            # df_carreira = df_carreira.round(4)
             
-            # Selecionar meses para exibição (primeiros 12 + um por ano após)
-            meses_exibir = list(range(721))
-            df_exibir = df_carreira.iloc[meses_exibir]
+            # # Selecionar meses para exibição (primeiros 12 + um por ano após)
+            # meses_exibir = list(range(721))
+            # df_exibir = df_carreira.iloc[meses_exibir]
             
-            # Configurar formatação de exibição
-            pd.options.display.float_format = '{:.4f}'.format
+            # # Configurar formatação de exibição
+            # pd.options.display.float_format = '{:.4f}'.format
             
-            # Mostrar tabela com colunas selecionadas
-            st.dataframe(
-                df_exibir[[
-                    "Mês",
-                    "Pontos Base (0.2)",
-                    "Desempenho",
-                    "Aperfeiçoamento",
-                    "Titulação",
-                    "Resp. Únicas",
-                    "Resp. Mensais",
-                    "Total Acumulado"
-                ]],
-                height=600,
-                use_container_width=True,
-                hide_index=True,
-                column_config={
-                    "Mês": st.column_config.NumberColumn(format="%d"),
-                    "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
-                    "Desempenho": st.column_config.NumberColumn(format="%.4f"),
-                    "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
-                    "Titulação": st.column_config.NumberColumn(format="%.4f"),
-                    "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
-                    "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
-                    "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
-                }
-            )
+            # # Mostrar tabela com colunas selecionadas
+            # st.dataframe(
+            #     df_exibir[[
+            #         "Mês",
+            #         "Pontos Base (0.2)",
+            #         "Desempenho",
+            #         "Aperfeiçoamento",
+            #         "Titulação",
+            #         "Resp. Únicas",
+            #         "Resp. Mensais",
+            #         "Total Acumulado"
+            #     ]],
+            #     height=600,
+            #     use_container_width=True,
+            #     hide_index=True,
+            #     column_config={
+            #         "Mês": st.column_config.NumberColumn(format="%d"),
+            #         "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
+            #         "Desempenho": st.column_config.NumberColumn(format="%.4f"),
+            #         "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
+            #         "Titulação": st.column_config.NumberColumn(format="%.4f"),
+            #         "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
+            #         "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
+            #         "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
+            #     }
+            # )
             
         
 
@@ -803,7 +803,7 @@ with tab4:
             df_resultados = pd.DataFrame(resultado_niveis)
             st.subheader("Resumo dos Níveis")
             st.dataframe(df_resultados.head(20), hide_index=True, height=700)
-            
+
         except Exception as e:
             st.error(f"Erro ao calcular: {e}")
 
