@@ -776,7 +776,7 @@ with tab4:
             pd.options.display.float_format = '{:.4f}'.format
             
             # Mostrar tabela com colunas selecionadas
-            st.markdown("Matriz de Controle")
+            st.subheader("Matriz de Controle")
             st.dataframe(
                 df_exibir[[
                     "Mês",
