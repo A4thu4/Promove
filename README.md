@@ -35,7 +35,7 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 
 ```bash
 git clone https://github.com/A4thu4/Promove.git
-cd promove4
+cd Promove
 ```
 
 2. Crie o ambiente virtual:
