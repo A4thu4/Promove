@@ -164,7 +164,7 @@ if st.session_state.afastamentos:
         col = cols[i % 6]  # escolhe a coluna certa
         with col:
             st.write(f"{mes.strftime('%m/%Y')} → {faltas} falta(s) |")
-            if st.button(f"Remover", key=f"remover_afast{i}"):
+            if st.button(f"Remover", key=f"remover_afast{i}", type='primary'):
                 st.session_state.afastamentos.pop(i)
                 st.rerun()    
 
@@ -220,7 +220,7 @@ with col1:
 with col2:
     horas_curso = st.number_input("Horas do Curso", min_value=0, step=1, key="hrs_aperf")
 with col3:
-    if st.button("Adicionar", key="aperf"):
+    if st.button("Adicionar", key="aperf", type='primary'):
         if data_conclusao:
             st.session_state.aperfeicoamentos.append((data_conclusao, horas_curso))
 
@@ -287,7 +287,7 @@ with col2:
     tipo_tit = st.selectbox("Tipo", list(valores_tit.keys()))
     
 with col3:
-    if st.button("Adicionar", key="tit"):
+    if st.button("Adicionar", key="tit", type='primary'):
         if data_conclusao_tit:
             st.session_state.titulacoes.append((data_conclusao_tit, tipo_tit))
 
@@ -335,7 +335,7 @@ with col1:
 with col2:
     pontos_resp_unic = st.number_input("Pontos Responsabilidades", min_value=0, key="pts_ru")
 with col3:
-    if st.button("Adicionar", key="resp_uni"):
+    if st.button("Adicionar", key="resp_uni", type='primary'):
         if data_resp_unic and pontos_resp_unic > 0:
             st.session_state.resp_unicas.append((data_resp_unic, pontos_resp_unic))
 
@@ -394,7 +394,7 @@ with col2:
 with col3:
     qntd_meses_resp_m = st.number_input("Quantidade de Meses", min_value=0, key="qntd_rm")
 with col4:
-    if st.button("Adicionar", key="resp_mes"):
+    if st.button("Adicionar", key="resp_mes", type='primary'):
         if data_resp_mensal and pontos_resp_mensal > 0 and qntd_meses_resp_m > 0:
             st.session_state.resp_mensais.append((data_resp_mensal, pontos_resp_mensal, qntd_meses_resp_m))
 
