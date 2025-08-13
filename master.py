@@ -152,7 +152,7 @@ with col1:
 with col2:
     faltas_novo = st.number_input("Faltas", min_value=0, step=1, key="qntd_afast")
 with col3:
-    if st.button("Adicionar", key="afast"):
+    if st.button("Adicionar", key="afast", type='primary'):
         if faltas_novo > 0:
             st.session_state.afastamentos.append((mes_novo, faltas_novo))
 
