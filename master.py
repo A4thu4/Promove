@@ -312,7 +312,7 @@ col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 with col1:
     data_resp_mensal = st.date_input("Data de Início", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="m_resp_mes")
 with col2:
-    pontos_resp_mensal = st.number_input("Pontos de Responsabilidade", min_value=0.0000, key="pts_rm")
+    pontos_resp_mensal = st.number_input("Pontos de Responsabilidade p/Mês", min_value=0.0000, key="pts_rm")
 with col3:
     qntd_meses_resp_m = st.number_input("Quantidade de Meses", min_value=0, key="qntd_rm")
 with col4:
