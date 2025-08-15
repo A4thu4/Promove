@@ -368,9 +368,9 @@ for resp in responsabilidades_mensais:
 
 for i in range(DATA_CONCLUSAO):
     if i == 0 and pts_remanescentes > 0:
-        carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + (carreira[i][5]/24) + carreira[i][6] + carreira[i][7] + carreira[i][8] + pts_remanescentes 
+        carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] + pts_remanescentes 
     else:
-        carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + (carreira[i][5]/24) + carreira[i][6] + carreira[i][7] + carreira[i][8] 
+        carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] 
 ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- DATAFRAME DE CONTROLE ---------- ###
