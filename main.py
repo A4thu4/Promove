@@ -549,7 +549,7 @@ with tab3:
     pts_registros = st.session_state.pts_registros if 'pts_registros' in st.session_state else 0
     pts_cursos = st.session_state.pts_cursos if 'pts_cursos' in st.session_state else 0
 
-    pts_responsabilidade_unic = pts_artigos + pts_livros + pts_pesquisas + pts_registros + pts_cursos + pts_conselho + pts_prioritaria
+    pts_responsabilidade_unic = pts_artigos + pts_livros + pts_pesquisas + pts_registros + pts_cursos 
     if pts_responsabilidade_unic >= 144: pts_responsabilidade_unic = 144
     
     pts_responsabilidade_mensais = pts_comissao + pts_func_comissionada + pts_func_designada + pts_agente + pts_conselho + pts_prioritaria
