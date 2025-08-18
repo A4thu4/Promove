@@ -464,17 +464,42 @@ for i in range(DATA_CONCLUSAO):
             meses_ate_evolucao = meses_passados
             break
 
+diff = relativedelta(evolucao, data_inicial)
+qtd_meses = diff.years * 12 + diff.months
+desempenho = aperfeicoamento = 0
+for linha in carreira:
+    data = linha[0]
+    if data <= evolucao:
+        desempenho += linha[2] 
+        aperfeicoamento += linha[5]
+
+col = st.columns(2)
+col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
+col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
+
 pts_evo = pontos
 pts_resto = pts_evo - 48
 
-if evolucao:
+pendencias = False
+if round(aperfeicoamento, 4) < 5.4:
+    resto_hr_a = 60 - horas_curso
+    resto_a = 5.4 - round(aperfeicoamento, 4)
+    st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 60 horas de curso ou 5,4 pontos do requisito Aperfeiçoamento. Faltam {resto_hr_a} horas de curso ou {round(resto_a, 4)} pontos.")
+    pendencias = True
+
+if round(desempenho, 4) < 2.4:
+    resto_d = 2.4 - round(desempenho, 4)
+    st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 2,4 pontos do requisito Desempenho. Faltam {round(resto_d, 4)} pontos.")
+    pendencias = True
+
+if not pendencias and evolucao:
     resultado_niveis.append({
         "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
         "Meses Gastos para Evolução": meses_ate_evolucao,
         "Pontos Remanescentes": pts_resto
     })
 
-df_resultados = pd.DataFrame(resultado_niveis)
-st.dataframe(df_resultados, hide_index=True, height=700)
+    df_resultados = pd.DataFrame(resultado_niveis)
+    st.dataframe(df_resultados, hide_index=True, height=700)
 
 ### ---------- CONCLUIDO ---------- ###
