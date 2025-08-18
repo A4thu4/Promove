@@ -965,12 +965,11 @@ with tabs[0]:
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
     ### ---------- ACUMULADO ---------- ###
 
-    with tabs[2]:
-        for i in range(DATA_CONCLUSAO):
-            if i == 0 and pts_remanescentes > 0:
-                carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] + pts_remanescentes 
-            else:
-                carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] 
+    for i in range(DATA_CONCLUSAO):
+        if i == 0 and pts_remanescentes > 0:
+            carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] + pts_remanescentes 
+        else:
+            carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] 
     
     ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -1046,8 +1045,8 @@ with tabs[0]:
 
     ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-    ### ---------- DATAFRAME DE CONTROLE ---------- ###
-
+### ---------- DATAFRAME DE CONTROLE ---------- ###
+with tabs[2]:
     # Criar DataFrame com as colunas
     df_carreira = pd.DataFrame(carreira, columns=[
         "Data",
