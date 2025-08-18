@@ -423,7 +423,7 @@ pts_resto = pts_evo - 48
 
 pendencias = False
 if round(aperfeicoamento, 4) < 5.4:
-    resto_hr_a = 60 - horas_curso
+    resto_hr_a = 60 - total_horas
     resto_a = 5.4 - round(aperfeicoamento, 4)
     st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 60 horas de curso ou 5,4 pontos do requisito Aperfeiçoamento. Faltam {resto_hr_a} horas de curso ou {round(resto_a, 4)} pontos.")
     pendencias = True
