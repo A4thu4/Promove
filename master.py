@@ -373,65 +373,6 @@ for i in range(DATA_CONCLUSAO):
         carreira[i][9] = carreira[i-1][9] + carreira[i][2] + carreira[i][4] + carreira[i][5] + carreira[i][6] + carreira[i][7] + carreira[i][8] 
 ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
-### ---------- DATAFRAME DE CONTROLE ---------- ###
-
-# Criar DataFrame com as colunas
-df_carreira = pd.DataFrame(carreira, columns=[
-    "Data",
-    "Pontos Base (0.2)",
-    "Pontos Base Descontado",
-    "Desempenho",
-    "Desempenho Descontado",
-    "Aperfeiçoamento",
-    "Titulação",
-    "Resp. Únicas",
-    "Resp. Mensais",
-    "Total Acumulado" 
-])
-
-# Arredondar para 4 casas decimais
-df_carreira = df_carreira.round(4)
-
-# Selecionar meses para exibição (primeiros 12 + um por ano após)
-meses_exibir = list(range(DATA_CONCLUSAO))
-df_exibir = df_carreira.iloc[meses_exibir]
-
-# Configurar formatação de exibição
-pd.options.display.float_format = '{:.4f}'.format
-
-# Mostrar tabela com colunas selecionadas
-st.dataframe(
-    df_exibir[[
-        "Data",
-        "Pontos Base (0.2)",
-        "Pontos Base Descontado",
-        "Desempenho",
-        "Desempenho Descontado",
-        "Aperfeiçoamento",
-        "Titulação",
-        "Resp. Únicas",
-        "Resp. Mensais",
-        "Total Acumulado" 
-    ]],
-    height=600,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
-        "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
-        "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
-        "Desempenho": st.column_config.NumberColumn(format="%.4f"),
-        "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
-        "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
-        "Titulação": st.column_config.NumberColumn(format="%.4f"),
-        "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
-        "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
-        "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
-    }
-)
-
-### ---------- CONCLUIDO ---------- ###
-####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- CÁLCULO DE TEMPO ---------- ###
 
 resultado_niveis = []
@@ -501,5 +442,64 @@ if not pendencias and evolucao:
 
     df_resultados = pd.DataFrame(resultado_niveis)
     st.dataframe(df_resultados, hide_index=True, height=700)
+
+### ---------- CONCLUIDO ---------- ###
+####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
+### ---------- DATAFRAME DE CONTROLE ---------- ###
+
+# Criar DataFrame com as colunas
+df_carreira = pd.DataFrame(carreira, columns=[
+    "Data",
+    "Pontos Base (0.2)",
+    "Pontos Base Descontado",
+    "Desempenho",
+    "Desempenho Descontado",
+    "Aperfeiçoamento",
+    "Titulação",
+    "Resp. Únicas",
+    "Resp. Mensais",
+    "Total Acumulado" 
+])
+
+# Arredondar para 4 casas decimais
+df_carreira = df_carreira.round(4)
+
+# Selecionar meses para exibição (primeiros 12 + um por ano após)
+meses_exibir = list(range(DATA_CONCLUSAO))
+df_exibir = df_carreira.iloc[meses_exibir]
+
+# Configurar formatação de exibição
+pd.options.display.float_format = '{:.4f}'.format
+
+# Mostrar tabela com colunas selecionadas
+st.dataframe(
+    df_exibir[[
+        "Data",
+        "Pontos Base (0.2)",
+        "Pontos Base Descontado",
+        "Desempenho",
+        "Desempenho Descontado",
+        "Aperfeiçoamento",
+        "Titulação",
+        "Resp. Únicas",
+        "Resp. Mensais",
+        "Total Acumulado" 
+    ]],
+    height=600,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
+        "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
+        "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
+        "Desempenho": st.column_config.NumberColumn(format="%.4f"),
+        "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
+        "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
+        "Titulação": st.column_config.NumberColumn(format="%.4f"),
+        "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
+        "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
+        "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
+    }
+)
 
 ### ---------- CONCLUIDO ---------- ###
