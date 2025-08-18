@@ -446,7 +446,7 @@ for i in range(DATA_CONCLUSAO):
     data_atual = carreira[i][0]
     pontos = carreira[i][9]
 
-    meses_passados = (data_atual.year - data_inicio.year) * 12 + (data_atual.month - data_inicio.month)
+    meses_passados = (data_atual.year - data_inicio.year) * 12 + (data_atual.month - data_inicio.month) + 1
 
     # Regra do mínimo de meses
     if meses_passados < 12:
