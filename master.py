@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import openpyxl as px
 
-MIN_DATE = datetime(2024, 1, 1)
+MIN_DATE = datetime(2000, 1, 1)
 MAX_DATE = datetime(2050, 12, 31)
 DATA_CONCLUSAO = 7306 # aprox. 20 anos em dias 
 
