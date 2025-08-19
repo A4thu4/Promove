@@ -8,7 +8,7 @@ MIN_DATE = datetime(2000, 1, 1)
 MAX_DATE = datetime(2050, 12, 31)
 DATA_CONCLUSAO = 7306 # aprox. 20 anos em dias 
 
-st.set_page_config(page_title="ggdp3", layout="wide")
+st.set_page_config(page_title="GGDP", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
