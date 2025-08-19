@@ -8,7 +8,7 @@ MIN_DATE = datetime(2000, 1, 1)
 MAX_DATE = datetime(2050, 12, 31)
 DATA_CONCLUSAO = 7306 # aprox. 20 anos em dias 
 
-st.set_page_config(page_title="GGDP", layout="wide")
+st.set_page_config(page_title="GGDDP", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
@@ -122,7 +122,7 @@ def calculo_responsabilidades():
                     elif func_c != 'Nenhum' and data_inicio_func_c and data_fim_func_c and data_fim_func_c >= data_inicio_func_c:
                         delta_ano = data_fim_func_c.year - data_inicio_func_c.year
                         delta_mes = data_fim_func_c.month - data_inicio_func_c.month
-                        qntd_meses_func_c = delta_ano * 12 + delta_mes
+                        qntd_meses_func_c = delta_ano * 12 + delta_mes 
                         st.session_state.func_c_lista.append((func_c, qntd_meses_func_c))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -314,7 +314,7 @@ def calculo_responsabilidades():
                     elif data_inicio_prioritaria and data_fim_prioritaria and data_fim_prioritaria >= data_inicio_prioritaria:
                         delta_ano = data_fim_prioritaria.year - data_inicio_prioritaria.year
                         delta_mes = data_fim_prioritaria.month - data_inicio_prioritaria.month
-                        qntd_meses_prioritaria = delta_ano * 12 + delta_mes
+                        qntd_meses_prioritaria = delta_ano * 12 + delta_mes   
                         st.session_state.prioritaria_lista.append(( qntd_meses_prioritaria))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -987,22 +987,26 @@ with tabs[0]:
         data_atual = carreira[i][0]
         pontos = carreira[i][9]
 
-        meses_passados = (data_atual.year - data_inicio.year) * 12 + (data_atual.month - data_inicio.month) + 1 # para contar o primeirio mes
+        ano = data_atual.year - data_inicio.year
+        mes = data_atual.month - data_inicio.month
+        meses_passados = ano*12 + mes
 
-        # Regra do mínimo de meses
+        data_prevista18 = data_inicio + relativedelta(months=18)
+        data_prevista12 = data_inicio + relativedelta(months=12)
+        
         if meses_passados < 12:
             continue
-
-        if 12 <= meses_passados < 18:
+        
+        if data_prevista12 <= data_atual < data_prevista18 :
             if pontos >= 96:
-                evolucao = data_atual # adiciona 1 mes
+                evolucao = data_atual
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
 
-        if meses_passados >= 18:
-            if pontos >= 96 or pontos >= 48:
-                evolucao = data_atual # adiciona 1 mes
+        if data_atual >= data_prevista18:
+            if pontos >= 48:
+                evolucao = data_atual
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
@@ -1031,7 +1035,7 @@ with tabs[0]:
         resto_d = 2.4 - round(desempenho, 4)
         st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 2,4 pontos do requisito Desempenho. Faltam {round(resto_d, 4)} pontos.")
         pendencias = True
-
+    
     if not pendencias and evolucao:
         resultado_niveis.append({
             "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
