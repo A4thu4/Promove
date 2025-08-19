@@ -69,7 +69,7 @@ def calculo_responsabilidades():
                     elif cargo_comissao != 'Nenhum' and data_inicio_comissao and data_fim_comissao and data_fim_comissao >= data_inicio_comissao:
                         delta_ano = data_fim_comissao.year - data_inicio_comissao.year
                         delta_mes = data_fim_comissao.month - data_inicio_comissao.month
-                        qntd_meses_comissao = delta_ano * 12 + delta_mes + 1
+                        qntd_meses_comissao = delta_ano * 12 + delta_mes
                         st.session_state.comissao_lista.append((cargo_comissao, qntd_meses_comissao))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -122,7 +122,7 @@ def calculo_responsabilidades():
                     elif func_c != 'Nenhum' and data_inicio_func_c and data_fim_func_c and data_fim_func_c >= data_inicio_func_c:
                         delta_ano = data_fim_func_c.year - data_inicio_func_c.year
                         delta_mes = data_fim_func_c.month - data_inicio_func_c.month
-                        qntd_meses_func_c = delta_ano * 12 + delta_mes + 1
+                        qntd_meses_func_c = delta_ano * 12 + delta_mes
                         st.session_state.func_c_lista.append((func_c, qntd_meses_func_c))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -167,7 +167,7 @@ def calculo_responsabilidades():
                     elif data_inicio_func_d and data_fim_func_d and data_fim_func_d >= data_inicio_func_d:
                         delta_ano = data_fim_func_d.year - data_inicio_func_d.year
                         delta_mes = data_fim_func_d.month - data_inicio_func_d.month
-                        qntd_meses_func_d = delta_ano * 12 + delta_mes + 1
+                        qntd_meses_func_d = delta_ano * 12 + delta_mes
                         st.session_state.func_d_lista.append((qntd_meses_func_d))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -222,7 +222,7 @@ def calculo_responsabilidades():
                     elif agente != 'Nenhum' and data_inicio_agente and data_fim_agente and data_fim_agente >= data_inicio_agente:
                         delta_ano = data_fim_agente.year - data_inicio_agente.year
                         delta_mes = data_fim_agente.month - data_inicio_agente.month
-                        qntd_meses_agente = delta_ano * 12 + delta_mes + 1
+                        qntd_meses_agente = delta_ano * 12 + delta_mes
                         st.session_state.agente_lista.append((agente, qntd_meses_agente))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -267,7 +267,7 @@ def calculo_responsabilidades():
                     elif data_inicio_conselho and data_fim_conselho and data_fim_conselho >= data_inicio_conselho:
                         delta_ano = data_fim_conselho.year - data_inicio_conselho.year
                         delta_mes = data_fim_conselho.month - data_inicio_conselho.month
-                        qntd_meses_conselho = delta_ano * 12 + delta_mes + 1
+                        qntd_meses_conselho = delta_ano * 12 + delta_mes
                         st.session_state.conselho_lista.append(( qntd_meses_conselho))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -314,7 +314,7 @@ def calculo_responsabilidades():
                     elif data_inicio_prioritaria and data_fim_prioritaria and data_fim_prioritaria >= data_inicio_prioritaria:
                         delta_ano = data_fim_prioritaria.year - data_inicio_prioritaria.year
                         delta_mes = data_fim_prioritaria.month - data_inicio_prioritaria.month
-                        qntd_meses_prioritaria = delta_ano * 12 + delta_mes + 1  
+                        qntd_meses_prioritaria = delta_ano * 12 + delta_mes
                         st.session_state.prioritaria_lista.append(( qntd_meses_prioritaria))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
@@ -914,7 +914,7 @@ with tabs[0]:
             elif data_inicio_rm  and data_fim_rm and pontos_resp_mensal > 0:
                 delta_ano = data_fim_rm.year - data_inicio_rm.year
                 delta_mes = data_fim_rm.month - data_inicio_rm.month
-                qntd_meses_rm = delta_ano * 12 + delta_mes + 1
+                qntd_meses_rm = delta_ano * 12 + delta_mes 
                 st.session_state.resp_mensais.append((data_inicio_rm, pontos_resp_mensal, qntd_meses_rm))
             else:
                 st.error("Todas as informações precisam ser preenchidas.")
@@ -995,14 +995,14 @@ with tabs[0]:
 
         if 12 <= meses_passados < 18:
             if pontos >= 96:
-                evolucao = data_atual + relativedelta(months=1) # adiciona 1 mes
+                evolucao = data_atual # adiciona 1 mes
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
 
         if meses_passados >= 18:
             if pontos >= 96 or pontos >= 48:
-                evolucao = data_atual + relativedelta(months=1) # adiciona 1 mes
+                evolucao = data_atual # adiciona 1 mes
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
