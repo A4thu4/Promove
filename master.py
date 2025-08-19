@@ -997,12 +997,14 @@ with tabs[0]:
             if pontos >= 96:
                 evolucao = data_atual + relativedelta(months=1) # adiciona 1 mes
                 meses_ate_evolucao = meses_passados
+                pts_resto = pontos - 48
                 break
 
         if meses_passados >= 18:
             if pontos >= 96 or pontos >= 48:
                 evolucao = data_atual + relativedelta(months=1) # adiciona 1 mes
                 meses_ate_evolucao = meses_passados
+                pts_resto = pontos - 48
                 break
         
     diff = relativedelta(evolucao, data_inicial)
@@ -1017,9 +1019,6 @@ with tabs[0]:
     col = st.columns(2)
     col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
     col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
-
-    pts_evo = pontos
-    pts_resto = pts_evo - 48
     
     pendencias = False
     if round(aperfeicoamento, 4) < 5.4:
