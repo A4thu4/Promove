@@ -937,19 +937,10 @@ with tabs[0]:
                     st.session_state.resp_mensais.pop(idx3)
                     st.rerun()    
 
-    # Exemplo de dados do usuário
-    responsabilidades_mensais = [
-        {
-            'data_inicio': data_inicio_rm,
-            'meses': qntd_meses_rm,
-            'pontos_mensais': pontos_resp_mensal
-        }
-    ]
-
-    for resp in responsabilidades_mensais:
-        inicio = resp['data_inicio']
-        meses = resp['meses']
-        pontos = resp['pontos_mensais']
+    for resp in st.session_state.resp_mensais:
+        inicio = resp[0]
+        meses = resp[2]
+        pontos = resp[1]
         
         for i in range(len(carreira)):
             d = carreira[i][0]
@@ -965,7 +956,7 @@ with tabs[0]:
             total_meses = delta_ano * 12 + delta_mes
             
             if 0 <= total_meses < meses:
-                carreira[i][8] = pontos
+                carreira[i][8] += pontos
 
     ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
