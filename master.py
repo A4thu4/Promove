@@ -893,7 +893,7 @@ with tabs[0]:
     with col1:
         data_inicio_rm = st.date_input("Data de Início", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="m_resp_mes")
     with col2:
-        n_data = st.radio("", ['Sem Data de Fim', 'Escolher Data de Fim'], horizontal=True, key="modo_data")
+        n_data = st.radio("", ['Sem Data', 'Escolher Data de Fim'], horizontal=True, key="modo_data")
         if n_data == 'Escolher Data':
             data_fim_rm = st.date_input("Data de Fim", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="f_resp_mes")
         else:
