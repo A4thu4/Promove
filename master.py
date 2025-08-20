@@ -6,7 +6,7 @@ import openpyxl as px
 
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
-DATA_FIM = (MIN_DATE + relativedelta(years=20))
+DATA_FIM = MIN_DATE + relativedelta(years=20)
 DATA_CONCLUSAO = 7306 # 20 anos (em dias) 
 
 st.set_page_config(page_title="GGDP", layout="wide")
