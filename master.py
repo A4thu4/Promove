@@ -424,9 +424,9 @@ def calculo_responsabilidades():
         cols[1].metric("**Total**", round(pts_responsabilidade, 4))
         cols[2].metric("**Pontuação Única**", round(pts_responsabilidade_unic, 4))
         
+        ### ---------- MENSAIS ---------- ### 
         st.title("MENSAIS")
         coll = st.columns(3)
-        ### ---------- MENSAIS ---------- ### 
         with coll[0]:  # Mostrar comissões cadastradas
             if st.session_state.comissao_lista:
                 st.write("**Comissão(es) Cadastrada(s):**")
@@ -505,13 +505,13 @@ def calculo_responsabilidades():
                             st.session_state.prioritaria_lista = [
                                 item for i, item in enumerate(st.session_state.prioritaria_lista) if i != idx6
                             ]
-
+        
+        ### ---------- ÚNICAS ---------- ###   
         st.title("ÚNICAS")
         coll2 = st.columns(3)
-        ### ---------- ÚNICAS ---------- ###   
         with coll2[0]:  # Mostrar artigos cadastradas
             if st.session_state.artigos_lista:
-                st.write("**Artigos Cadastrados:**")
+                st.write("**Artigo(s) Cadastrado(s):**")
                 cols = st.columns(2)
                 for idx, (nid, id_) in enumerate(st.session_state.artigos_lista):
                     col = cols[idx % 2]
@@ -524,7 +524,7 @@ def calculo_responsabilidades():
         
         with coll2[1]: # Mostrar livros cadastradas
             if st.session_state.livros_lista:
-                st.write("**Livros ou Capitulos Cadastrados:**")
+                st.write("**Livro(s) ou Capitulo(s) Cadastrado(s):**")
                 cols = st.columns(2)
                 for idx2, (org, cap, lv) in enumerate(st.session_state.livros_lista):
                     col = cols[idx2 % 2]
@@ -537,7 +537,7 @@ def calculo_responsabilidades():
 
         with coll2[2]: # Mostrar pesquisas cadastradas
             if st.session_state.pesquisas_lista:
-                st.write("**Pesquisas Aprovadas Cadastradas:**")
+                st.write("**Pesquisa(s) Aprovada(s) Cadastrada(s):**")
                 cols = st.columns(1)
                 for idx3, (est, reg, nac, inter) in enumerate(st.session_state.pesquisas_lista):
                     col = cols[idx3 % 1]
@@ -550,7 +550,7 @@ def calculo_responsabilidades():
 
         with coll2[0]: # Mostrar registros cadastradas
             if st.session_state.patentes_lista:
-                st.write("**Patentes ou Cultivar Cadastrados:**")
+                st.write("**Patente(s) ou Cultivar(es) Cadastrado(s):**")
                 cols = st.columns(3)
                 for idx4, (pat, cult) in enumerate(st.session_state.patentes_lista):
                     col = cols[idx4 % 3]
@@ -563,7 +563,7 @@ def calculo_responsabilidades():
 
         with coll2[1]: # Mostrar cursos cadastradas
             if st.session_state.pts_cursos_lista:
-                st.write("**Cursos Cadastrados:**")
+                st.write("**Curso(s) Cadastrado(s):**")
                 cols = st.columns(3)
                 for idx5, (qntd, tipo) in enumerate(st.session_state.pts_cursos_lista):
                     col = cols[idx5 % 3]
