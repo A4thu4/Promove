@@ -11,7 +11,6 @@ DATA_CONCLUSAO = 7306 # 20 anos (em dias)
 
 st.set_page_config(page_title="GGDP", layout="wide")
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
-
 st.markdown(
     """
 <style>
@@ -36,9 +35,7 @@ def calculo_responsabilidades():
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- RESPONSABILIDADES MENSAIS ---------- ###
-    
     with sub_tabs[1]:
-        
         ### ---------- CARGO DE COMISSÃO ---------- ###    
         qntd_meses_comissao = 0
         pontuacao_cargos = {
@@ -74,20 +71,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar comissões cadastradas
-            if st.session_state.comissao_lista:
-                st.write("**Comissão(es) Cadastradas:**")
-                cols = st.columns(4)
-                for idx, (cargo, meses) in enumerate(st.session_state.comissao_lista):
-                    pts = pontuacao_cargos.get(cargo,0)
-                    col = cols[idx % 4]
-                    with col:
-                        st.write(f"{cargo} [{pts} ponto(s)] → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_comissao{idx}"):
-                            st.session_state.comissao_lista = [
-                                item for i, item in enumerate(st.session_state.comissao_lista) if i != idx
-                            ]
-
         pts_comissao_total =  sum(
             pontuacao_cargos[cargo] * meses
             for cargo, meses in st.session_state.comissao_lista
@@ -95,7 +78,6 @@ def calculo_responsabilidades():
         pts_comissao = sum(pontuacao_cargos[cargo] for cargo, meses in st.session_state.comissao_lista)
         
         ### ---------- FUNÇÃO COMISSIONADA ---------- ###  
-
         pontuacao_func_c = {
             "até R$ 750,00": 0.333, 
             " 751,00 - 1.200,00": 0.364, 
@@ -127,19 +109,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar funções comissionadas cadastradas
-            if st.session_state.func_c_lista:
-                st.write("**Função(es) Comissionadas Cadastradas:**")
-                cols = st.columns(4)
-                for idx2, (func, meses) in enumerate(st.session_state.func_c_lista):
-                    col = cols[idx2 % 4]
-                    with col:
-                        st.write(f"{func} → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_func_c{idx2}"):
-                            st.session_state.func_c_lista = [
-                                item for i, item in enumerate(st.session_state.func_c_lista) if i != idx2
-                            ]
-
         pts_func_c_total =  sum(
             pontuacao_func_c[func] * meses
             for func, meses in st.session_state.func_c_lista
@@ -148,7 +117,6 @@ def calculo_responsabilidades():
         pts_func_c = sum(pontuacao_func_c[cargo] for cargo, meses in st.session_state.func_c_lista)
 
         ### ---------- FUNÇÃO DESIGNADA ---------- ###  
-
         if "func_d_lista" not in st.session_state:
             st.session_state.func_d_lista = []
         if "pts_func_d" not in st.session_state:
@@ -174,19 +142,6 @@ def calculo_responsabilidades():
             if data_fim_func_d > data_inicio_func_d:
                 st.session_state.pts_func_d = 0.333  
 
-            # Mostrar funções comissionadas cadastradas
-            if st.session_state.func_d_lista:
-                st.write("**Função(es) Comissionadas Cadastradas:**")
-                cols = st.columns(4)
-                for idx3, meses in enumerate(st.session_state.func_d_lista):
-                    col = cols[idx3 % 4]
-                    with col:
-                        st.write(f" 1 Função → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_func_d{idx3}"):
-                            st.session_state.func_d_lista = [
-                                item for i, item in enumerate(st.session_state.func_d_lista) if i != idx3
-                            ]
-
         pts_func_d = st.session_state.pts_func_d if 'pts_func_d' in st.session_state else 0
         
         pts_func_d_total = sum(
@@ -195,7 +150,6 @@ def calculo_responsabilidades():
         )
 
         ### ---------- ATUAÇÃO COMO AGENTE ---------- ###  
-
         pontuacao_agente = {
             "I": 0.333, 
             "II": 0.364, 
@@ -227,19 +181,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar atuações como agente cadastradas
-            if st.session_state.agente_lista:
-                st.write("**Atuação(es) Cadastradas:**")
-                cols = st.columns(4)
-                for idx4, (at, meses) in enumerate(st.session_state.agente_lista):
-                    col = cols[idx4 % 4]
-                    with col:
-                        st.write(f"Atuação {at} → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_agente{idx4}"):
-                            st.session_state.agente_lista = [
-                                item for i, item in enumerate(st.session_state.agente_lista) if i != idx4
-                            ]
-
         pts_agente_total =  sum(
             pontuacao_agente[at] * meses
             for at, meses in st.session_state.agente_lista
@@ -248,7 +189,6 @@ def calculo_responsabilidades():
         pts_agente = sum(pontuacao_agente[cargo] for cargo, meses in st.session_state.agente_lista)
 
         ### ---------- ATUAÇÃO EM CONSELHO ---------- ###  
-
         if "conselho_lista" not in st.session_state:
             st.session_state.conselho_lista = []
         if "pts_conselho" not in st.session_state:
@@ -274,19 +214,6 @@ def calculo_responsabilidades():
             if data_fim_conselho > data_inicio_conselho:
                 st.session_state.pts_conselho = 0.333
         
-            # Mostrar atuações em conselho cadastradas
-            if st.session_state.conselho_lista:
-                st.write("**Atuação(es) Cadastrada(s):**")
-                cols = st.columns(4)
-                for idx5, meses in enumerate(st.session_state.conselho_lista):
-                    col = cols[idx5 % 4]
-                    with col:
-                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_conselho{idx5}"):
-                            st.session_state.conselho_lista = [
-                                item for i, item in enumerate(st.session_state.conselho_lista) if i != idx5
-                            ]
-        
         pts_conselho = st.session_state.pts_conselho if 'pts_conselho' in st.session_state else 0
 
         pts_conselho_total = sum(
@@ -295,7 +222,6 @@ def calculo_responsabilidades():
         )
 
     ### ---------- ATUAÇÃO PRIORITÁRIA ---------- ###  
-
         if "prioritaria_lista" not in st.session_state:
             st.session_state.prioritaria_lista = []
         if "pts_prioritaria" not in st.session_state:
@@ -318,20 +244,6 @@ def calculo_responsabilidades():
                         st.session_state.prioritaria_lista.append(( qntd_meses_prioritaria))
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
-
-            # Mostrar atuações prioritárias cadastradas
-            
-            if st.session_state.prioritaria_lista:
-                st.write("**Atuação(es) Prioritária(s) Cadastrada(s):**")
-                cols = st.columns(4)
-                for idx6, meses in enumerate(st.session_state.prioritaria_lista):
-                    col = cols[idx6 % 4]
-                    with col:
-                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
-                        if st.button("Remover", key=f"remover_prioritaria{idx6}"):
-                            st.session_state.prioritaria_lista = [
-                                item for i, item in enumerate(st.session_state.prioritaria_lista) if i != idx6
-                            ]
             if data_fim_prioritaria > data_inicio_prioritaria:
                 st.session_state.pts_prioritaria = 0.333
 
@@ -350,11 +262,8 @@ def calculo_responsabilidades():
 ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- RESPONSABILIDADES ÚNICAS ---------- ###
-
     with sub_tabs[0]:
-
         ### ---------- ARTIGOS ---------- ###
-
         if "artigos_lista" not in st.session_state:
             st.session_state.artigos_lista = []
         if "pts_artigos" not in st.session_state:
@@ -373,18 +282,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            if st.session_state.artigos_lista:
-                st.write("**Artigos Cadastrados:**")
-                cols = st.columns(6)
-                for idx, (nid, id_) in enumerate(st.session_state.artigos_lista):
-                    col = cols[idx % 6]
-                    with col:
-                        st.write(f"NÃO Indexados: {nid} | Indexados: {id_}")
-                        if st.button("Remover", key=f"remover_artigo{idx}"):
-                            st.session_state.artigos_lista = [
-                                item for i, item in enumerate(st.session_state.artigos_lista) if i != idx
-                            ]
-
         total_pts = 0
         for nid, id_ in st.session_state.artigos_lista:
             total_pts += (nid * 0.5) + (id_ * 4)
@@ -393,7 +290,6 @@ def calculo_responsabilidades():
         pts_artigos = st.session_state.pts_artigos if 'pts_artigos' in st.session_state else 0
 
         ### ---------- LIVROS ---------- ###
-
         if "livros_lista" not in st.session_state:
             st.session_state.livros_lista = []
         if "pts_livros" not in st.session_state:
@@ -414,19 +310,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar livros cadastrados
-            if st.session_state.livros_lista:
-                st.write("**Livros ou Capitulos Cadastrados:**")
-                cols = st.columns(7)
-                for idx2, (org, cap, lv) in enumerate(st.session_state.livros_lista):
-                    col = cols[idx2 % 7]
-                    with col:
-                        st.write(f"Organizador: {org} | Capitulos: {cap}  Livro Completo: {lv}")
-                        if st.button("Remover", key=f"remover_livro{idx2}"):
-                            st.session_state.livros_lista = [
-                                item for i, item in enumerate(st.session_state.livros_lista) if i != idx2
-                            ]
-
         total_pts = 0
         for org, cap, lv in st.session_state.livros_lista:
             total_pts += (org * 1) + (cap * 4) + (lv * 6)
@@ -435,7 +318,6 @@ def calculo_responsabilidades():
         pts_livros = st.session_state.pts_livros if 'pts_livros' in st.session_state else 0
 
         ### ---------- PESQUISAS CIENTÍFICAS ---------- ###
-
         if "pesquisas_lista" not in st.session_state:
             st.session_state.pesquisas_lista = []
         if "pts_pesquisas" not in st.session_state:
@@ -458,19 +340,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
             
-            # Mostrar pesquisas cadastradas
-            if st.session_state.pesquisas_lista:
-                st.write("**Pesquisas Aprovadas Cadastradas:**")
-                cols = st.columns(5)
-                for idx3, (est, reg, nac, inter) in enumerate(st.session_state.pesquisas_lista):
-                    col = cols[idx3 % 5]
-                    with col:
-                        st.write(f"Estadualmente: {est} | Regionalmente: {reg}  Nacionalmente: {nac} | Internacionalmente: {inter}")
-                        if st.button("Remover", key=f"remover_pesquisa{idx3}"):
-                            st.session_state.pesquisas_lista = [
-                                item for i, item in enumerate(st.session_state.pesquisas_lista) if i != idx3
-                            ]
-
         total_pts = 0
         for est, reg, nac, inter in st.session_state.pesquisas_lista:
             total_pts += (est * 1) + (reg * 3) + (nac * 3) + (inter * 4)
@@ -479,7 +348,6 @@ def calculo_responsabilidades():
         pts_pesquisas = st.session_state.pts_pesquisas if 'pts_pesquisas' in st.session_state else 0
 
         ### ---------- REGISTROS DE PATENTES OU CULTIVAR ---------- ###
-
         if "patentes_lista" not in st.session_state:
             st.session_state.patentes_lista = []
         if "pts_patentes" not in st.session_state:
@@ -498,19 +366,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar registros cadastradas
-            if st.session_state.patentes_lista:
-                st.write("**Patentes ou Cultivar Cadastrados:**")
-                cols = st.columns(6)
-                for idx4, (pat, cult) in enumerate(st.session_state.patentes_lista):
-                    col = cols[idx4 % 6]
-                    with col:
-                        st.write(f"Patentes: {pat} | Cultivar: {cult}")
-                        if st.button("Remover", key=f"remover_patente{idx4}"):
-                            st.session_state.patentes_lista = [
-                                item for i, item in enumerate(st.session_state.patentes_lista) if i != idx4
-                            ]
-
         total_pts = 0
         for pat, cult in st.session_state.patentes_lista:
             total_pts += (pat * 8) + (cult * 8)
@@ -519,7 +374,6 @@ def calculo_responsabilidades():
         pts_patentes = st.session_state.pts_patentes if 'pts_patentes' in st.session_state else 0
 
         ### ---------- CURSOS ---------- ###
-
         valores_curso = {
             'Nenhum': None,
             'Estágio Pós-Doutoral no Orgão (6 meses)': 6,   
@@ -547,19 +401,6 @@ def calculo_responsabilidades():
                     else:
                         st.error("Todas as informações precisam ser preenchidas.")
 
-            # Mostrar cursos cadastradas
-            if st.session_state.pts_cursos_lista:
-                st.write("**Cursos Cadastrados:**")
-                cols = st.columns(4)
-                for idx5, (qntd, tipo) in enumerate(st.session_state.pts_cursos_lista):
-                    col = cols[idx5 % 4]
-                    with col:
-                        st.write(f"{qntd} → {tipo} |")
-                        if st.button("Remover", key=f"remover_doc{idx5}"):
-                            st.session_state.pts_cursos_lista = [
-                                item for i, item in enumerate(st.session_state.pts_cursos_lista) if i != idx5
-                            ]
-                            
         tot_pts_c = 0
         for qntd_c, tipo_c in st.session_state.pts_cursos_lista:
             pontos_cursos = valores_curso.get(tipo_c, 0)
@@ -577,15 +418,161 @@ def calculo_responsabilidades():
     with sub_tabs[2]:
         pts_responsabilidade =  pts_responsabilidade_mensais_total + pts_responsabilidade_unic
         if pts_responsabilidade >= 144: pts_responsabilidade = 144
-
+        
         cols = st.columns(3)
-        cols[0].metric("Responsabilidade Mensais", round(pts_responsabilidade_mensais, 4))
-        cols[1].metric("Total", round(pts_responsabilidade, 4))
-        cols[2].metric("Responsabilidade Unicas", round(pts_responsabilidade_unic, 4))
+        cols[0].metric("**Pntuação Mensal**", round(pts_responsabilidade_mensais, 4))
+        cols[1].metric("**Total**", round(pts_responsabilidade, 4))
+        cols[2].metric("**Pontuação Única**", round(pts_responsabilidade_unic, 4))
+        
+        st.title("MENSAIS")
+        coll = st.columns(3)
+        ### ---------- MENSAIS ---------- ### 
+        with coll[0]:  # Mostrar comissões cadastradas
+            if st.session_state.comissao_lista:
+                st.write("**Comissão(es) Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx, (cargo, meses) in enumerate(st.session_state.comissao_lista):
+                    pts = pontuacao_cargos.get(cargo,0)
+                    col = cols[idx % 1]
+                    with col:
+                        st.write(f"{cargo} [{pts} ponto(s)] → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_comissao{idx}"):
+                            st.session_state.comissao_lista = [
+                                item for i, item in enumerate(st.session_state.comissao_lista) if i != idx
+                            ]
+        with coll[1]: # Mostrar funções comissionadas cadastradas
+            if st.session_state.func_c_lista:
+                st.write("**Função(es) Comissionada(s) Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx2, (func, meses) in enumerate(st.session_state.func_c_lista):
+                    pts = pontuacao_func_c.get(func, 0)
+                    col = cols[idx2 % 1]
+                    with col:
+                        st.write(f"{func} [{pts} ponto(s)] → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_func_c{idx2}"):
+                            st.session_state.func_c_lista = [
+                                item for i, item in enumerate(st.session_state.func_c_lista) if i != idx2
+                            ]
 
-    # Garante que os valores são números antes de retornar
-    pts_responsabilidade_mensais = float(pts_responsabilidade_mensais) if 'pts_responsabilidade_mensais' in locals() else 0.0
-    pts_responsabilidade_unic = float(pts_responsabilidade_unic) if 'pts_responsabilidade_unic' in locals() else 0.0
+        with coll[2]:  # Mostrar funções comissionadas cadastradas
+            if st.session_state.func_d_lista:
+                st.write("**Função(es) Designada(s) Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx3, meses in enumerate(st.session_state.func_d_lista):
+                    col = cols[idx3 % 1]
+                    with col:
+                        st.write(f" 1 Função [0.333 ponto(s)] → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_func_d{idx3}"):
+                            st.session_state.func_d_lista = [
+                                item for i, item in enumerate(st.session_state.func_d_lista) if i != idx3
+                            ]
+
+        with coll[0]:  # Mostrar atuações como agente cadastradas
+            if st.session_state.agente_lista:
+                st.write("**Atuação(es) como Agente Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx4, (at, meses) in enumerate(st.session_state.agente_lista):
+                    col = cols[idx4 % 1]
+                    with col:
+                        st.write(f"Atuação {at} → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_agente{idx4}"):
+                            st.session_state.agente_lista = [
+                                item for i, item in enumerate(st.session_state.agente_lista) if i != idx4
+                            ]
+
+        with coll[1]: # Mostrar atuações em conselho cadastradas
+            if st.session_state.conselho_lista:
+                st.write("**Atuação(es) em Conselho(s) Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx5, meses in enumerate(st.session_state.conselho_lista):
+                    col = cols[idx5 % 1]
+                    with col:
+                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_conselho{idx5}"):
+                            st.session_state.conselho_lista = [
+                                item for i, item in enumerate(st.session_state.conselho_lista) if i != idx5
+                            ]
+
+        with coll[2]: # Mostrar atuações prioritárias cadastradas
+            if st.session_state.prioritaria_lista:
+                st.write("**Atuação(es) Prioritária(s) Cadastrada(s):**")
+                cols = st.columns(1)
+                for idx6, meses in enumerate(st.session_state.prioritaria_lista):
+                    col = cols[idx6 % 1]
+                    with col:
+                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
+                        if st.button("Remover", key=f"remover_prioritaria{idx6}"):
+                            st.session_state.prioritaria_lista = [
+                                item for i, item in enumerate(st.session_state.prioritaria_lista) if i != idx6
+                            ]
+
+        st.title("ÚNICAS")
+        coll2 = st.columns(3)
+        ### ---------- ÚNICAS ---------- ###   
+        with coll2[0]:  # Mostrar artigos cadastradas
+            if st.session_state.artigos_lista:
+                st.write("**Artigos Cadastrados:**")
+                cols = st.columns(2)
+                for idx, (nid, id_) in enumerate(st.session_state.artigos_lista):
+                    col = cols[idx % 2]
+                    with col:
+                        st.write(f"NÃO Indexados: {nid} | Indexados: {id_}")
+                        if st.button("Remover", key=f"remover_artigo{idx}"):
+                            st.session_state.artigos_lista = [
+                                item for i, item in enumerate(st.session_state.artigos_lista) if i != idx
+                            ]
+        
+        with coll2[1]: # Mostrar livros cadastradas
+            if st.session_state.livros_lista:
+                st.write("**Livros ou Capitulos Cadastrados:**")
+                cols = st.columns(2)
+                for idx2, (org, cap, lv) in enumerate(st.session_state.livros_lista):
+                    col = cols[idx2 % 2]
+                    with col:
+                        st.write(f"Organizador: {org} | Capitulos: {cap}  Livro Completo: {lv}")
+                        if st.button("Remover", key=f"remover_livro{idx2}"):
+                            st.session_state.livros_lista = [
+                                item for i, item in enumerate(st.session_state.livros_lista) if i != idx2
+                            ]
+
+        with coll2[2]: # Mostrar pesquisas cadastradas
+            if st.session_state.pesquisas_lista:
+                st.write("**Pesquisas Aprovadas Cadastradas:**")
+                cols = st.columns(1)
+                for idx3, (est, reg, nac, inter) in enumerate(st.session_state.pesquisas_lista):
+                    col = cols[idx3 % 1]
+                    with col:
+                        st.write(f"Estadualmente: {est} | Regionalmente: {reg} | Nacionalmente: {nac} | Internacionalmente: {inter}")
+                        if st.button("Remover", key=f"remover_pesquisa{idx3}"):
+                            st.session_state.pesquisas_lista = [
+                                item for i, item in enumerate(st.session_state.pesquisas_lista) if i != idx3
+                            ]
+
+        with coll2[0]: # Mostrar registros cadastradas
+            if st.session_state.patentes_lista:
+                st.write("**Patentes ou Cultivar Cadastrados:**")
+                cols = st.columns(3)
+                for idx4, (pat, cult) in enumerate(st.session_state.patentes_lista):
+                    col = cols[idx4 % 3]
+                    with col:
+                        st.write(f"Patentes: {pat} | Cultivar: {cult}")
+                        if st.button("Remover", key=f"remover_patente{idx4}"):
+                            st.session_state.patentes_lista = [
+                                item for i, item in enumerate(st.session_state.patentes_lista) if i != idx4
+                            ]
+
+        with coll2[1]: # Mostrar cursos cadastradas
+            if st.session_state.pts_cursos_lista:
+                st.write("**Cursos Cadastrados:**")
+                cols = st.columns(3)
+                for idx5, (qntd, tipo) in enumerate(st.session_state.pts_cursos_lista):
+                    col = cols[idx5 % 3]
+                    with col:
+                        st.write(f"{qntd} → {tipo} |")
+                        if st.button("Remover", key=f"remover_doc{idx5}"):
+                            st.session_state.pts_cursos_lista = [
+                                item for i, item in enumerate(st.session_state.pts_cursos_lista) if i != idx5
+                            ]
     
 ### ---------- FUNÇÃO CONCLUIDA ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
