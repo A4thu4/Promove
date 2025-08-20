@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import openpyxl as px
 
-MIN_DATE = datetime(2000, 1, 1)
-MAX_DATE = datetime(2050, 12, 31)
-DATA_CONCLUSAO = 7306 # aprox. 20 anos em dias 
+MIN_DATE = datetime(2000, 1, 1).date()
+MAX_DATE = datetime(2050, 12, 31).date()
+DATA_FIM = (MIN_DATE + relativedelta(years=20))
+DATA_CONCLUSAO = 7306 # 20 anos (em dias) 
 
-st.set_page_config(page_title="GGDDP", layout="wide")
-
+st.set_page_config(page_title="GGDP", layout="wide")
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
 st.markdown(
@@ -656,13 +656,13 @@ with tabs[0]:
     # Entrada de um novo afastamento
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
-        mes_novo = st.date_input("Mês", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="mes_afast", help="SERÁ CONTADO SERÁ SOMENTE O MÊS")
+        mes_faltas = st.date_input("Mês", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="mes_afast", help="SERÁ CONTADO SERÁ SOMENTE O MÊS")
     with col2:
-        faltas_novo = st.number_input("Faltas", min_value=0, step=1, key="qntd_afast")
+        qntd_faltas = st.number_input("Faltas", min_value=0, step=1, key="qntd_afast")
     with col3:
         if st.button("Adicionar", key="afast"):
-            if faltas_novo > 0:
-                st.session_state.afastamentos.append((mes_novo, faltas_novo))
+            if qntd_faltas > 0:
+                st.session_state.afastamentos.append((mes_faltas, qntd_faltas))
             else:
                 st.error("Todas as informações precisam ser preenchidas.")
 
@@ -687,13 +687,14 @@ with tabs[0]:
     #pontos_base#
     for i in range(len(carreira)):
         data_atual = carreira[i][0]
+        falta = 0
 
         # procura se existe afastamento nesse mês
-        faltas_mes = next((faltas for mes, faltas in st.session_state.afastamentos
+        falta += next((faltas for mes, faltas in st.session_state.afastamentos
                         if data_atual.month == mes.month and data_atual.year == mes.year), 0)
 
-        desconto = 0.0067 * faltas_mes
-        desconto_des = 0.05 * faltas_mes
+        desconto = 0.0067 * falta
+        desconto_des = 0.05 * falta
 
         # Pega o primeiro dia do próximo mês
         if data_atual.month == 12:
@@ -749,9 +750,10 @@ with tabs[0]:
                     st.rerun()    
 
     total_horas = 0  
+    st.session_state.aperfeicoamentos_ordenado = sorted(st.session_state.aperfeicoamentos, key=lambda data: data[0])
 
     # Percorre todos os aperfeiçoamentos cadastrados
-    for data_conclusao, horas_curso in st.session_state.aperfeicoamentos:
+    for data_conclusao, horas_curso in st.session_state.aperfeicoamentos_ordenado:
         # Quanto desse curso ainda pode ser aproveitado
         horas_restantes = max(0, 100 - total_horas)
         horas_aproveitadas = min(horas_curso, horas_restantes)
@@ -815,11 +817,11 @@ with tabs[0]:
                     st.session_state.titulacoes.pop(idx)
                     st.rerun()  
 
-
     total_pontos_tit = 0
     LIMITE_TIT = 144
+    st.session_state.titulacoes_ordenado = sorted(st.session_state.titulacoes, key=lambda data: data[0])
 
-    for data_concl, tipo in st.session_state.titulacoes:
+    for data_concl, tipo in st.session_state.titulacoes_ordenado:
         pontos_titulo = valores_tit.get(tipo, 0)
         pontos_restantes = max(0, LIMITE_TIT - total_pontos_tit)
         pontos_aproveitados = min(pontos_titulo, pontos_restantes)
@@ -904,7 +906,11 @@ with tabs[0]:
     with col1:
         data_inicio_rm = st.date_input("Data de Início", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="m_resp_mes")
     with col2:
-        data_fim_rm = st.date_input("Data de Fim", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="f_resp_mes")
+        n_data = st.radio("", ['Sem Data', 'Escolher Data'], horizontal=True, key="modo_data")
+        if n_data == 'Escolher Data':
+            data_fim_rm = st.date_input("Data de Fim", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="f_resp_mes")
+        else:
+            data_fim_rm = DATA_FIM
     with col3:
         pontos_resp_mensal = st.number_input("Pontos de Responsabilidade p/Mês", value=0.0, min_value=0.0, format="%.3f", key="pts_rm")
     with col4:
@@ -1031,12 +1037,12 @@ with tabs[0]:
         st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 60 horas de curso ou 5,4 pontos do requisito Aperfeiçoamento. Faltam {resto_hr_a} horas de curso ou {round(resto_a, 4)} pontos.")
         pendencias = True
     
-    if round(desempenho, 4) < 2.4:
+    elif round(desempenho, 4) < 2.4:
         resto_d = 2.4 - round(desempenho, 4)
         st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 2,4 pontos do requisito Desempenho. Faltam {round(resto_d, 4)} pontos.")
         pendencias = True
     
-    if not pendencias and evolucao:
+    elif not pendencias and evolucao:
         resultado_niveis.append({
             "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
             "Meses Gastos para Evolução": meses_ate_evolucao,
@@ -1049,6 +1055,7 @@ with tabs[0]:
     ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- DATAFRAME DE CONTROLE ---------- ###
+
 with tabs[2]:
     # Criar DataFrame com as colunas
     df_carreira = pd.DataFrame(carreira, columns=[
