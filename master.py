@@ -472,9 +472,10 @@ def calculo_responsabilidades():
                 st.write("**Atuação(es) como Agente Cadastrada(s):**")
                 cols = st.columns(1)
                 for idx4, (at, meses) in enumerate(st.session_state.agente_lista):
+                    pts = pontuacao_agente.get(at, 0)
                     col = cols[idx4 % 1]
                     with col:
-                        st.write(f"Atuação {at} → Durante {meses} mês(es)")
+                        st.write(f"Atuação: {at} [{pts} ponto(s)] → Durante {meses} mês(es)")
                         if st.button("Remover", key=f"remover_agente{idx4}"):
                             st.session_state.agente_lista = [
                                 item for i, item in enumerate(st.session_state.agente_lista) if i != idx4
@@ -487,7 +488,7 @@ def calculo_responsabilidades():
                 for idx5, meses in enumerate(st.session_state.conselho_lista):
                     col = cols[idx5 % 1]
                     with col:
-                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
+                        st.write(f"1 Atuação em Conselho [0.333 ponto(s)] → Durante {meses} mês(es)")
                         if st.button("Remover", key=f"remover_conselho{idx5}"):
                             st.session_state.conselho_lista = [
                                 item for i, item in enumerate(st.session_state.conselho_lista) if i != idx5
@@ -500,7 +501,7 @@ def calculo_responsabilidades():
                 for idx6, meses in enumerate(st.session_state.prioritaria_lista):
                     col = cols[idx6 % 1]
                     with col:
-                        st.write(f" 1 Atuação → Durante {meses} mês(es)")
+                        st.write(f"1 Atuação Prioritária [0.333 ponto(s)] → Durante {meses} mês(es)")
                         if st.button("Remover", key=f"remover_prioritaria{idx6}"):
                             st.session_state.prioritaria_lista = [
                                 item for i, item in enumerate(st.session_state.prioritaria_lista) if i != idx6
