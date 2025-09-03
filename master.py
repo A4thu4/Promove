@@ -10,7 +10,7 @@ DATA_CONCLUSAO = 7306 # 20 anos (em dias)
 
 carreira = [[0 for _ in range(10)] for _ in range(DATA_CONCLUSAO)]
 
-st.set_page_config(page_title="GGDP 2", layout="wide")
+st.set_page_config(page_title="GGDP", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
