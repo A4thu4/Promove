@@ -1,3 +1,4 @@
+from turtle import down
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
@@ -10,9 +11,10 @@ DATA_CONCLUSAO = 7306 # 20 anos (em dias)
 
 carreira = [[0 for _ in range(10)] for _ in range(DATA_CONCLUSAO)]
 
-st.set_page_config(page_title="GGDP", layout="wide")
+st.set_page_config(page_title="GGDP 2", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
+
 
 def calcular_planilha(arquivo):
     import numpy as np
@@ -148,7 +150,7 @@ def calcular_planilha(arquivo):
                 st.error("Erro de Codigo em Registros")
 
         doc_1, doc_2, doc_3, doc_4, doc_5 = [], [], [], [], []
-        valores_curso = {
+        pt_curso = {
             'P1': 6,   
             'P2': 8,   
             'P3': 12,  
@@ -163,15 +165,15 @@ def calcular_planilha(arquivo):
             tipo, data = partes[0], partes[1]
             
             if tipo == 'P1':
-                doc_1.append((valores_curso.get(tipo, 0),data))
+                doc_1.append((pt_curso.get(tipo, 0),data))
             elif tipo == 'P2':
-                doc_2.append((valores_curso.get(tipo, 0),data))
+                doc_2.append((pt_curso.get(tipo, 0),data))
             elif tipo == 'P3':
-                doc_3.append((valores_curso.get(tipo, 0),data))
+                doc_3.append((pt_curso.get(tipo, 0),data))
             elif tipo == 'P4':
-                doc_4.append((valores_curso.get(tipo, 0),data))
+                doc_4.append((pt_curso.get(tipo, 0),data))
             elif tipo == 'P5':
-                doc_5.append((valores_curso.get(tipo, 0),data))
+                doc_5.append((pt_curso.get(tipo, 0),data))
             elif tipo not in ('P1','P2','P3','P4','P5'):
                 st.error("Erro de Codigo em Cursos")
 
@@ -183,7 +185,7 @@ def calcular_planilha(arquivo):
         a_prioritaria = df["A.Prioritária"].iloc[i].split(';')
         
         resp_c_comissao = []
-        pontuacao_cargos = {
+        pt_cargos = {
             "DAS1": 1.000, "DAS2": 1.000,
             "DAS3": 0.889, "DAS4": 0.889,
             "DAS5": 0.800, "DAS6": 0.800, "DAS7": 0.800, "DAID1A": 0.800, "AEG": 0.800,
@@ -199,13 +201,13 @@ def calcular_planilha(arquivo):
 
             tipo, data_i, data_f = partes[0], partes[1], partes[2]
             
-            if tipo in list(pontuacao_cargos.keys()):
+            if tipo in list(pt_cargos.keys()):
                 resp_c_comissao.append((tipo,data_i,data_f))
-            elif tipo not in list(pontuacao_cargos.keys()):
+            elif tipo not in list(pt_cargos.keys()):
                 st.error("Erro de Codigo em C.Comissão")
             
         resp_f_comissionada = []
-        pontuacao_func_c = {
+        pt_func_c = {
             "T1": 0.333, 
             "T2": 0.364, 
             "T3": 0.400, 
@@ -219,9 +221,9 @@ def calcular_planilha(arquivo):
 
             tipo, data_i, data_f = partes[0], partes[1], partes[2]
             
-            if tipo in list(pontuacao_func_c.keys()):
+            if tipo in list(pt_func_c.keys()):
                 resp_f_comissionada.append((tipo,data_i,data_f))
-            elif tipo not in list(pontuacao_func_c.keys()):
+            elif tipo not in list(pt_func_c.keys()):
                 st.error("Erro de Codigo em F.Comissionada")
 
         resp_f_designada = []
@@ -236,7 +238,7 @@ def calcular_planilha(arquivo):
                 resp_f_designada.append((data_i,data_f))
             
         resp_a_agente = []
-        pontuacao_agente = {
+        pt_agente = {
             "I": 0.333, 
             "II": 0.364, 
             "III": 0.400, 
@@ -250,9 +252,9 @@ def calcular_planilha(arquivo):
 
             tipo, data_i, data_f = partes[0], partes[1], partes[2]
             
-            if tipo in list(pontuacao_agente.keys()):
+            if tipo in list(pt_agente.keys()):
                 resp_a_agente.append((tipo,data_i,data_f))
-            elif tipo not in list(pontuacao_agente.keys()):
+            elif tipo not in list(pt_agente.keys()):
                 st.error("Erro de Codigo em A.Agente")
 
         resp_a_conselho = []
@@ -280,16 +282,16 @@ def calcular_planilha(arquivo):
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         ### ---------- AFASTAMENTOS ---------- ###
-        st.session_state.afastamentos = []
+        st.session_state.afast_pl = []
         for mes_str, falta_str in zip(mes_falta, qntd_faltas):
             if mes_str and falta_str:  
                 mes_date = pd.to_datetime(mes_str).date()
                 mes_date = mes_date.strftime("%m/%Y")
                 faltas_int = int(falta_str.strip())
-                st.session_state.afastamentos.append((mes_date, faltas_int))
+                st.session_state.afast_pl.append((mes_date, faltas_int))
         
         with coluna[0]:
-            for idx, valor in enumerate(st.session_state.afastamentos, start=1): 
+            for idx, valor in enumerate(st.session_state.afast_pl, start=1): 
                 if valor is not None:
                     st.write(f"Mês Falta {idx}:", valor[0])  
         with coluna[1]:
@@ -300,11 +302,10 @@ def calcular_planilha(arquivo):
         for i in range(len(carreira)):
             data_atual = carreira[i][0]
             falta = 0
+
             # procura se existe afastamento nesse mês
-            for mes_date, faltas in st.session_state.afastamentos:
-                mes_date = pd.to_datetime(mes_date).date()
-                if data_atual.month == mes_date.month and data_atual.year == mes_date.year:
-                    falta += faltas
+            falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                          if data_atual.month == mes.month and data_atual.year == mes.year), 0)
 
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
@@ -330,13 +331,13 @@ def calcular_planilha(arquivo):
                 carreira[i][1] = carreira[i][2] = carreira[i][3] = carreira[i][4] = 0
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         ### ---------- APERFEIÇOAMENTOS ---------- ###
-        st.session_state.aperfeicoamento = []
+        st.session_state.aperf_pl = []
         for mes_str, falta_str in zip(mes_curso, hrs_curso):
             if mes_str.strip() and falta_str.strip():  
                 mes_date = pd.to_datetime(mes_str).date()
                 mes_date = mes_date.strftime("%d/%m/%Y")
                 faltas_int = int(falta_str.strip())
-                st.session_state.aperfeicoamento.append((mes_date, faltas_int))
+                st.session_state.aperf_pl.append((mes_date, faltas_int))
         
         with coluna[0]:
             for idx, valor in enumerate(mes_curso[0:], start=1): 
@@ -348,10 +349,10 @@ def calcular_planilha(arquivo):
                     st.write(f"Carga Horaria:", valor)
 
         total_horas = 0  
-        st.session_state.aperfeicoamentos_ordenado = sorted(st.session_state.aperfeicoamento, key=lambda data: data[0])
+        st.session_state.aperf_pl_ordenado = sorted(st.session_state.aperf_pl, key=lambda data: data[0])
 
         # Percorre todos os aperfeiçoamentos cadastrados
-        for data_conclusao, horas_curso in st.session_state.aperfeicoamentos_ordenado:
+        for data_conclusao, horas_curso in st.session_state.aperf_pl_ordenado:
             data_conclusao = pd.to_datetime(data_conclusao).date()
             # Quanto desse curso ainda pode ser aproveitado
             horas_restantes = max(0, 100 - total_horas)
@@ -382,16 +383,16 @@ def calcular_planilha(arquivo):
             'Doutorado': 48    # Doutorado
         }
 
-        st.session_state.titulacao = []
+        st.session_state.tit_pl = []
         for mes_str, tipo_str in zip(mes_tit, tipo_tit):
             if mes_str and tipo_str:  
                 mes_date = pd.to_datetime(mes_str).date()
                 mes_date = mes_date.strftime("%d/%m/%Y")
                 tipo_int = str(tipo_str.strip())
-                st.session_state.titulacao.append((mes_date, tipo_int))
+                st.session_state.tit_pl.append((mes_date, tipo_int))
         
         with coluna[0]:
-            for idx, valor in enumerate(st.session_state.titulacao, start=1): 
+            for idx, valor in enumerate(st.session_state.tit_pl, start=1): 
                 if valor is not None:
                     st.write(f"Mês de Conclusão {idx}:", valor[0])  
         with coluna[1]:
@@ -401,9 +402,9 @@ def calcular_planilha(arquivo):
 
         total_pontos_tit = 0
         LIMITE_TIT = 144
-        st.session_state.titulacoes_ordenado = sorted(st.session_state.titulacao, key=lambda data: data[0])
+        st.session_state.tit_pl_ordenado = sorted(st.session_state.tit_pl, key=lambda data: data[0])
 
-        for data_concl, tipo in st.session_state.titulacoes_ordenado:
+        for data_concl, tipo in st.session_state.tit_pl_ordenado:
             data_concl = pd.to_datetime(data_concl).date()
             pontos_titulo = valores_tit.get(tipo, 0)
             pontos_restantes = max(0, LIMITE_TIT - total_pontos_tit)
@@ -423,7 +424,7 @@ def calcular_planilha(arquivo):
         pts_acumulado_ru = 0
 
         ### ---------- ARTIGOS ---------- ###
-        st.session_state.pts_artigos =  0
+        st.session_state.pts_artigos_pl =  0
         with coluna[0]:
             for valor in art_id: 
                 st.write(f"Indexados: {valor[0]} - {valor[1]}")  
@@ -431,22 +432,22 @@ def calcular_planilha(arquivo):
              for valor in art_nid: 
                 st.write(f"Não Indexados: {valor[0]} - {valor[1]}")
 
-        st.session_state.artigos_lista = []
+        st.session_state.artigos_lista_pl = []
         for numero, data_dt in art_id:
-            st.session_state.artigos_lista.append((numero, 0, data_dt))  
+            st.session_state.artigos_lista_pl.append((numero, 0, data_dt))  
         for numero, data_dt in art_nid:
-            st.session_state.artigos_lista.append((0, numero, data_dt)) 
+            st.session_state.artigos_lista_pl.append((0, numero, data_dt)) 
         
         # Calculando total de pontos
         total_pts = 0
-        for nid, art_id, _ in st.session_state.artigos_lista:
+        for nid, art_id, _ in st.session_state.artigos_lista_pl:
             total_pts += (nid * 0.5) + (art_id * 4)
-        st.session_state.pts_artigos = total_pts
-        pts_artigos = st.session_state.pts_artigos if 'pts_artigos' in st.session_state else 0
+        st.session_state.pts_artigos_pl = total_pts
+        pts_artigos_pl = st.session_state.pts_artigos_pl if 'pts_artigos_pl' in st.session_state else 0
         
         # Agrupar por data e aplicar limite
         art_dict = {}
-        for  art_id, nid, data_art in st.session_state.artigos_lista:
+        for  art_id, nid, data_art in st.session_state.artigos_lista_pl:
             if nid is not None and nid != 0:
                 pontos = nid * 0.5 
             if art_id is not None and art_id != 0:
@@ -475,7 +476,7 @@ def calcular_planilha(arquivo):
             
         ### ---------- LIVROS ---------- ###
         colunas = st.columns(3)
-        st.session_state.pts_livros =  0
+        st.session_state.pts_livros_pl =  0
         with colunas[0]:
             for valor in lv_org: 
                 st.write(f"Organizador: {valor[0]} - {valor[1]}")  
@@ -486,24 +487,24 @@ def calcular_planilha(arquivo):
              for valor in lv_comp: 
                 st.write(f"Completo: {valor[0]} - {valor[1]}")
 
-        st.session_state.livros_lista = []
+        st.session_state.livros_lista_pl = []
         for numero, data_dt in lv_org:
-            st.session_state.livros_lista.append((numero, 0, 0, data_dt))  
+            st.session_state.livros_lista_pl.append((numero, 0, 0, data_dt))  
         for numero, data_dt in lv_cap:
-            st.session_state.livros_lista.append((0, numero, 0, data_dt))  
+            st.session_state.livros_lista_pl.append((0, numero, 0, data_dt))  
         for numero, data_dt in lv_comp:
-            st.session_state.livros_lista.append((0, 0, numero, data_dt)) 
+            st.session_state.livros_lista_pl.append((0, 0, numero, data_dt)) 
 
         # Calculando total de pontos
         total_pts = 0
-        for org, cap, comp, _ in st.session_state.livros_lista:
+        for org, cap, comp, _ in st.session_state.livros_lista_pl:
             total_pts += (org * 1) + (cap * 4) + (comp * 6)
-        st.session_state.pts_livros = total_pts
-        pts_livros = st.session_state.pts_livros if 'pts_livros' in st.session_state else 0
+        st.session_state.pts_livros_pl = total_pts
+        pts_livros_pl = st.session_state.pts_livros_pl if 'pts_livros_pl' in st.session_state else 0
         
         # Agrupar por data e aplicar limite
         lv_dict = {}
-        for org, cap, comp, data_lv in st.session_state.livros_lista:
+        for org, cap, comp, data_lv in st.session_state.livros_lista_pl:
             if org is not None and org != 0:
                 pontos = org * 1
             if cap is not None and cap != 0:
@@ -535,7 +536,7 @@ def calcular_planilha(arquivo):
 
         ### ---------- PESQUISAS ---------- ###
         colunas = st.columns(4)
-        st.session_state.pts_pesquisas =  0
+        st.session_state.pts_pesquisas_pl =  0
         with colunas[0]:
             for valor in pesq_est: 
                 st.write(f"Estadual: {valor[0]} - {valor[1]}")  
@@ -549,26 +550,26 @@ def calcular_planilha(arquivo):
              for valor in pesq_int: 
                 st.write(f"Internacional: {valor[0]} - {valor[1]}")
 
-        st.session_state.pesquisas_lista = []
+        st.session_state.pesq_lista_pl = []
         for numero, data_dt in pesq_est:
-            st.session_state.pesquisas_lista.append((numero, 0, 0, 0, data_dt))  
+            st.session_state.pesq_lista_pl.append((numero, 0, 0, 0, data_dt))  
         for numero, data_dt in pesq_reg:
-            st.session_state.pesquisas_lista.append((0, numero, 0, 0, data_dt))  
+            st.session_state.pesq_lista_pl.append((0, numero, 0, 0, data_dt))  
         for numero, data_dt in pesq_nac:
-            st.session_state.pesquisas_lista.append((0, 0, numero, 0, data_dt)) 
+            st.session_state.pesq_lista_pl.append((0, 0, numero, 0, data_dt)) 
         for numero, data_dt in pesq_int:
-            st.session_state.pesquisas_lista.append((0, 0, 0, numero, data_dt)) 
+            st.session_state.pesq_lista_pl.append((0, 0, 0, numero, data_dt)) 
 
         # Calculando total de pontos
         total_pts = 0
-        for est, reg, nac, inter, _ in st.session_state.pesquisas_lista:
+        for est, reg, nac, inter, _ in st.session_state.pesq_lista_pl:
             total_pts += (est * 1) + (reg * 3) + (nac * 3) + (inter * 4)
-        st.session_state.pts_pesquisas = total_pts
-        pts_pesquisas = st.session_state.pts_pesquisas if 'pts_pesquisas' in st.session_state else 0
+        st.session_state.pts_pesquisas_pl = total_pts
+        pts_pesquisas_pl = st.session_state.pts_pesquisas_pl if 'pts_pesquisas_pl' in st.session_state else 0
         
         # Agrupar por data e aplicar limite
         pesq_dict = {}
-        for est, reg, nac, inter, data_pesq in st.session_state.pesquisas_lista:
+        for est, reg, nac, inter, data_pesq in st.session_state.pesq_lista_pl:
             if est is not None and est != 0:
                 pontos = est * 1
             if reg is not None and reg != 0:
@@ -602,7 +603,7 @@ def calcular_planilha(arquivo):
            
         ### ---------- REGISTROS ---------- ###
         colunas = st.columns(2)
-        st.session_state.pts_registros =  0
+        st.session_state.pts_registros_pl =  0
         with colunas[0]:
             for valor in reg_pat: 
                 st.write(f"Patente: {valor[0]} - {valor[1]}")  
@@ -610,22 +611,22 @@ def calcular_planilha(arquivo):
             for valor in reg_cult: 
                 st.write(f"Cultivar: {valor[0]} - {valor[1]}")
 
-        st.session_state.registros_lista = []
+        st.session_state.reg_lista_pl = []
         for numero, data_dt in reg_pat:
-            st.session_state.registros_lista.append((numero, 0, data_dt))  
+            st.session_state.reg_lista_pl.append((numero, 0, data_dt))  
         for numero, data_dt in reg_cult:
-            st.session_state.registros_lista.append((0, numero, data_dt))  
+            st.session_state.reg_lista_pl.append((0, numero, data_dt))  
         
         # Calculando total de pontos
         total_pts = 0
-        for pat, cult, _ in st.session_state.registros_lista:
+        for pat, cult, _ in st.session_state.reg_lista_pl:
             total_pts += (pat * 8) + (cult * 8)
-        st.session_state.pts_registros = total_pts
-        pts_registros = st.session_state.pts_registros if 'pts_registros' in st.session_state else 0
+        st.session_state.pts_registros_pl = total_pts
+        pts_registros_pl = st.session_state.pts_registros_pl if 'pts_registros_pl' in st.session_state else 0
         
         # Agrupar por data e aplicar limite
         reg_dict = {}
-        for pat, cult, data_reg in st.session_state.registros_lista:
+        for pat, cult, data_reg in st.session_state.reg_lista_pl:
             if pat is not None and pat != 0:
                 pontos = pat * 8
             if cult is not None and cult != 0:
@@ -654,7 +655,7 @@ def calcular_planilha(arquivo):
 
         ### ---------- CURSOS ---------- ###
         colunas = st.columns(5)
-        st.session_state.pts_cursos =  0
+        st.session_state.pts_cursos_pl =  0
         with colunas[0]:
             for valor in doc_1: 
                 st.write(f"P1: {valor[0]} - {valor[1]}")  
@@ -671,28 +672,28 @@ def calcular_planilha(arquivo):
              for valor in doc_5: 
                 st.write(f"P5: {valor[0]} - {valor[1]}")
 
-        st.session_state.cursos_lista = []
+        st.session_state.cursos_lista_pl = []
         for tipo, data_dt in doc_1:
-            st.session_state.cursos_lista.append((tipo, data_dt))  
+            st.session_state.cursos_lista_pl.append((tipo, data_dt))  
         for tipo, data_dt in doc_2:
-            st.session_state.cursos_lista.append((tipo, data_dt))  
+            st.session_state.cursos_lista_pl.append((tipo, data_dt))  
         for tipo, data_dt in doc_3:
-            st.session_state.cursos_lista.append((tipo, data_dt)) 
+            st.session_state.cursos_lista_pl.append((tipo, data_dt)) 
         for tipo, data_dt in doc_4:
-            st.session_state.cursos_lista.append((tipo, data_dt)) 
+            st.session_state.cursos_lista_pl.append((tipo, data_dt)) 
         for tipo, data_dt in doc_5:
-            st.session_state.cursos_lista.append((tipo, data_dt)) 
+            st.session_state.cursos_lista_pl.append((tipo, data_dt)) 
 
         # Calculando total de pontos
         total_pts = 0
-        for tipo, _ in st.session_state.cursos_lista:
+        for tipo, _ in st.session_state.cursos_lista_pl:
             total_pts += tipo
-        st.session_state.pts_cursos = total_pts
-        pts_cursos = st.session_state.pts_cursos if 'pts_cursos' in st.session_state else 0
+        st.session_state.pts_cursos_pl = total_pts
+        pts_cursos_pl = st.session_state.pts_cursos_pl if 'pts_cursos_pl' in st.session_state else 0
         
         # Agrupar por data e aplicar limite
         doc_dict = {}
-        for tipo, data_doc in st.session_state.cursos_lista:
+        for tipo, data_doc in st.session_state.cursos_lista_pl:
             if tipo is not None and tipo != 0:
                 pontos = tipo
 
@@ -724,16 +725,16 @@ def calcular_planilha(arquivo):
             for valor in resp_c_comissao: 
                 st.write(f"Cargo: {valor[0]} - {valor[1]} - {valor[2]}") 
 
-        st.session_state.comissao_lista = []
+        st.session_state.comissao_lista_pl = []
         for tipo, data_i, data_f in resp_c_comissao:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.comissao_lista.append((tipo, data_dti, qntd_meses))
+            st.session_state.comissao_lista_pl.append((tipo, data_dti, qntd_meses))
 
-        for cargo_c in st.session_state.comissao_lista:
+        for cargo_c in st.session_state.comissao_lista_pl:
             inicio = cargo_c[1]
             pontos = pontuacao_cargos.get(cargo_c[0], 0)
             meses = cargo_c[2]
@@ -759,16 +760,16 @@ def calcular_planilha(arquivo):
             for valor in resp_f_comissionada: 
                 st.write(f"Func C: {valor[0]} - {valor[1]} - {valor[2]}") 
 
-        st.session_state.func_c_lista = []
+        st.session_state.func_c_lista_pl = []
         for tipo, data_i, data_f in resp_f_comissionada:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.func_c_lista.append((tipo, data_dti, qntd_meses))
+            st.session_state.func_c_lista_pl.append((tipo, data_dti, qntd_meses))
 
-        for func_c in st.session_state.func_c_lista:
+        for func_c in st.session_state.func_c_lista_pl:
             inicio = func_c[1]
             pontos = pontuacao_func_c.get(func_c[0], 0)
             meses = func_c[2]
@@ -794,16 +795,16 @@ def calcular_planilha(arquivo):
             for valor in resp_f_designada: 
                 st.write(f"Func D: {valor[0]} - {valor[1]}") 
 
-        st.session_state.func_d_lista = []
+        st.session_state.func_d_lista_pl = []
         for data_i, data_f in resp_f_designada:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.func_d_lista.append((data_dti, qntd_meses))
+            st.session_state.func_d_lista_pl.append((data_dti, qntd_meses))
 
-        for func_d in st.session_state.func_d_lista:
+        for func_d in st.session_state.func_d_lista_pl:
             inicio = func_d[0]
             pontos = 0.333
             meses = func_d[1]
@@ -829,16 +830,16 @@ def calcular_planilha(arquivo):
             for valor in resp_a_agente: 
                 st.write(f"At. Agente: {valor[0]} - {valor[1]} - {valor[2]}") 
 
-        st.session_state.agente_lista = []
+        st.session_state.agente_lista_pl = []
         for tipo, data_i, data_f in resp_a_agente:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.agente_lista.append((tipo, data_dti, qntd_meses))
+            st.session_state.agente_lista_pl.append((tipo, data_dti, qntd_meses))
 
-        for at_agente in st.session_state.agente_lista:
+        for at_agente in st.session_state.agente_lista_pl:
             inicio = at_agente[1]
             pontos = pontuacao_agente.get(at_agente[0], 0)
             meses = at_agente[2]
@@ -864,16 +865,16 @@ def calcular_planilha(arquivo):
             for valor in resp_a_conselho: 
                 st.write(f"At. Conselho: {valor[0]} - {valor[1]}") 
 
-        st.session_state.a_conselho_lista = []
+        st.session_state.a_conselho_lista_pl = []
         for data_i, data_f in resp_a_conselho:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.a_conselho_lista.append((data_dti, qntd_meses))
+            st.session_state.a_conselho_lista_pl.append((data_dti, qntd_meses))
 
-        for at_conselho in st.session_state.a_conselho_lista:
+        for at_conselho in st.session_state.a_conselho_lista_pl:
             inicio = at_conselho[0]
             pontos = 0.333
             meses = at_conselho[1]
@@ -899,16 +900,16 @@ def calcular_planilha(arquivo):
             for valor in resp_a_prioritaria: 
                 st.write(f"At. Prioritaria: {valor[0]} - {valor[1]}") 
 
-        st.session_state.a_prioritaria_lista = []
+        st.session_state.a_prioritaria_lista_pl = []
         for data_i, data_f in resp_a_prioritaria:
             data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
             data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
-            st.session_state.a_prioritaria_lista.append((data_dti, qntd_meses))
+            st.session_state.a_prioritaria_lista_pl.append((data_dti, qntd_meses))
 
-        for at_prioritaria in st.session_state.a_prioritaria_lista:
+        for at_prioritaria in st.session_state.a_prioritaria_lista_pl:
             inicio = at_prioritaria[0]
             pontos = 0.333
             meses = at_prioritaria[1]
@@ -1078,11 +1079,6 @@ with tabs[0]:
                     st.session_state.afastamentos.append((mes_faltas, qntd_faltas))
                 else:
                     st.error("Todas as informações precisam ser preenchidas.")
-
-        for mes, _ in st.session_state.afastamentos:
-            mes = pd.to_datetime(mes).date()
-            mes = mes.strftime("%m/%Y")
-            st.session_state.afastamentos.append((mes, _))
 
         # Mostrar afastamentos cadastrados
         if st.session_state.afastamentos:
@@ -2130,9 +2126,6 @@ with tabs[1]:
                 file_name="Resultado Evoluções.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-    
-            
-    
 
 ### ---------- NÃO CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####   
@@ -2173,7 +2166,7 @@ with tabs[2]:
         data_prevista18 = data_inicio + relativedelta(months=18)
         data_prevista12 = data_inicio + relativedelta(months=12)
         
-        if meses_passados < 12:
+        if data_atual < data_prevista12:
             continue
         
         if data_prevista12 <= data_atual < data_prevista18 :
@@ -2190,8 +2183,6 @@ with tabs[2]:
                 pts_resto = pontos - 48
                 break
         
-    diff = relativedelta(evolucao, data_inicial)
-    qtd_meses = diff.years * 12 + diff.months
     desempenho = aperfeicoamento = 0
     for linha in carreira:
         data = linha[0]
@@ -2203,90 +2194,102 @@ with tabs[2]:
     col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
     col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
     
+    total_horas = 0
     pendencias = False
-    if round(aperfeicoamento, 4) < 5.4:
-        resto_hr_a = 60 - total_horas
-        resto_a = 5.4 - round(aperfeicoamento, 4)
-        st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 60 horas de curso ou 5,4 pontos do requisito Aperfeiçoamento. Faltam {resto_hr_a} horas de curso ou {round(resto_a, 4)} pontos.")
+    motivo = ""
+
+    if not evolucao:
         pendencias = True
-    
+        motivo = "Não atingiu pontuação mínima"
+    elif round(aperfeicoamento, 4) < 5.4:
+        pendencias = True
+        motivo = "Não atingiu requisito de Aperfeiçoamento"
     elif round(desempenho, 4) < 2.4:
-        resto_d = 2.4 - round(desempenho, 4)
-        st.error(f"O servidor não cumpriu os requisitos mínimos obrigatórios para a evolução funcional: 2,4 pontos do requisito Desempenho. Faltam {round(resto_d, 4)} pontos.")
         pendencias = True
-    
-    elif not pendencias and evolucao:
+        motivo = "Não atingiu requisito de Desempenho"
+
+    if pendencias:
+        resultado_niveis.append({
+            "Data da Próxima Evolução": "-",
+            "Meses Gastos para Evolução": "-",
+            "Pontos Remanescentes": "-",
+            "Status": "Não apto a evoluir",
+            "Motivo": motivo
+        })
+    else:
         resultado_niveis.append({
             "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
             "Meses Gastos para Evolução": meses_ate_evolucao,
-            "Pontos Remanescentes": pts_resto
+            "Pontos Remanescentes": round(pts_resto, 4),
+            "Status": "Apto",
+            "Motivo": "-"
         })
 
-        df_resultados = pd.DataFrame(resultado_niveis)
-        st.dataframe(df_resultados, hide_index=True, height=700)
+    df_resultados = pd.DataFrame(resultado_niveis)
+    st.dataframe(df_resultados, hide_index=True, height=700)
 
     ### ---------- CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- DATAFRAME DE CONTROLE ---------- ###
 
-    st.divider()
-    # Criar DataFrame com as colunas
-    df_carreira = pd.DataFrame(carreira, columns=[
-        "Data",
-        "Pontos Base (0.2)",
-        "Pontos Base Descontado",
-        "Desempenho",
-        "Desempenho Descontado",
-        "Aperfeiçoamento",
-        "Titulação",
-        "Resp. Únicas",
-        "Resp. Mensais",
-        "Total Acumulado" 
-    ])
+    # st.divider()
+    # # Criar DataFrame com as colunas
+    # df_carreira = pd.DataFrame(carreira, columns=[
+    #     "Data",
+    #     "Pontos Base (0.2)",
+    #     "Pontos Base Descontado",
+    #     "Desempenho",
+    #     "Desempenho Descontado",
+    #     "Aperfeiçoamento",
+    #     "Titulação",
+    #     "Resp. Únicas",
+    #     "Resp. Mensais",
+    #     "Total Acumulado" 
+    # ])
 
-    # Arredondar para 4 casas decimais
-    df_carreira = df_carreira.round(4)
+    # # Arredondar para 4 casas decimais
+    # df_carreira = df_carreira.round(4)
 
-    # Selecionar meses para exibição (primeiros 12 + um por ano após)
-    meses_exibir = list(range(DATA_CONCLUSAO))
-    df_exibir = df_carreira.iloc[meses_exibir]
+    # # Selecionar meses para exibição (primeiros 12 + um por ano após)
+    # meses_exibir = list(range(DATA_CONCLUSAO))
+    # df_exibir = df_carreira.iloc[meses_exibir]
 
-    # Configurar formatação de exibição
-    pd.options.display.float_format = '{:.4f}'.format
+    # # Configurar formatação de exibição
+    # pd.options.display.float_format = '{:.4f}'.format
 
-    # Mostrar tabela com colunas selecionadas
-    if "Data" in df_exibir.columns:
-        df_exibir["Data"] = pd.to_datetime(df_exibir["Data"], errors="coerce").dt.strftime("%d/%m/%Y")
+    # # Mostrar tabela com colunas selecionadas
+    # if "Data" in df_exibir.columns:
+    #     df_exibir["Data"] = pd.to_datetime(df_exibir["Data"], errors="coerce").dt.strftime("%d/%m/%Y")
 
-    st.dataframe(
-        df_exibir[[
-            "Data",
-            "Pontos Base (0.2)",
-            "Pontos Base Descontado",
-            "Desempenho",
-            "Desempenho Descontado",
-            "Aperfeiçoamento",
-            "Titulação",
-            "Resp. Únicas",
-            "Resp. Mensais",
-            "Total Acumulado" 
-        ]],
-        height=600,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
-            "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
-            "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
-            "Desempenho": st.column_config.NumberColumn(format="%.4f"),
-            "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
-            "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
-            "Titulação": st.column_config.NumberColumn(format="%.4f"),
-            "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
-            "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
-            "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
-        }
-    )
+    # st.dataframe(
+    #     df_exibir[[
+    #         "Data",
+    #         "Pontos Base (0.2)",
+    #         "Pontos Base Descontado",
+    #         "Desempenho",
+    #         "Desempenho Descontado",
+    #         "Aperfeiçoamento",
+    #         "Titulação",
+    #         "Resp. Únicas",
+    #         "Resp. Mensais",
+    #         "Total Acumulado" 
+    #     ]],
+    #     height=600,
+    #     use_container_width=True,
+    #     hide_index=True,
+    #     column_config={
+    #         "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
+    #         "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
+    #         "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
+    #         "Desempenho": st.column_config.NumberColumn(format="%.4f"),
+    #         "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
+    #         "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
+    #         "Titulação": st.column_config.NumberColumn(format="%.4f"),
+    #         "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
+    #         "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
+    #         "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
+    #     }
+    # )
 
 
     ### ---------- CONCLUIDO ---------- ###
