@@ -10,7 +10,7 @@ DATA_CONCLUSAO = 7306 # 20 anos (em dias)
 
 carreira = [[0 for _ in range(10)] for _ in range(DATA_CONCLUSAO)]
 
-st.set_page_config(page_title="GGDP", layout="wide")
+st.set_page_config(page_title="SIMULADOR GGDP", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
@@ -1022,7 +1022,19 @@ def calcular_planilha(arquivo):
             })
         
     df_results = pd.DataFrame(result_niveis)
-    return df_results
+    st.dataframe(df_results, hide_index=True, height=700)
+
+    import io 
+    excel_buffer = io.BytesIO()
+    df_results.to_excel(excel_buffer, index=False, engine='openpyxl')
+    excel_buffer.seek(0)
+    
+    st.download_button(
+            label="Exportar",
+            data=excel_buffer.getvalue(),
+            file_name="Resultado Evoluções.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 ### ---------- MAIN ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -2111,20 +2123,7 @@ with tabs[1]:
     st.session_state.arquivo = st.file_uploader("Arquivo", type=["xlsx","xls"], key=f"wb_{st.session_state.file_reset}")
 
     if st.session_state.arquivo is not None:
-        df_results = calcular_planilha(st.session_state.arquivo)
-        st.dataframe(df_results, hide_index=True, height=700)
-
-        import io 
-        excel_buffer = io.BytesIO()
-        df_results.to_excel(excel_buffer, index=False, engine='openpyxl')
-        excel_buffer.seek(0)
-        
-        st.download_button(
-                label="Exportar",
-                data=excel_buffer.getvalue(),
-                file_name="Resultado Evoluções.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        calcular_planilha(st.session_state.arquivo)
 
 ### ---------- NÃO CONCLUIDO ---------- ###
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####   
@@ -2145,7 +2144,6 @@ with tabs[1]:
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 with tabs[2]:
     ### ---------- CÁLCULO DE TEMPO ---------- ###
-
     resultado_niveis = []
 
     # Dados iniciais
@@ -2165,7 +2163,7 @@ with tabs[2]:
         data_prevista18 = data_inicio + relativedelta(months=18)
         data_prevista12 = data_inicio + relativedelta(months=12)
         
-        if data_atual < data_prevista12:
+        if meses_passados < 12:
             continue
         
         if data_prevista12 <= data_atual < data_prevista18 :
@@ -2182,6 +2180,8 @@ with tabs[2]:
                 pts_resto = pontos - 48
                 break
         
+    diff = relativedelta(evolucao, data_inicial)
+    qtd_meses = diff.years * 12 + diff.months
     desempenho = aperfeicoamento = 0
     for linha in carreira:
         data = linha[0]
@@ -2193,7 +2193,6 @@ with tabs[2]:
     col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
     col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
     
-    total_horas = 0
     pendencias = False
     motivo = ""
 
@@ -2231,64 +2230,61 @@ with tabs[2]:
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
 ### ---------- DATAFRAME DE CONTROLE ---------- ###
 
-    # st.divider()
-    # # Criar DataFrame com as colunas
-    # df_carreira = pd.DataFrame(carreira, columns=[
-    #     "Data",
-    #     "Pontos Base (0.2)",
-    #     "Pontos Base Descontado",
-    #     "Desempenho",
-    #     "Desempenho Descontado",
-    #     "Aperfeiçoamento",
-    #     "Titulação",
-    #     "Resp. Únicas",
-    #     "Resp. Mensais",
-    #     "Total Acumulado" 
-    # ])
+    st.divider()
+    # Criar DataFrame com as colunas
+    df_carreira = pd.DataFrame(carreira, columns=[
+        "Data",
+        "Pontos Base (0.2)",
+        "Pontos Base Descontado",
+        "Desempenho",
+        "Desempenho Descontado",
+        "Aperfeiçoamento",
+        "Titulação",
+        "Resp. Únicas",
+        "Resp. Mensais",
+        "Total Acumulado" 
+    ])
 
-    # # Arredondar para 4 casas decimais
-    # df_carreira = df_carreira.round(4)
+    # Arredondar para 4 casas decimais
+    df_carreira = df_carreira.round(4)
 
-    # # Selecionar meses para exibição (primeiros 12 + um por ano após)
-    # meses_exibir = list(range(DATA_CONCLUSAO))
-    # df_exibir = df_carreira.iloc[meses_exibir]
+    # Selecionar meses para exibição (primeiros 12 + um por ano após)
+    meses_exibir = list(range(DATA_CONCLUSAO))
+    df_exibir = df_carreira.iloc[meses_exibir]
 
-    # # Configurar formatação de exibição
-    # pd.options.display.float_format = '{:.4f}'.format
+    # Configurar formatação de exibição
+    pd.options.display.float_format = '{:.4f}'.format
 
-    # # Mostrar tabela com colunas selecionadas
-    # if "Data" in df_exibir.columns:
-    #     df_exibir["Data"] = pd.to_datetime(df_exibir["Data"], errors="coerce").dt.strftime("%d/%m/%Y")
-
-    # st.dataframe(
-    #     df_exibir[[
-    #         "Data",
-    #         "Pontos Base (0.2)",
-    #         "Pontos Base Descontado",
-    #         "Desempenho",
-    #         "Desempenho Descontado",
-    #         "Aperfeiçoamento",
-    #         "Titulação",
-    #         "Resp. Únicas",
-    #         "Resp. Mensais",
-    #         "Total Acumulado" 
-    #     ]],
-    #     height=600,
-    #     use_container_width=True,
-    #     hide_index=True,
-    #     column_config={
-    #         "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
-    #         "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
-    #         "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
-    #         "Desempenho": st.column_config.NumberColumn(format="%.4f"),
-    #         "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
-    #         "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
-    #         "Titulação": st.column_config.NumberColumn(format="%.4f"),
-    #         "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
-    #         "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
-    #         "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
-    #     }
-    # )
+    # Mostrar tabela com colunas selecionadas
+    st.dataframe(
+        df_exibir[[
+            "Data",
+            "Pontos Base (0.2)",
+            "Pontos Base Descontado",
+            "Desempenho",
+            "Desempenho Descontado",
+            "Aperfeiçoamento",
+            "Titulação",
+            "Resp. Únicas",
+            "Resp. Mensais",
+            "Total Acumulado" 
+        ]],
+        height=600,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
+            "Pontos Base (0.2)": st.column_config.NumberColumn(format="%.4f"),
+            "Pontos Base Descontado": st.column_config.NumberColumn(format="%.4f"),
+            "Desempenho": st.column_config.NumberColumn(format="%.4f"),
+            "Desempenho Descontado": st.column_config.NumberColumn(format="%.4f"),
+            "Aperfeiçoamento": st.column_config.NumberColumn(format="%.4f"),
+            "Titulação": st.column_config.NumberColumn(format="%.4f"),
+            "Resp. Únicas":st.column_config.NumberColumn(format="%.4f"),
+            "Resp. Mensais": st.column_config.NumberColumn(format="%.4f"),
+            "Total Acumulado": st.column_config.NumberColumn(format="%.4f")
+        }
+    )
 
 
     ### ---------- CONCLUIDO ---------- ###
