@@ -14,7 +14,6 @@ st.set_page_config(page_title="SIMULADOR GGDP", layout="wide")
 
 tabs = st.tabs(['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'])
 
-
 def calcular_planilha(arquivo):
     import numpy as np
     result_niveis = []
@@ -977,10 +976,6 @@ def calcular_planilha(arquivo):
                     meses_ate_evolucao = meses_passados
                     pts_resto = pts_loop - 48
                     break
-            
-            ano_d = evolucao.year - dt_inicial.year
-            mes_d = evolucao.month - dt_inicial.month
-            qtd_meses = ano_d * 12 + mes_d
             
         desempenho, aperfeicoamento = 0, 0
         if evolucao:
