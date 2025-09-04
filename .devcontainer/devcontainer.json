@@ -5,7 +5,7 @@
   "customizations": {
     "codespaces": {
       "openFiles": [
-        "main.py"
+        "README.md"
       ]
     },
     "vscode": {
@@ -20,7 +20,5 @@
     "otherPortsAttributes": {
       "label": "Application",
       "onAutoForward": "ignore"
-  },
-  "forwardPorts": [
-  ]
+  }
 }
