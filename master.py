@@ -43,6 +43,9 @@ def calcular_planilha(arquivo):
     for i in range (len(df)):
         st.divider()
         identificador = df["ID"].iloc[i]
+        if identificador in ('None', 'NaT', 'Nan','', None): 
+            break
+
         st.write("ID:", identificador)
 
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
@@ -55,6 +58,9 @@ def calcular_planilha(arquivo):
         ]
         
         pts_remanescentes = df["Pontos Última Evolução"].iloc[i]
+        if pts_remanescentes in ('None', 'NaT', 'Nan','', None): 
+            pts_remanescentes = 0
+
         st.write("Pts:", pts_remanescentes)
 
         coluna = st.columns(2)
@@ -286,7 +292,7 @@ def calcular_planilha(arquivo):
             if mes_str and falta_str:  
                 mes_date = pd.to_datetime(mes_str).date()
                 mes_date = mes_date.strftime("%m/%Y")
-                faltas_int = int(falta_str.strip())
+                faltas_int = int(float(falta_str))
                 st.session_state.afast_pl.append((mes_date, faltas_int))
         
         with coluna[0]:
@@ -294,7 +300,7 @@ def calcular_planilha(arquivo):
                 if valor is not None:
                     st.write(f"Mês Falta {idx}:", valor[0])  
         with coluna[1]:
-            for idx, valor in enumerate(qntd_faltas[0:], start=1): 
+            for _, valor in st.session_state.afast_pl: 
                 if valor is not None:
                     st.write(f"N° de Faltas:", valor)
 
