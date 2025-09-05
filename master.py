@@ -45,7 +45,7 @@ def calcular_planilha(arquivo):
         if identificador in ('None', 'NaT', 'Nan','', None): 
             break
 
-        st.write("ID:", identificador)
+        st.write(f"ID: {identificador}")
 
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
         st.write("Data:", data_inicio.strftime("%d/%m/%Y"))
@@ -60,7 +60,7 @@ def calcular_planilha(arquivo):
         if pts_remanescentes in ('None', 'NaT', 'Nan','', None): 
             pts_remanescentes = 0
 
-        st.write("Pts:", pts_remanescentes)
+        st.write(f"Pts: {pts_remanescentes}")
 
         coluna = st.columns(2)
 
@@ -301,7 +301,7 @@ def calcular_planilha(arquivo):
         with coluna[1]:
             for _, valor in st.session_state.afast_pl: 
                 if valor is not None:
-                    st.write(f"N° de Faltas:", valor)
+                    st.write(f"N° de Faltas: {valor}")
 
         for i in range(len(carreira)):
             data_atual = carreira[i][0]
