@@ -35,21 +35,21 @@ def calcular_planilha(arquivo):
     cols = ["Data de Enquadramento ou Última Evolução"]
     
     st.dataframe(
-        df.style.format({col: lambda x: x.strftime("%d/%m/%Y") if pd.notnull(x) else "" for col in cols}),
+        df,
         hide_index=True
     )
 
     for i in range (len(df)):
         st.divider()
         identificador = df["ID"].iloc[i]
+        
         if identificador in ('None', 'NaT', 'Nan','', None): 
             break
-
+        
         st.write(f"ID: {identificador}")
-
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
         st.write("Data:", data_inicio.strftime("%d/%m/%Y"))
-        
+
         DATA_FIM = data_inicio + relativedelta(years=20)
         carreira = [
             [data_inicio + timedelta(days=i)] + [0] * 9
@@ -59,15 +59,13 @@ def calcular_planilha(arquivo):
         pts_remanescentes = df["Pontos Última Evolução"].iloc[i]
         if pts_remanescentes in ('None', 'NaT', 'Nan','', None): 
             pts_remanescentes = 0
-
         st.write(f"Pts: {pts_remanescentes}")
 
         coluna = st.columns(2)
 
         mes_falta = str(df["Mês"].iloc[i])
         mes_falta = mes_falta.split(';')
-        qntd_faltas = str(df["N° de faltas"].iloc[i])
-        qntd_faltas = qntd_faltas.split(';')
+        qntd_faltas = str(df["N° de faltas"].iloc[i]).split(';')
 
         mes_curso = str(df["Data de Conclusão"].iloc[i])
         mes_curso = mes_curso.split(';')
@@ -178,7 +176,7 @@ def calcular_planilha(arquivo):
                 doc_4.append((pt_curso.get(tipo, 0),data))
             elif tipo == 'P5':
                 doc_5.append((pt_curso.get(tipo, 0),data))
-            elif tipo not in ('P1','P2','P3','P4','P5'):
+            elif tipo not in ('P1','P2','P3','P4','P5',''):
                 st.error("Erro de Codigo em Cursos")
 
         c_comissao = df["C.Comissão"].iloc[i].split(';')
@@ -200,13 +198,13 @@ def calcular_planilha(arquivo):
         }
         for cargo in c_comissao:
             partes = cargo.split('-')
-            if len(partes) < 3:
+            if len(partes) < 2:
                 continue  # pula se não tiver o formato esperado
 
             tipo, data_i, data_f = partes[0], partes[1], partes[2]
             
             if tipo in list(pt_cargos.keys()):
-                resp_c_comissao.append((tipo,data_i,data_f))
+                resp_c_comissao.append((tipo, data_i, data_f))
             elif tipo not in list(pt_cargos.keys()):
                 st.error("Erro de Codigo em C.Comissão")
             
@@ -289,7 +287,7 @@ def calcular_planilha(arquivo):
         st.session_state.afast_pl = []
         for mes_str, falta_str in zip(mes_falta, qntd_faltas):
             if mes_str and falta_str:  
-                mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
+                mes_date = pd.to_datetime(mes_str, dayfirst=False, errors="coerce").date()
                 mes_date = mes_date.strftime("%m/%Y")
                 faltas_int = int(float(falta_str))
                 st.session_state.afast_pl.append((mes_date, faltas_int))
@@ -303,13 +301,17 @@ def calcular_planilha(arquivo):
                 if valor is not None:
                     st.write(f"N° de Faltas: {valor}")
 
+        st.session_state.afast_pl = [
+            (pd.to_datetime(mes, dayfirst=True).date(), faltas)
+            for mes, faltas in st.session_state.afast_pl
+        ]
+
         for i in range(len(carreira)):
             data_atual = carreira[i][0]
             falta = 0
-
             # procura se existe afastamento nesse mês
-            falta += next((faltas for mes, faltas in st.session_state.afastamentos
-                          if data_atual.month == mes.month and data_atual.year == mes.year), 0)
+            falta = sum(faltas for mes, faltas in st.session_state.afast_pl
+            if data_atual.month == mes.month and data_atual.year == mes.year)
 
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
@@ -338,8 +340,8 @@ def calcular_planilha(arquivo):
         st.session_state.aperf_pl = []
         for mes_str, falta_str in zip(mes_curso, hrs_curso):
             if mes_str.strip() and falta_str.strip():  
-                mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
-                mes_date = mes_date.strftime("%d/%m/%Y")
+                mes_date1 = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
+                mes_date = mes_date1.strftime("%d/%m/%Y")
                 faltas_int = int(falta_str.strip())
                 st.session_state.aperf_pl.append((mes_date, faltas_int))
         
@@ -353,11 +355,9 @@ def calcular_planilha(arquivo):
                     st.write(f"Carga Horaria:", valor)
 
         total_horas = 0  
-        st.session_state.aperf_pl_ordenado = sorted(st.session_state.aperf_pl, key=lambda data: data[0])
-
         # Percorre todos os aperfeiçoamentos cadastrados
-        for data_conclusao, horas_curso in st.session_state.aperf_pl_ordenado:
-            data_conclusao = pd.to_datetime(data_conclusao).date()
+        for data_conclusao, horas_curso in st.session_state.aperf_pl:
+            data_conclusao = pd.to_datetime(data_conclusao, dayfirst=True).date()
             # Quanto desse curso ainda pode ser aproveitado
             horas_restantes = max(0, 100 - total_horas)
             horas_aproveitadas = min(horas_curso, horas_restantes)
@@ -372,9 +372,7 @@ def calcular_planilha(arquivo):
                 # Encontra a linha na matriz carreira e insere os pontos
                 for idx, linha in enumerate(carreira):
                     data_linha = linha[0]
-                    if (data_linha.year == data_conclusao.year and 
-                        data_linha.month == data_conclusao.month and 
-                        data_linha.day == data_conclusao.day):
+                    if data_linha == data_conclusao:
                         carreira[idx][5] += pontos
                         break
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -386,15 +384,15 @@ def calcular_planilha(arquivo):
             'Mestrado': 24,  # Mestrado
             'Doutorado': 48    # Doutorado
         }
-
+        
         st.session_state.tit_pl = []
         for mes_str, tipo_str in zip(mes_tit, tipo_tit):
-            if mes_str and tipo_str:  
+            if mes_str.strip() and tipo_str.strip():
                 mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
                 mes_date = mes_date.strftime("%d/%m/%Y")
-                tipo_int = str(tipo_str.strip())
+                tipo_int = str(tipo_str)
                 st.session_state.tit_pl.append((mes_date, tipo_int))
-        
+       
         with coluna[0]:
             for idx, valor in enumerate(st.session_state.tit_pl, start=1): 
                 if valor is not None:
@@ -409,7 +407,7 @@ def calcular_planilha(arquivo):
         st.session_state.tit_pl_ordenado = sorted(st.session_state.tit_pl, key=lambda data: data[0])
 
         for data_concl, tipo in st.session_state.tit_pl_ordenado:
-            data_concl = pd.to_datetime(data_concl).date()
+            data_concl = pd.to_datetime(data_concl, dayfirst=True).date()
             pontos_titulo = valores_tit.get(tipo, 0)
             pontos_restantes = max(0, LIMITE_TIT - total_pontos_tit)
             pontos_aproveitados = min(pontos_titulo, pontos_restantes)
@@ -418,7 +416,7 @@ def calcular_planilha(arquivo):
             if pontos_aproveitados > 0:
                 for i, linha in enumerate(carreira):
                     d = linha[0]
-                    if d.year == data_concl.year and d.month == data_concl.month and d.day == data_concl.day:
+                    if d == data_concl:
                         carreira[i][6] += pontos_aproveitados
                         break
 
@@ -473,7 +471,7 @@ def calcular_planilha(arquivo):
             # Aplicar na matriz carreira (coluna 7)
             for i, linha in enumerate(carreira):
                 d = linha[0]
-                if d.year == data_dt.year and d.month == data_dt.month and d.day == data_dt.day:
+                if d == data_dt:
                     carreira[i][7] = pontos_aj
                     pts_acumulado_ru += pontos_aj
                     break
@@ -533,7 +531,7 @@ def calcular_planilha(arquivo):
             # Aplicar na matriz carreira (coluna 7)
             for i, linha in enumerate(carreira):
                 d = linha[0]
-                if d.year == data_dt.year and d.month == data_dt.month and d.day == data_dt.day:
+                if d == data_dt:
                     carreira[i][7] = pontos_aj
                     pts_acumulado_ru += pontos_aj
                     break
@@ -600,7 +598,7 @@ def calcular_planilha(arquivo):
             # Aplicar na matriz carreira (coluna 7)
             for i, linha in enumerate(carreira):
                 d = linha[0]
-                if d.year == data_dt.year and d.month == data_dt.month and d.day == data_dt.day:
+                if d == data_dt:
                     carreira[i][7] = pontos_aj
                     pts_acumulado_ru += pontos_aj
                     break
@@ -652,7 +650,7 @@ def calcular_planilha(arquivo):
             # Aplicar na matriz carreira (coluna 7)
             for i, linha in enumerate(carreira):
                 d = linha[0]
-                if d.year == data_dt.year and d.month == data_dt.month and d.day == data_dt.day:
+                if d == data_dt:
                     carreira[i][7] = pontos_aj
                     pts_acumulado_ru += pontos_aj
                     break
@@ -718,7 +716,7 @@ def calcular_planilha(arquivo):
             # Aplicar na matriz carreira (coluna 7)
             for i, linha in enumerate(carreira):
                 d = linha[0]
-                if d.year == data_dt.year and d.month == data_dt.month and d.day == data_dt.day:
+                if d == data_dt:
                     carreira[i][7] = pontos_aj
                     pts_acumulado_ru += pontos_aj
                     break
@@ -731,18 +729,21 @@ def calcular_planilha(arquivo):
 
         st.session_state.comissao_lista_pl = []
         for tipo, data_i, data_f in resp_c_comissao:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+            
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.comissao_lista_pl.append((tipo, data_dti, qntd_meses))
-
+        
         for cargo_c in st.session_state.comissao_lista_pl:
             inicio = cargo_c[1]
-            pontos = pontuacao_cargos.get(cargo_c[0], 0)
+            pontos = pt_cargos.get(cargo_c[0], 0)
             meses = cargo_c[2]
-            
+
+            inicio = pd.to_datetime(inicio, dayfirst=True).date()
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
@@ -766,16 +767,18 @@ def calcular_planilha(arquivo):
 
         st.session_state.func_c_lista_pl = []
         for tipo, data_i, data_f in resp_f_comissionada:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+            
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.func_c_lista_pl.append((tipo, data_dti, qntd_meses))
 
         for func_c in st.session_state.func_c_lista_pl:
             inicio = func_c[1]
-            pontos = pontuacao_func_c.get(func_c[0], 0)
+            pontos = pt_func_c.get(func_c[0], 0)
             meses = func_c[2]
             
             for i in range(len(carreira)):
@@ -801,11 +804,13 @@ def calcular_planilha(arquivo):
 
         st.session_state.func_d_lista_pl = []
         for data_i, data_f in resp_f_designada:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.func_d_lista_pl.append((data_dti, qntd_meses))
 
         for func_d in st.session_state.func_d_lista_pl:
@@ -836,16 +841,18 @@ def calcular_planilha(arquivo):
 
         st.session_state.agente_lista_pl = []
         for tipo, data_i, data_f in resp_a_agente:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+            
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.agente_lista_pl.append((tipo, data_dti, qntd_meses))
 
         for at_agente in st.session_state.agente_lista_pl:
             inicio = at_agente[1]
-            pontos = pontuacao_agente.get(at_agente[0], 0)
+            pontos = pt_agente.get(at_agente[0], 0)
             meses = at_agente[2]
             
             for i in range(len(carreira)):
@@ -871,11 +878,13 @@ def calcular_planilha(arquivo):
 
         st.session_state.a_conselho_lista_pl = []
         for data_i, data_f in resp_a_conselho:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.a_conselho_lista_pl.append((data_dti, qntd_meses))
 
         for at_conselho in st.session_state.a_conselho_lista_pl:
@@ -906,11 +915,13 @@ def calcular_planilha(arquivo):
 
         st.session_state.a_prioritaria_lista_pl = []
         for data_i, data_f in resp_a_prioritaria:
-            data_dti = datetime.strptime(data_i, "%d/%m/%Y").date()
-            data_dtf = datetime.strptime(data_f, "%d/%m/%Y").date() if data_f != 'SF' else DATA_FIM
+            data_dti = pd.to_datetime(data_i, dayfirst=True).date()
+            data_dtf = pd.to_datetime(data_f, dayfirst=True).date() if data_f != 'SF' else DATA_FIM
+
             delta_ano = data_dtf.year - data_dti.year
             delta_mes = data_dtf.month - data_dti.month
             qntd_meses = delta_ano * 12 + delta_mes
+            
             st.session_state.a_prioritaria_lista_pl.append((data_dti, qntd_meses))
 
         for at_prioritaria in st.session_state.a_prioritaria_lista_pl:
