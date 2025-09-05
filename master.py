@@ -289,7 +289,7 @@ def calcular_planilha(arquivo):
         st.session_state.afast_pl = []
         for mes_str, falta_str in zip(mes_falta, qntd_faltas):
             if mes_str and falta_str:  
-                mes_date = pd.to_datetime(mes_str).date()
+                mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
                 mes_date = mes_date.strftime("%m/%Y")
                 faltas_int = int(float(falta_str))
                 st.session_state.afast_pl.append((mes_date, faltas_int))
@@ -338,7 +338,7 @@ def calcular_planilha(arquivo):
         st.session_state.aperf_pl = []
         for mes_str, falta_str in zip(mes_curso, hrs_curso):
             if mes_str.strip() and falta_str.strip():  
-                mes_date = pd.to_datetime(mes_str).date()
+                mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
                 mes_date = mes_date.strftime("%d/%m/%Y")
                 faltas_int = int(falta_str.strip())
                 st.session_state.aperf_pl.append((mes_date, faltas_int))
@@ -390,7 +390,7 @@ def calcular_planilha(arquivo):
         st.session_state.tit_pl = []
         for mes_str, tipo_str in zip(mes_tit, tipo_tit):
             if mes_str and tipo_str:  
-                mes_date = pd.to_datetime(mes_str).date()
+                mes_date = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
                 mes_date = mes_date.strftime("%d/%m/%Y")
                 tipo_int = str(tipo_str.strip())
                 st.session_state.tit_pl.append((mes_date, tipo_int))
