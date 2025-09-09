@@ -275,12 +275,12 @@ with tab3:
             with col2:
                 tmp_atuacao_prioritaria_5 = st.number_input("Quantidade de Meses em Atuação Prioritária", value=60, key="meses_prioritaria_5anos")
 
-    pts_resp_inical_comissao = pts_comissao_5 * 60
-    pts_resp_inical_func_comissionada = pts_func_comissionada_5 * 60
-    pts_resp_inicial_func_designada = 60 * 0.333 if sn_func_designada_5 == "Sim" else 0
-    pts_resp_inicial_agente = pts_agente_5 * 60   
-    pts_resp_inical_conselho = 60 * 0.333 if atuacao_conselho_5 == "Sim" else 0
-    pts_resp_inical_prioritaria = 60 * 0.333 if atuacao_prioritaria_5 == "Sim" else 0
+    pts_resp_inical_comissao = pts_comissao_5 * tmp_comissao_5
+    pts_resp_inical_func_comissionada = pts_func_comissionada_5 * tmp_func_comissionada_5
+    pts_resp_inicial_func_designada = tmp_func_designada_5 * 0.333 if sn_func_designada_5 == "Sim" else 0
+    pts_resp_inicial_agente = pts_agente_5 * tmp_atuacao_agente_5   
+    pts_resp_inical_conselho = tmp_atuacao_conselho_5 * 0.333 if atuacao_conselho_5 == "Sim" else 0
+    pts_resp_inical_prioritaria = tmp_atuacao_prioritaria_5 * 0.333 if atuacao_prioritaria_5 == "Sim" else 0
 
     pts_resp_inical_mes = pts_comissao_5 + pts_func_comissionada_5 + (0.333 if sn_func_designada_5 == "Sim" else 0) + pts_agente_5 + (0.333 if atuacao_conselho_5 == "Sim" else 0) + (0.333 if atuacao_prioritaria_5 == "Sim" else 0)
     pts_resp_inical = pts_resp_inical_comissao + pts_resp_inical_func_comissionada + pts_resp_inicial_func_designada + pts_resp_inicial_agente + pts_resp_inical_conselho + pts_resp_inical_prioritaria
