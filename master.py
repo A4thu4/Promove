@@ -956,8 +956,9 @@ def calcular_planilha(arquivo):
 ### ---------- RESULTADOS ---------- ###
 # Dados iniciais
         dt_inicial = carreira[0][0]  # primeira data 
-        evolucao = None
-        meses_ate_evolucao = None
+        evo = None
+        implem = None
+        meses_ate_evo = None
         pts_resto = None
 
         for i in range(DATA_CONCLUSAO):            
@@ -976,27 +977,26 @@ def calcular_planilha(arquivo):
 
             if data_prevista12 <= dt_atual < data_prevista18 :
                 if pts_loop >= 96:     
-                    evolucao = dt_atual
-                    implementacao = evolucao + relativedelta(day=1, months=1)
-                    meses_ate_evolucao = meses_passados
+                    evo = dt_atual
+                    implem = evo + relativedelta(day=1, months=1)
+                    meses_ate_evo = meses_passados
                     pts_resto = pts_loop - 48
                     break
 
             if dt_atual >= data_prevista18:
                 if pts_loop >= 48:
-                    evolucao = dt_atual
-                    implementacao = evolucao + relativedelta(day=1, months=1)
-                    meses_ate_evolucao = meses_passados
+                    evo = dt_atual
+                    implem = evo + relativedelta(day=1, months=1)
+                    meses_ate_evo = meses_passados
                     pts_resto = pts_loop - 48
                     break
             
         desempenho, aperfeicoamento = 0, 0
-        if evolucao:
-            for linha in carreira:
-                data = linha[0]
-                if data <= evolucao:
-                    desempenho += linha[2] 
-                    aperfeicoamento += linha[5]
+        for linha in carreira:
+            data = linha[0]
+            if data <= evo:
+                desempenho += linha[2] 
+                aperfeicoamento += linha[5]
 
         col = st.columns(2)
         col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
@@ -1006,7 +1006,7 @@ def calcular_planilha(arquivo):
         pendencias = False
         motivo = ""
 
-        if not evolucao:
+        if not evo:
             pendencias = True
             motivo = "Não atingiu pontuação mínima"
         elif round(aperfeicoamento, 4) < 5.4:
@@ -1029,9 +1029,9 @@ def calcular_planilha(arquivo):
         else:
             result_niveis.append({
                 "ID": identificador,
-                "Data da Pontuação Atingida": evolucao.strftime("%d/%m/%Y"),
-                "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
-                "Meses Gastos para Evolução": meses_ate_evolucao,
+                "Data da Pontuação Atingida": evo.strftime("%d/%m/%Y"),
+                "Data da Implementação": implem.strftime("%d/%m/%Y"),
+                "Meses Gastos para Evolução": meses_ate_evo,
                 "Pontos Remanescentes": round(pts_resto, 4),
                 "Status": "Apto a evoluir",
                 "Motivo": "-"
@@ -2198,9 +2198,7 @@ with tabs[2]:
                 pts_resto = pontos - 48
                 break
         
-    diff = relativedelta(evolucao, data_inicial)
-    qtd_meses = diff.years * 12 + diff.months
-    desempenho = aperfeicoamento = 0
+    desempenho, aperfeicoamento = 0, 0
     for linha in carreira:
         data = linha[0]
         if data <= evolucao:
