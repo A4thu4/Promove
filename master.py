@@ -2288,7 +2288,6 @@ with tabs[2]:
             "Total Acumulado" 
         ]],
         height=600,
-        use_container_width=True,
         hide_index=True,
         column_config={
             "Data": st.column_config.DateColumn(format="DD/MM/YYYY"),
