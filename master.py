@@ -1375,6 +1375,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1386,7 +1392,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto
             
             ### ---------- FUNÇÃO COMISSIONADA ---------- ###  
             pontuacao_func_c = {
@@ -1441,6 +1447,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1452,7 +1464,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto
 
             ### ---------- FUNÇÃO DESIGNADA ---------- ###  
             if "func_d_lista" not in st.session_state:
@@ -1501,6 +1513,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1512,7 +1530,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto 
 
             ### ---------- ATUAÇÃO COMO AGENTE ---------- ###  
             pontuacao_agente = {
@@ -1567,6 +1585,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1578,7 +1602,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto
 
             ### ---------- ATUAÇÃO EM CONSELHO ---------- ###  
             if "conselho_lista" not in st.session_state:
@@ -1627,6 +1651,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1638,7 +1668,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto
 
         ### ---------- ATUAÇÃO PRIORITÁRIA ---------- ###  
             if "prioritaria_lista" not in st.session_state:
@@ -1687,6 +1717,12 @@ with tabs[0]:
                 for i in range(len(carreira)):
                     d = carreira[i][0]
                     
+                    falta = 0
+                    falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                    desconto = (pontos/30) * falta
+
                     # Verifica se d é último dia do mês
                     prox_dia = d + timedelta(days=1)
                     if prox_dia.day != 1:
@@ -1698,7 +1734,7 @@ with tabs[0]:
                     total_meses = delta_ano * 12 + delta_mes
                     
                     if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos
+                        carreira[i][8] += pontos - desconto
 
             pts_responsabilidade_mensais = pts_comissao + pts_func_c + pts_func_d + pts_agente + pts_conselho + pts_prioritaria
 
