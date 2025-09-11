@@ -747,6 +747,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -758,7 +764,7 @@ def calcular_planilha(arquivo):
                 total_meses = delta_ano * 12 + delta_mes
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
 
         ### ---------- F.COMISSIONADA ---------- ###
         with colunas[1]:
@@ -784,6 +790,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -795,7 +807,7 @@ def calcular_planilha(arquivo):
                 total_meses = delta_ano * 12 + delta_mes
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
 
         ### ---------- F.DESIGNADA ---------- ###
         with colunas[2]:
@@ -821,6 +833,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -832,7 +850,7 @@ def calcular_planilha(arquivo):
                 total_meses = delta_ano * 12 + delta_mes
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
 
         ### ---------- A.AGENTE ---------- ###
         with colunas[0]:
@@ -858,6 +876,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -869,7 +893,7 @@ def calcular_planilha(arquivo):
                 total_meses = delta_ano * 12 + delta_mes
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
 
         ### ---------- A.CONSELHO ---------- ###
         with colunas[1]:
@@ -895,6 +919,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -906,7 +936,7 @@ def calcular_planilha(arquivo):
                 total_meses = delta_ano * 12 + delta_mes
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
 
         ### ---------- A.PRIORITARIA ---------- ###
         with colunas[2]:
@@ -932,6 +962,12 @@ def calcular_planilha(arquivo):
             for i in range(len(carreira)):
                 d = carreira[i][0]
                 
+                falta = 0
+                falta += next((faltas for mes, faltas in st.session_state.afastamentos
+                                    if d.month == mes.month and d.year == mes.year), 0)
+
+                desconto = (pontos/30) * falta
+
                 # Verifica se d é último dia do mês
                 prox_dia = d + timedelta(days=1)
                 if prox_dia.day != 1:
@@ -940,10 +976,10 @@ def calcular_planilha(arquivo):
                 # Verifica se d está dentro do período da responsabilidade
                 delta_ano = d.year - inicio.year
                 delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
+                total_meses = delta_ano * 12 + delta_mes 
                 
                 if 0 <= total_meses < meses:
-                    carreira[i][8] += pontos
+                    carreira[i][8] += pontos - desconto
         
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         for i in range(DATA_CONCLUSAO):
