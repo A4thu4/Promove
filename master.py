@@ -2181,6 +2181,7 @@ with tabs[2]:
         if data_prevista12 <= data_atual < data_prevista18 :
             if pontos >= 96:
                 evolucao = data_atual
+                implementacao = evolucao + relativedelta(day= 1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
@@ -2188,6 +2189,7 @@ with tabs[2]:
         if data_atual >= data_prevista18:
             if pontos >= 48:
                 evolucao = data_atual
+                implementacao = evolucao + relativedelta(day= 1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
@@ -2220,7 +2222,8 @@ with tabs[2]:
 
     if pendencias:
         resultado_niveis.append({
-            "Data da Próxima Evolução": "-",
+            "Data da Pontuação Atingida": "-",
+            "Data da Implemetenção": "-",
             "Meses Gastos para Evolução": "-",
             "Pontos Remanescentes": "-",
             "Status": "Não apto a evoluir",
@@ -2228,7 +2231,8 @@ with tabs[2]:
         })
     else:
         resultado_niveis.append({
-            "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
+            "Data da Pontuação Atingida": evolucao.strftime("%d/%m/%Y"),
+            "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
             "Meses Gastos para Evolução": meses_ate_evolucao,
             "Pontos Remanescentes": round(pts_resto, 4),
             "Status": "Apto",
