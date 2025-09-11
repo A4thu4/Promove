@@ -1033,7 +1033,7 @@ def calcular_planilha(arquivo):
                 "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
                 "Meses Gastos para Evolução": meses_ate_evolucao,
                 "Pontos Remanescentes": round(pts_resto, 4),
-                "Status": "Apto",
+                "Status": "Apto a evoluir",
                 "Motivo": "-"
             })
         
