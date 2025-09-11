@@ -1020,7 +1020,7 @@ def calcular_planilha(arquivo):
             result_niveis.append({
                 "ID": identificador,
                 "Data da Pontuação Atingida": "-",
-                "Data da Implemetenção": "-",
+                "Data da Implementação": "-",
                 "Meses Gastos para Evolução": "-",
                 "Pontos Remanescentes": "-",
                 "Status": "Não apto a evoluir",
@@ -2227,7 +2227,7 @@ with tabs[2]:
     if pendencias:
         resultado_niveis.append({
             "Data da Pontuação Atingida": "-",
-            "Data da Implemetenção": "-",
+            "Data da Implementação": "-",
             "Meses Gastos para Evolução": "-",
             "Pontos Remanescentes": "-",
             "Status": "Não apto a evoluir",
