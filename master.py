@@ -977,6 +977,7 @@ def calcular_planilha(arquivo):
             if data_prevista12 <= dt_atual < data_prevista18 :
                 if pts_loop >= 96:     
                     evolucao = dt_atual
+                    implementacao = evolucao + relativedelta(day=1, months=1)
                     meses_ate_evolucao = meses_passados
                     pts_resto = pts_loop - 48
                     break
@@ -984,6 +985,7 @@ def calcular_planilha(arquivo):
             if dt_atual >= data_prevista18:
                 if pts_loop >= 48:
                     evolucao = dt_atual
+                    implementacao = evolucao + relativedelta(day=1, months=1)
                     meses_ate_evolucao = meses_passados
                     pts_resto = pts_loop - 48
                     break
@@ -1017,7 +1019,8 @@ def calcular_planilha(arquivo):
         if pendencias:
             result_niveis.append({
                 "ID": identificador,
-                "Data da Próxima Evolução": "-",
+                "Data da Pontuação Atingida": "-",
+                "Data da Implemetenção": "-",
                 "Meses Gastos para Evolução": "-",
                 "Pontos Remanescentes": "-",
                 "Status": "Não apto a evoluir",
@@ -1026,7 +1029,8 @@ def calcular_planilha(arquivo):
         else:
             result_niveis.append({
                 "ID": identificador,
-                "Data da Próxima Evolução": evolucao.strftime("%d/%m/%Y"),
+                "Data da Pontuação Atingida": evolucao.strftime("%d/%m/%Y"),
+                "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
                 "Meses Gastos para Evolução": meses_ate_evolucao,
                 "Pontos Remanescentes": round(pts_resto, 4),
                 "Status": "Apto",
