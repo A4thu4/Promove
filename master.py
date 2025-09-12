@@ -1045,12 +1045,15 @@ def calcular_planilha(arquivo):
         if not evo:
             pendencias = True
             motivo = "Não atingiu pontuação mínima"
-        elif round(aperfeicoamento, 4) < 5.4:
+        if round(desempenho, 4) < 2.4:
             pendencias = True
             motivo = "Não atingiu requisito de Aperfeiçoamento"
-        elif round(desempenho, 4) < 2.4:
+        if round(desempenho, 4) < 2.4:
             pendencias = True
             motivo = "Não atingiu requisito de Desempenho"
+        if round(desempenho, 4) < 2.4 and round(desempenho, 4) < 2.4:
+            pendencias = True
+            motivo = "Não atingiu requisito de Aperfeiçoamento e Desempenho"
 
         if pendencias:
             result_niveis.append({
@@ -2287,12 +2290,15 @@ with tabs[2]:
     if not evolucao:
         pendencias = True
         motivo = "Não atingiu pontuação mínima"
-    elif round(aperfeicoamento, 4) < 5.4:
+    if round(desempenho, 4) < 2.4:
         pendencias = True
         motivo = "Não atingiu requisito de Aperfeiçoamento"
-    elif round(desempenho, 4) < 2.4:
+    if round(desempenho, 4) < 2.4:
         pendencias = True
         motivo = "Não atingiu requisito de Desempenho"
+    if round(desempenho, 4) < 2.4 and round(desempenho, 4) < 2.4:
+        pendencias = True
+        motivo = "Não atingiu requisito de Aperfeiçoamento e Desempenho"
 
     if pendencias:
         resultado_niveis.append({
