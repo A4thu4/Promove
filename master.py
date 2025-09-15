@@ -6,7 +6,7 @@ import openpyxl as px
 
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
-DATA_CONCLUSAO = 7306 # 20 anos (em dias) 
+DATA_CONCLUSAO = 3654 # 10 anos [7306 - 20 anos] (em dias)
 
 carreira = [[0 for _ in range(10)] for _ in range(DATA_CONCLUSAO)]
 
@@ -31,8 +31,7 @@ def calcular_planilha(arquivo):
     df = pd.DataFrame(valores, columns=colunas).drop_duplicates() 
     df = df.replace([None, np.nan], '')
     df.columns = [str(c) if c not in [None, np.nan] else f""
-              for i, c in enumerate(df.columns)]
-    cols = ["Data de Enquadramento ou Última Evolução"]
+              for _, c in enumerate(df.columns)]
     
     st.dataframe(
         df,
@@ -311,28 +310,16 @@ def calcular_planilha(arquivo):
             falta = 0
             # procura se existe afastamento nesse mês
             falta = sum(faltas for mes, faltas in st.session_state.afast_pl
-            if data_atual.month == mes.month and data_atual.year == mes.year)
+                    if data_atual.month == mes.month and data_atual.year == mes.year)
 
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
 
-            # Pega o primeiro dia do próximo mês
-            if data_atual.month == 12:
-                prox_mes = datetime(data_atual.year + 1, 1, 1)
-            else:
-                prox_mes = datetime(data_atual.year, data_atual.month + 1, 1)
-
-            ultimo_dia_mes = prox_mes - timedelta(days=1)
-
-            if (data_atual.year == ultimo_dia_mes.year and
-            data_atual.month == ultimo_dia_mes.month and
-            data_atual.day == ultimo_dia_mes.day):
-                
+            if data_atual.day == 1 and data_atual.month != data_inicial.month:
                 carreira[i][1] = 0.2
                 carreira[i][3] = 1.5
                 carreira[i][2] = max(min(0.2 - desconto, 0.2), 0)
                 carreira[i][4] = max(min(1.5 - desconto_des, 1.5), 0)
-                
             else:
                 carreira[i][1] = carreira[i][2] = carreira[i][3] = carreira[i][4] = 0
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -753,17 +740,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- F.COMISSIONADA ---------- ###
@@ -796,17 +773,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- F.DESIGNADA ---------- ###
@@ -839,17 +806,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.AGENTE ---------- ###
@@ -882,17 +839,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.CONSELHO ---------- ###
@@ -925,17 +872,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.PRIORITARIA ---------- ###
@@ -968,17 +905,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                # Verifica se d é último dia do mês
-                prox_dia = d + timedelta(days=1)
-                if prox_dia.day != 1:
-                    continue  # Não é último dia, pula
-                
-                # Verifica se d está dentro do período da responsabilidade
-                delta_ano = d.year - inicio.year
-                delta_mes = d.month - inicio.month
-                total_meses = delta_ano * 12 + delta_mes 
-                
-                if 0 <= total_meses < meses:
+                if d.day == 1 and d.month != data_inicial.month:
                     carreira[i][8] += pontos - desconto
         
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -1030,7 +957,7 @@ def calcular_planilha(arquivo):
         desempenho, aperfeicoamento = 0, 0
         for linha in carreira:
             data = linha[0]
-            if data <= evo:
+            if data <= evo + relativedelta(months=1):
                 desempenho += linha[2] 
                 aperfeicoamento += linha[5]
 
@@ -1040,20 +967,19 @@ def calcular_planilha(arquivo):
 
         total_horas = 0
         pendencias = False
-        motivo = ""
+        motivos = []
 
         if not evo:
             pendencias = True
-            motivo = "Não atingiu pontuação mínima"
-        if round(desempenho, 4) < 2.4:
+            motivos.append("pontuação mínima")
+        if aperfeicoamento < 5.4:
             pendencias = True
-            motivo = "Não atingiu requisito de Aperfeiçoamento"
-        if round(desempenho, 4) < 2.4:
+            motivos.append("Aperfeiçoamento")
+        if desempenho < 2.4:
             pendencias = True
-            motivo = "Não atingiu requisito de Desempenho"
-        if round(desempenho, 4) < 2.4 and round(desempenho, 4) < 2.4:
-            pendencias = True
-            motivo = "Não atingiu requisito de Aperfeiçoamento e Desempenho"
+            motivos.append("Desempenho")
+
+        motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
         if pendencias:
             result_niveis.append({
@@ -1096,12 +1022,12 @@ def calcular_planilha(arquivo):
 ### ---------- PONTOS PADRÕES ---------- ###
 
 with tabs[0]:
-    subtab = st.tabs(['**Obrigatorios**', '**Responsabilidades**']) 
+    subtab = st.tabs(['**Obrigatórios**', '**Responsabilidades**']) 
     with subtab[0]:
         if "obrigatorios" not in st.session_state:
             st.session_state.obrigatorios = []  # Lista de (mes, faltas)
 
-        st.subheader("Obrigatorios")
+        st.subheader("Requisitos Obrigatórios")
 
         col = st.columns([2, 2, 2])
         with col[0]:
@@ -1131,12 +1057,12 @@ with tabs[0]:
         if "afastamentos" not in st.session_state:
             st.session_state.afastamentos = []  # Lista de (mes, faltas)
 
-        st.subheader("Afastamentos")
+        st.subheader("Afastamentos Não Considerados Como Efetivo Exercício")
 
         # Entrada de um novo afastamento
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
-            mes_faltas = st.date_input("Mês", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="mes_afast", help="SERÁ CONTADO SERÁ SOMENTE O MÊS")
+            mes_faltas = st.date_input("Mês", format="DD/MM/YYYY", value=data_inicial, min_value=MIN_DATE, max_value=MAX_DATE, key="mes_afast", help="SERÁ CONTADO SOMENTE O MÊS")
         with col2:
             qntd_faltas = st.number_input("Faltas", min_value=0, step=1, key="qntd_afast")
         with col3:
@@ -1176,23 +1102,11 @@ with tabs[0]:
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
 
-            # Pega o primeiro dia do próximo mês
-            if data_atual.month == 12:
-                prox_mes = datetime(data_atual.year + 1, 1, 1)
-            else:
-                prox_mes = datetime(data_atual.year, data_atual.month + 1, 1)
-
-            ultimo_dia_mes = prox_mes - timedelta(days=1)
-
-            if (data_atual.year == ultimo_dia_mes.year and
-            data_atual.month == ultimo_dia_mes.month and
-            data_atual.day == ultimo_dia_mes.day):
-                
+            if data_atual.day == 1 and data_atual.month != data_inicial.month:
                 carreira[i][1] = 0.2
                 carreira[i][3] = 1.5
                 carreira[i][2] = max(min(0.2 - desconto, 0.2), 0)
                 carreira[i][4] = max(min(1.5 - desconto_des, 1.5), 0)
-                
             else:
                 carreira[i][1] = carreira[i][2] = carreira[i][3] = carreira[i][4] = 0
 
@@ -1203,7 +1117,7 @@ with tabs[0]:
         if "aperfeicoamentos" not in st.session_state:
             st.session_state.aperfeicoamentos = []
             
-        st.subheader("Aperfeiçoamento")
+        st.subheader("Aperfeiçoamentos")
 
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
@@ -1384,17 +1298,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
+                    if d.day == 1 and d.month != data_inicial.month:
                         carreira[i][8] += pontos - desconto
             
             ### ---------- FUNÇÃO COMISSIONADA ---------- ###  
@@ -1456,17 +1360,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
+                    if d.day == 1 and d.month != data_inicial.month:
                         carreira[i][8] += pontos - desconto
 
             ### ---------- FUNÇÃO DESIGNADA ---------- ###  
@@ -1522,18 +1416,8 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
-                        carreira[i][8] += pontos - desconto 
+                    if d.day == 1 and d.month != data_inicial.month:
+                        carreira[i][8] += pontos - desconto
 
             ### ---------- ATUAÇÃO COMO AGENTE ---------- ###  
             pontuacao_agente = {
@@ -1594,17 +1478,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
+                    if d.day == 1 and d.month != data_inicial.month:
                         carreira[i][8] += pontos - desconto
 
             ### ---------- ATUAÇÃO EM CONSELHO ---------- ###  
@@ -1660,17 +1534,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
+                    if d.day == 1 and d.month != data_inicial.month:
                         carreira[i][8] += pontos - desconto
 
         ### ---------- ATUAÇÃO PRIORITÁRIA ---------- ###  
@@ -1726,17 +1590,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    # Verifica se d é último dia do mês
-                    prox_dia = d + timedelta(days=1)
-                    if prox_dia.day != 1:
-                        continue  # Não é último dia, pula
-                    
-                    # Verifica se d está dentro do período da responsabilidade
-                    delta_ano = d.year - inicio.year
-                    delta_mes = d.month - inicio.month
-                    total_meses = delta_ano * 12 + delta_mes
-                    
-                    if 0 <= total_meses < meses:
+                    if d.day == 1 and d.month != data_inicial.month:
                         carreira[i][8] += pontos - desconto
 
             pts_responsabilidade_mensais = pts_comissao + pts_func_c + pts_func_d + pts_agente + pts_conselho + pts_prioritaria
@@ -2240,6 +2094,7 @@ with tabs[2]:
     # Dados iniciais
     data_inicio = carreira[0][0]  # primeira data 
     evolucao = None
+    implementacao = None
     meses_ate_evolucao = None
     pts_resto = None
 
@@ -2260,7 +2115,7 @@ with tabs[2]:
         if data_prevista12 <= data_atual < data_prevista18 :
             if pontos >= 96:
                 evolucao = data_atual
-                implementacao = evolucao + relativedelta(day= 1, months=1)
+                implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
@@ -2268,7 +2123,7 @@ with tabs[2]:
         if data_atual >= data_prevista18:
             if pontos >= 48:
                 evolucao = data_atual
-                implementacao = evolucao + relativedelta(day= 1, months=1)
+                implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
@@ -2285,20 +2140,19 @@ with tabs[2]:
     col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
     
     pendencias = False
-    motivo = ""
+    motivos = []
 
     if not evolucao:
         pendencias = True
-        motivo = "Não atingiu pontuação mínima"
-    if round(desempenho, 4) < 2.4:
+        motivos.append("pontuação mínima")
+    if aperfeicoamento < 5.4:
         pendencias = True
-        motivo = "Não atingiu requisito de Aperfeiçoamento"
-    if round(desempenho, 4) < 2.4:
+        motivos.append("Aperfeiçoamento")
+    if desempenho < 2.4:
         pendencias = True
-        motivo = "Não atingiu requisito de Desempenho"
-    if round(desempenho, 4) < 2.4 and round(desempenho, 4) < 2.4:
-        pendencias = True
-        motivo = "Não atingiu requisito de Aperfeiçoamento e Desempenho"
+        motivos.append("Desempenho")
+
+    motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
     if pendencias:
         resultado_niveis.append({
@@ -2315,7 +2169,7 @@ with tabs[2]:
             "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
             "Meses Gastos para Evolução": meses_ate_evolucao,
             "Pontos Remanescentes": round(pts_resto, 4),
-            "Status": "Apto",
+            "Status": "Apto a evoluir",
             "Motivo": "-"
         })
 
