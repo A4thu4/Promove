@@ -961,9 +961,12 @@ def calcular_planilha(arquivo):
                 desempenho += linha[2] 
                 aperfeicoamento += linha[5]
 
+        desempenho = round(desempenho,4)
+        aperfeicoamento = round(aperfeicoamento,4)
+
         col = st.columns(2)
-        col[0].metric(f"Pontos de Desempenho:", value=round(desempenho,4))
-        col[1].metric(f"Pontos de Aperfeiçoamento:", value=round(aperfeicoamento,4))
+        col[0].metric(f"Pontos de Desempenho:", value=desempenho)
+        col[1].metric(f"Pontos de Aperfeiçoamento:", value=aperfeicoamento)
 
         total_horas = 0
         pendencias = False
