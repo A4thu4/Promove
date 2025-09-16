@@ -315,7 +315,7 @@ def calcular_planilha(arquivo):
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
 
-            if data_atual.day == 1 and data_atual.month != data_inicial.month:
+            if data_atual.day == 1 and (data_atual.year != data_inicio.year and data_atual.month != data_inicio.month):
                 carreira[i][1] = 0.2
                 carreira[i][3] = 1.5
                 carreira[i][2] = max(min(0.2 - desconto, 0.2), 0)
@@ -1105,7 +1105,7 @@ with tabs[0]:
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
 
-            if data_atual.day == 1 and data_atual.month != data_inicial.month:
+            if data_atual.day == 1 and (data_atual.year != data_inicial.year and data_atual.month != data_inicial.month):
                 carreira[i][1] = 0.2
                 carreira[i][3] = 1.5
                 carreira[i][2] = max(min(0.2 - desconto, 0.2), 0)
