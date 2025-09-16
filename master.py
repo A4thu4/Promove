@@ -740,7 +740,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- F.COMISSIONADA ---------- ###
@@ -773,7 +773,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- F.DESIGNADA ---------- ###
@@ -806,7 +806,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.AGENTE ---------- ###
@@ -839,7 +839,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.CONSELHO ---------- ###
@@ -872,7 +872,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
 
         ### ---------- A.PRIORITARIA ---------- ###
@@ -905,7 +905,7 @@ def calcular_planilha(arquivo):
 
                 desconto = (pontos/30) * falta
 
-                if d.day == 1 and d.month != data_inicial.month:
+                if d.day == 1 and d != data_inicio:
                     carreira[i][8] += pontos - desconto
         
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
@@ -1301,7 +1301,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
             
             ### ---------- FUNÇÃO COMISSIONADA ---------- ###  
@@ -1363,7 +1363,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
 
             ### ---------- FUNÇÃO DESIGNADA ---------- ###  
@@ -1419,7 +1419,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
 
             ### ---------- ATUAÇÃO COMO AGENTE ---------- ###  
@@ -1481,7 +1481,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
 
             ### ---------- ATUAÇÃO EM CONSELHO ---------- ###  
@@ -1537,7 +1537,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
 
         ### ---------- ATUAÇÃO PRIORITÁRIA ---------- ###  
@@ -1593,7 +1593,7 @@ with tabs[0]:
 
                     desconto = (pontos/30) * falta
 
-                    if d.day == 1 and d.month != data_inicial.month:
+                    if d.day == 1 and d != data_inicial:
                         carreira[i][8] += pontos - desconto
 
             pts_responsabilidade_mensais = pts_comissao + pts_func_c + pts_func_d + pts_agente + pts_conselho + pts_prioritaria
