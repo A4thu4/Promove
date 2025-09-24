@@ -186,7 +186,7 @@ with tab2:
             for i in range(1,doutorado+1):
                 datas_tit[f"doc_{i}"] = st.date_input(f"Data de Conclusão do Doutorado {i}", format="DD/MM/YYYY", min_value=MIN_DATE, max_value=MAX_DATE, key=f"doc_{i}")
 
-    pts_titulacao = pts_titulacao_5 + (graduacao * 6) + (especializacao * 12) + (mestrado * 24) + (doutorado * 48) 
+    pts_titulacao = pts_titulacao_5 + (graduacao * 6) + (especializacao * 8) + (mestrado * 24) + (doutorado * 48) 
 
     if pts_titulacao >= 144:
         pts_titulacao = 144
@@ -592,7 +592,7 @@ if 'tempo_exercicio' in locals() and tempo_exercicio:  # Verifica se a variável
         if key.startswith('grad_'):
             pts_tit = 6  # Pontos por graduação
         elif key.startswith('esp_'):
-            pts_tit = 12  # Pontos por especialização
+            pts_tit = 8  # Pontos por especialização
         elif key.startswith('mest_'):
             pts_tit = 24  # Pontos por mestrado
         elif key.startswith('doc_'):

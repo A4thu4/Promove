@@ -367,7 +367,7 @@ def calcular_planilha(arquivo):
         valores_tit = {
             'Nenhuma': None,
             'Graduação': 6,   # Graduação
-            'Especialização': 12,   # Especialização
+            'Especialização': 8,   # Especialização
             'Mestrado': 24,  # Mestrado
             'Doutorado': 48    # Doutorado
         }
@@ -1177,7 +1177,7 @@ with tabs[0]:
         valores_tit = {
             'Nenhuma': None,
             'Graduação': 6,   # Graduação
-            'Especialização': 12,   # Especialização
+            'Especialização': 8,   # Especialização
             'Mestrado': 24,  # Mestrado
             'Doutorado': 48    # Doutorado
         }
