@@ -138,8 +138,9 @@ def main():
         build_obrigatorios()
         
         if st.session_state.data_inicial and not st.session_state.carreira:
-            st.session_state.DATA_FIM = st.session_state.data_inicial + relativedelta(years=10)
-            
+            st.session_state.data_fim = st.session_state.data_inicial + relativedelta(years=20)
+            DATA_FIM = st.session_state.data_fim
+
             # Inicializa a carreira no session state
             st.session_state.carreira = [
                 [st.session_state.data_inicial + timedelta(days=i)] + [0] * 7

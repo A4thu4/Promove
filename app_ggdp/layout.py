@@ -1,6 +1,6 @@
 import streamlit as st
 
-from data_utils import DATA_FIM, MIN_DATE, MAX_DATE, NIVEIS
+from data_utils import MIN_DATE, MAX_DATE, NIVEIS
 
 def ensure_states():
     from data_utils import val_states
@@ -569,7 +569,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_cg = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_cg")
             if data_sf_cg:
-                data_f_cg = DATA_FIM
+                data_f_cg = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])
@@ -622,7 +622,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_fc = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_fc")
             if data_sf_fc:
-                data_f_fc = DATA_FIM
+                data_f_fc = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])
@@ -675,7 +675,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_fd = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_fd")
             if data_sf_fd:
-                data_f_fd = DATA_FIM
+                data_f_fd = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])
@@ -728,7 +728,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_at_a = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_at_a")
             if data_sf_at_a:
-                data_f_at_a = DATA_FIM
+                data_f_at_a = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])
@@ -781,7 +781,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_at_c = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_at_c")
             if data_sf_at_c:
-                data_f_at_c = DATA_FIM
+                data_f_at_c = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])
@@ -834,7 +834,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.write("")
             data_sf_at_p = st.checkbox("Sem Data Fim", key=f"{key_prefix}_data_at_p")
             if data_sf_at_p:
-                data_f_at_p = DATA_FIM
+                data_f_at_p = st.session_state.data_fim
         with col4:
             st.write("")            
             c0, c1 = st.columns([1,1])

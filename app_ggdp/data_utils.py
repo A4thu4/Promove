@@ -6,12 +6,10 @@ DATA_CONCLUSAO = 3654 # 10 anos [7306 - 20 anos] (em dias)
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
 NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S']
-DATA_FIM = (st.session_state.data_inicial + relativedelta(years=20)) if "data_inicial" in st.session_state and st.session_state.data_inicial else MAX_DATE
-
 
 
 val_states = {
-    "data_inicial": None, "nivel_atual": None, "pts_ultima_evolucao": None, "carreira": [], "resultados_carreira": [],
+    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "carreira": [], "resultados_carreira": [],
     "obrigatorios": [], "afastamentos": [], "aperfeicoamentos": [], "titulacoes": [],
     "resp_mensais": [], 
     "comissao_lista": [], "func_c_lista": [], "func_d_lista": [], 
