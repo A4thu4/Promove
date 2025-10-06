@@ -3,8 +3,7 @@ import streamlit as st
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-from layout import ensure_states, clear_states, build_obrigatorios, build_afastamentos, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-clear_states()
+from layout import ensure_states, build_obrigatorios, build_afastamentos, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
 ensure_states()
 from data_utils import DATA_CONCLUSAO
 
@@ -200,6 +199,7 @@ def main():
                 st.rerun()
         with col2:
             if st.button("🔄 Novo Cálculo"):
+                from layout import clear_states
                 clear_states()
 
         if not st.session_state.calculo_executado:
