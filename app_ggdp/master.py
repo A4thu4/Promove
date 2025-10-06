@@ -3,10 +3,9 @@ import streamlit as st
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-from data_utils import DATA_CONCLUSAO
 from layout import ensure_states, build_obrigatorios, build_afastamentos, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-
 ensure_states()
+from data_utils import DATA_CONCLUSAO
 
 st.set_page_config(page_title="SIMULADOR GGDP", layout="wide")
 
