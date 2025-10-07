@@ -1,6 +1,6 @@
 import streamlit as st
 
-from data_utils import MIN_DATE, MAX_DATE, NIVEIS
+from data_utils import  MIN_DATE, MAX_DATE, NIVEIS
 
 def ensure_states():
     from data_utils import val_states
@@ -42,7 +42,8 @@ def build_obrigatorios(key_prefix="obg"):
                 "Nivel Atual",
                 max_chars=1,  
                 value=existing_nivel if existing_nivel else None,
-                key=f"{key_prefix}_nvl_atual")
+                key=f"{key_prefix}_nvl_atual"
+            )
             if nivel_atual:
                 nivel_atual = nivel_atual.upper()
         with col1:

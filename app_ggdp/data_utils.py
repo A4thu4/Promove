@@ -7,7 +7,6 @@ MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
 NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S']
 
-
 val_states = {
     "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "carreira": [], "resultados_carreira": [],
     "obrigatorios": [], "afastamentos": [], "aperfeicoamentos": [], "titulacoes": [],

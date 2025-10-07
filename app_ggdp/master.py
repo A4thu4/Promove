@@ -56,6 +56,7 @@ st.markdown(
     </style>
     """,unsafe_allow_html=True)
 
+
 #BOTÕES
 st.markdown(
     """
@@ -163,12 +164,8 @@ def main():
             st.session_state.file_reset = 0
         st.session_state.arquivo = st.file_uploader("Arquivo", type=["xlsx","xls"], key=f"wb_{st.session_state.file_reset}")
         if st.session_state.arquivo is not None:
-            # chamar a função original calcular_planilha se existir no mesmo arquivo
-            try:
-                calcular_planilha(st.session_state.arquivo)
-            except Exception:
-                st.error("Falha ao Processar a Planilha")
-
+            calcular_planilha(st.session_state.arquivo)
+            
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
 
@@ -230,7 +227,7 @@ def main():
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
-            st.markdown("<h3 style='text-align:center; color:#003500; '><u>Resultados</u></h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align:center; color:#003500; '><u>Resultado da Simulação</u></h3>", unsafe_allow_html=True)
             st.dataframe(df_view.head(1), hide_index=True)
 
             df_preview = pd.DataFrame(
