@@ -56,6 +56,7 @@ st.markdown(
     </style>
     """,unsafe_allow_html=True)
 
+
 #BOTÕES
 st.markdown(
     """
@@ -121,6 +122,7 @@ st.markdown(
     </style>
     """, unsafe_allow_html=True
 ) 
+
 
 def main():
     # ---------- NAVEGAÇÃO ---------- #
