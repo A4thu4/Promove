@@ -162,7 +162,7 @@ def main():
 
         if "file_reset" not in st.session_state:
             st.session_state.file_reset = 0
-        st.session_state.arquivo = st.file_uploader("Arquivo", type=["xlsx","xls"], key=f"wb_{st.session_state.file_reset}")
+        st.session_state.arquivo = st.file_uploader("Arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}")
         if st.session_state.arquivo is not None:
             calcular_planilha(st.session_state.arquivo)
             

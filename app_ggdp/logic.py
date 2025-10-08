@@ -345,11 +345,11 @@ def calcular_planilha(arquivo):
     df = df.replace([None, np.nan], '')
     
     # Remove linhas completamente vazias ou com ID inválido
-    df = df[df["ID"].notna() & (df["ID"] != '') & (df["ID"] != 'None')]
+    df = df[df["Cód. Vinculo"].notna() & (df["Cód. Vinculo"] != '') & (df["Cód. Vinculo"] != 'None')]
     
     # Converter ID para string e remover duplicatas baseadas no ID
-    df["ID"] = df["ID"].astype(str)
-    df = df.drop_duplicates(subset=["ID"], keep="first")
+    df["Cód. Vinculo"] = df["Cód. Vinculo"].astype(str)
+    df = df.drop_duplicates(subset=["Cód. Vinculo"], keep="first")
 
     df.columns = [str(c) if c not in [None, np.nan] else f""
                     for _, c in enumerate(df.columns)]
@@ -360,7 +360,9 @@ def calcular_planilha(arquivo):
     
     ids_processados = set()
     for i in range (len(df)):
-        identificador = df["ID"].iloc[i]
+        nome_servidor = df['Servidor'].iloc[i]
+        cpf_servidor = df['CPF'].iloc[i]
+        identificador = df["Cód. Vinculo"].iloc[i]
         
         if not identificador or identificador in ('None', 'NaT', 'Nan', 'nan', 'null', 'NULL', '', None) or pd.isna(identificador): 
             continue
@@ -1183,9 +1185,11 @@ def calcular_planilha(arquivo):
 
         if pendencias:
             result_niveis.append({
-                "ID": identificador,
                 "Status": "Não apto a evoluir",
                 "Observação": motivo,
+                "Servidor": nome_servidor,
+                "CPF": cpf_servidor,
+                "Cód. Vinculo": identificador,
                 "Próximo Nível": "-",
                 "Data da Pontuação Atingida": "-",
                 "Data da Implementação": "-",
@@ -1195,9 +1199,11 @@ def calcular_planilha(arquivo):
             })
         else:
             result_niveis.append({
-                "ID": identificador,
                 "Status": "Apto a evoluir",
                 "Observação": "-",
+                "Servidor": nome_servidor,
+                "CPF": cpf_servidor,
+                "Cód. Vinculo": identificador,
                 "Próximo Nível": novo_nivel,
                 "Data da Pontuação Atingida": evo.strftime("%d/%m/%Y"),
                 "Data da Implementação": implem.strftime("%d/%m/%Y"),
