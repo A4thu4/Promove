@@ -1,6 +1,8 @@
 # 📈 Simulador PROMOVE - Cálculo de Progressão Funcional
 
-Sistema feito em Python + Streamlit para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação e carreira.
+2 Sistemas feitos em Python + Streamlit para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação e carreira.
+O 1º (main.py) é um simulador geral que baseado em uma **pontuação média irá fazer uma previsão** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução.
+O 2º (app_ggdp/master.py) é um simulador criado para facilitar o trabalho da GGDP para fazer o cálculo da **possível próxima evolução** de um ou mais servidores através de uma planilha do excel montada exclusivamente com esse propósito. 
 
 ---
 
@@ -12,10 +14,10 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 
 ## 🚀 Funcionalidades
 
-- 📊 Cálculo automático da progressão por nível.
-- 📅 Detecção de **tempo necessário** entre ciclos.
-- ⚖️ Verificação de atingimento de metas mínimas por mês.
-- 📈 Exibição em tabela dos resultados com totais e tempos.
+- 📊 Cálculo automático da progressão de nível.
+- 📅 Detecção de **tempo necessário** entre interstício.
+- ⚖️ Verificação de atingimento de requisitos mínimos.
+- 📈 Exibição em tabela dos resultados com pontuações e datas.
 - ✅ Ajuste dinâmico de critérios (nível, meta, início, etc).
 - 🎯 Ideal para simulações individuais ou em lote.
 
@@ -25,7 +27,9 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 
 - [Python 3.9+](https://www.python.org/)
 - [Streamlit](https://streamlit.io/)
+- Numpy
 - Pandas
+- Openpyxl
 
 ---
 
@@ -36,6 +40,7 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 ```bash
 git clone https://github.com/A4thu4/Promove.git
 cd Promove
+cd app_ggdp # para o segundo sistema
 ```
 
 2. Crie o ambiente virtual:
@@ -64,10 +69,15 @@ streamlit run main.py
 
 ```bash
 📦 Promove/
-├── main.py            # Código principal com Streamlit
-├── README.md              # Este arquivo
-├── requirements.txt       # Dependências
-└── assets/                 # (Opcional) arquivos extras
+├── app_ggdp
+    ├── data_utils.py       # Referências de dados para os Cálculos 
+    ├── layout.py           # Renderização dos Inputs
+    ├── logic.py            # 'Cérebro' do sistema
+    ├── master.py           # Código principal (GGDP)
+└── assets/                 # Arquivos extras e licença
+├── main.py                 # Código principal (Simulador)
+├── README.md               # Este arquivo
+├── requirements.txt        # Dependências
 ```
 
 ---
@@ -76,9 +86,10 @@ streamlit run main.py
 
 - Digite os valores de pontuação mensais.
 - O sistema calcula automaticamente:
-  - Se atingiu a meta
-  - Quando atinge o próximo nível
-  - Quantos meses levou
+  - Se está Apto a evoluir.
+  - Próximo Nível.
+  - Quando atinge o próximo nível.
+  - Quantos meses levou.
 - Mostra o resultado final com total de pontos e tempo acumulado.
 
 ---
