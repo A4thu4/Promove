@@ -344,18 +344,28 @@ def calcular_planilha(arquivo):
     df = df.drop_duplicates()
     df = df.replace([None, np.nan], '')
     
-    # Remove linhas completamente vazias ou com ID inválido
-    df = df[df["Cód. Vinculo"].notna() & (df["Cód. Vinculo"] != '') & (df["Cód. Vinculo"] != 'None')]
+    # Remove linhas completamente vazias ou com dados inválidos
+    colunas_validas = ["Servidor", "CPF", "Cód. Vinculo", "Nível Atual"]
+
+    # Função para verificar valores válidos
+    def limpar_coluna(serie):
+        return (
+            serie.notna()
+            & (serie.astype(str).str.strip().str.lower() != "none")
+            & (serie.astype(str).str.strip() != "")
+        )
+
+    # Filtrar linhas que têm todas as colunas válidas
+    for col in colunas_validas:
+        df = df[limpar_coluna(df[col])]
     
     # Converter ID para string e remover duplicatas baseadas no ID
-    df["Cód. Vinculo"] = df["Cód. Vinculo"].astype(str)
+    df["Cód. Vinculo"] = df["Cód. Vinculo"].astype(str).str.strip()
     df = df.drop_duplicates(subset=["Cód. Vinculo"], keep="first")
 
-    df.columns = [str(c) if c not in [None, np.nan] else f""
-                    for _, c in enumerate(df.columns)]
+    df.columns = [str(c).strip() if not pd.isna(c) else "" for c in df.columns]
 
     st.dataframe(df.head(),hide_index=True)
-
     st.markdown("<h1 style='text-align:center; color:#003500; '><u>Resultado(s) da Simulação</u></h1>", unsafe_allow_html=True)
     
     ids_processados = set()
@@ -363,13 +373,13 @@ def calcular_planilha(arquivo):
         nome_servidor = df['Servidor'].iloc[i]
         cpf_servidor = df['CPF'].iloc[i]
         identificador = df["Cód. Vinculo"].iloc[i]
+        nivel_atual = df["Nível Atual"].iloc[i]
         
-        if not identificador or identificador in ('None', 'NaT', 'Nan', 'nan', 'null', 'NULL', '', None) or pd.isna(identificador): 
+        if any(pd.isna(v) or str(v).strip().lower() in ('none', 'nat', 'nan', 'null', '') 
+                for v in [nome_servidor, cpf_servidor, identificador, nivel_atual]):
             continue
 
         ids_processados.add(identificador)
-        
-        nivel_atual = df["Nível Atual"].iloc[i]
 
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
 
