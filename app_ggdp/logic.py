@@ -1192,6 +1192,7 @@ def calcular_planilha(arquivo):
         motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
         
         novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
+        identificador = int(float(identificador))
 
         if pendencias:
             result_niveis.append({
