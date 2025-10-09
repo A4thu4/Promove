@@ -201,6 +201,7 @@ def main():
             if st.button("🔄 Novo Cálculo"):
                 from layout import clear_states
                 clear_states()
+                st.rerun()
 
         if not st.session_state.calculo_executado:
             try:
