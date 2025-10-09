@@ -345,7 +345,23 @@ def calcular_planilha(arquivo):
     df = df.replace([None, np.nan], '')
     
     # Remove linhas completamente vazias ou com dados inválidos
-    colunas_validas = ["Servidor", "CPF", "Cód. Vinculo", "Nível Atual"]
+    colunas_validas = ["Servidor", "CPF", "Cód. Vinculo", "Nível Atual", "Data de Enquadramento ou Última Evolução"]
+    st.markdown(
+            """
+            <div style='
+                background-color: #fff3cd; 
+                border: 1px solid #ffeaa7; 
+                border-radius: 0.375rem; 
+                padding: 1rem; 
+                text-align: center; 
+                color: #856404;
+                margin: 1rem 0;
+            '>
+            <strong>⚠️ Caso algum dos 'Obrigátorios' não tenha sido preenchido corretamente na Planilha ele não será calculado. ⚠️</strong>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
 
     # Função para verificar valores válidos
     def limpar_coluna(serie):
@@ -1196,7 +1212,7 @@ def calcular_planilha(arquivo):
 
         if pendencias:
             result_niveis.append({
-                "Status": "Não apto a evoluir",
+                "Status": "Não apto a evolução",
                 "Observação": motivo,
                 "Servidor": nome_servidor,
                 "CPF": cpf_servidor,
@@ -1210,7 +1226,7 @@ def calcular_planilha(arquivo):
             })
         else:
             result_niveis.append({
-                "Status": "Apto a evoluir",
+                "Status": "Apto a evolução",
                 "Observação": "-",
                 "Servidor": nome_servidor,
                 "CPF": cpf_servidor,

@@ -184,7 +184,7 @@ def main():
                 color: #856404;
                 margin: 1rem 0;
             '>
-            <strong>⚠️ CASO ADICIONE NOVOS DADOS AO CÁLCULO ATUAL LEMBRE SEMPRE DE RECALCULAR ⚠️</strong>
+            <strong>⚠️ CASO ADICIONE NOVOS DADOS AO CÁLCULO ATUAL LEMBRE SEMPRE DE RECALCULAR. ⚠️</strong>
             </div>
             """, 
             unsafe_allow_html=True
