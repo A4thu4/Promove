@@ -164,7 +164,10 @@ def main():
             st.session_state.file_reset = 0
         st.session_state.arquivo = st.file_uploader("Arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}")
         if st.session_state.arquivo is not None:
-            calcular_planilha(st.session_state.arquivo)
+            try:
+                calcular_planilha(st.session_state.arquivo)
+            except Exception as e:
+                st.error(f"❌ Erro no cálculo: Verifque se todos os dados na Planilha estão corretos.")
             
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
