@@ -75,7 +75,7 @@ streamlit run main.py # ou (master.py)
     ├── layout.py           # Renderização dos Inputs
     ├── logic.py            # 'Cérebro' do sistema
     ├── master.py           # Código principal (GGDP)
-└── assets/                 # Arquivos extras e licença
+└── assets/                 # Arquivos extras, imagens e licença
 ├── main.py                 # Código principal (Simulador)
 ├── README.md               # Este arquivo
 ├── requirements.txt        # Dependências
