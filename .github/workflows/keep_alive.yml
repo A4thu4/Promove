@@ -1,4 +1,4 @@
-name: Keep Simulador GGDP -render- Alive
+name: Keep Aplications Alive
 
 on:
   schedule:
@@ -10,5 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render App
-        run: |
-          curl -I https://simulador-ggdp.onrender.com/
+        run: | 
+          curl -I https://simulador-ggdp.onrender.com/ || true
+          curl -I https://promove-ggdp.streamlit.app/ || true
+          curl -I https://comparador-gncp-sead.streamlit.app/ || true
