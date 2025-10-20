@@ -71,13 +71,14 @@ streamlit run main.py # ou (master.py)
 ```bash
 📦 Promove/
 ├── app_ggdp
-    ├── data_utils.py       # Referências de dados para os Cálculos 
-    ├── layout.py           # Renderização dos Inputs
-    ├── logic.py            # 'Cérebro' do sistema
-    ├── master.py           # Código principal (GGDP)
-└── assets/                 # Arquivos extras, imagens e licença
-├── main.py                 # Código principal (Simulador)
+    └── data_utils.py       # Referências de dados para os Cálculos 
+    └── layout.py           # Renderização dos Inputs
+    └── logic.py            # 'Cérebro' do sistema
+    └── master.py           # Código principal (GGDP)
+├── assets/                 # Arquivos extras, imagens e licença
+├── Dockerfile              # Arquivo para hospedagem em nuvem com Docker
 ├── README.md               # Este arquivo
+├── main.py                 # Código principal (Simulador)
 ├── requirements.txt        # Dependências
 ```
 
