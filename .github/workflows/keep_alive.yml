@@ -13,4 +13,3 @@ jobs:
         run: | 
           curl -I https://simulador-ggdp.onrender.com/ || true
           curl -I https://promove-ggdp.streamlit.app/ || true
-          curl -I https://comparador-gncp-sead.streamlit.app/ || true
