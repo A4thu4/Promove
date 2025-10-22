@@ -133,14 +133,13 @@ st.markdown(
 
 def main():
     # ---------- NAVEGAÇÃO ---------- #
-    col1, col2, col3 = st.columns([1.5, 2, 1])
-    with col2:
-        tabs = st.radio("",
+    with st.sidebar:
+        tabs = st.radio("Navegar",
             ['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'],
             index=0,
-            key="navigation",
-            horizontal=True
+            key="navigation"
             )
+
 
     if tabs == '**Cálculo Individual**':
         st.markdown("<h1 style='text-align:center; color:#003500; '><u>Critérios Obrigatórios</u></h1>", unsafe_allow_html=True)
