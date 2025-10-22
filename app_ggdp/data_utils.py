@@ -33,38 +33,38 @@ dados_tit = {
 
 dados_artigo = {
     'Nenhum': 0,
-    'NÃO Indexado': 0.5,
-    'Indexado': 4
+    'Não Indexado em Base de Dados': 0.5,
+    'Indexado em Base de Dados': 3
 }
 
 dados_livro = {
     'Nenhum': 0,
-    'Organizador': 1,
-    'Capitulo': 4,
+    'Organizador de Livro': 1,
+    'Capítulo de Livro': 3,
     'Livro Completo': 6
 }
 
 dados_pesquisas = {
     'Nennhum': 0,
     'Estadual': 1,
-    'Regional': 3,
+    'Regional': 2,
     'Nacional': 3,
     'Internacional': 4
 }
 
 dados_registros = {
     'Nenhum': 0,
-    'Patente': 8,
-    'Cultivar':8
+    'Patente': 6,
+    'Cultivar': 6
 }
 
 dados_cursos = {
     'Nenhum': 0,
-    'Estágio Pós-Doutoral no Orgão (6 meses)': 6,   
-    'Pós-Doutorado (6 a 12 meses)': 8,   
-    'Pós-Doutorado (13 a 24 meses)': 12,  
-    'Pós-Doutorado (25 a 48 meses)': 24,
-    'Pós-Doutorado (maior que 48 meses)': 48  
+    'Pós-doutorado – igual a 6 meses': 6,   
+    'Pós-Doutorado - (6 a 12 meses)': 8,   
+    'Pós-Doutorado - (13 a 24 meses)': 12,  
+    'Pós-Doutorado - (25 a 48 meses)': 24,
+    'Pós-Doutorado - (maior ou igual a 48 meses)': 48  
 }
 
 # ---- RESPONSABILIDADES MENSAIS ---- #
@@ -75,7 +75,7 @@ dados_cargos = {
     "DAS-3": 0.889, "DAS-4": 0.889,
     "DAS-5": 0.800, "DAS-6": 0.800, "DAS-7": 0.800, "DAID-1A": 0.800, "AEG": 0.800,
     "DAI-1": 0.667, "DAID-1": 0.667, "DAID-1B": 0.667, "DAID-2": 0.667, "AE-1": 0.667, "AE-2": 0.667,
-    "DAI-2": 0.500, "DAI-3": 0.500, "DAID-4": 0.500, "DAID-5": 0.500, "DAID-6": 0.500, "DAID-7": 0.500,
+    "DAI-2": 0.500, "DAI-3": 0.500, "DAID-3": 0.500, "DAID-4": 0.500, "DAID-5": 0.500, "DAID-6": 0.500, "DAID-7": 0.500,
     "DAID-8": 0.500, "DAID-9": 0.500, "DAID-10": 0.500, "DAID-11": 0.500, "DAID-12": 0.500,
     "DAID-13": 0.500, "DAID-14": 0.500
 }

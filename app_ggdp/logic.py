@@ -396,7 +396,7 @@ def calcular_planilha(arquivo):
             continue
 
         ids_processados.add(identificador)
-
+        
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
 
         DATA_FIM = data_inicio + relativedelta(years=20)

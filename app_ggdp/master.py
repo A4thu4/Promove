@@ -129,11 +129,13 @@ st.markdown(
 
 def main():
     # ---------- NAVEGAÇÃO ---------- #
-    with st.sidebar:
-        tabs = st.radio("Navegar",
+    col1, col2, col3 = st.columns([1.5, 2, 1])
+    with col2:
+        tabs = st.radio("",
             ['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'],
             index=0,
-            key="navigation"
+            key="navigation",
+            horizontal=True
             )
 
     if tabs == '**Cálculo Individual**':
@@ -171,7 +173,7 @@ def main():
                 calcular_planilha(st.session_state.arquivo)
             except Exception as e:
                 st.error(f"❌ Erro no cálculo: Verifque se todos os dados na Planilha estão corretos.")
-            
+
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
 
@@ -204,7 +206,6 @@ def main():
             if st.button("🔄 Novo Cálculo"):
                 from layout import clear_states
                 clear_states()
-                st.rerun()
 
         if not st.session_state.calculo_executado:
             try:
