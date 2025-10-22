@@ -9,6 +9,8 @@ from data_utils import DATA_CONCLUSAO
 
 def go_results():
     st.session_state.navigation = '**Resultados**'
+def go_individual():
+    st.session_state.navigation = '**Cálculo Individual**'    
 
 st.set_page_config(page_title="SIMULADOR GGDP", page_icon="assets/Brasão.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -211,7 +213,7 @@ def main():
                 st.session_state.calculo_executado = False
                 st.rerun()
         with col2:
-            if st.button("🔄 Novo Cálculo"):
+            if st.button("🔄 Novo Cálculo", on_click=go_individual):
                 from layout import clear_states
                 clear_states()
 
