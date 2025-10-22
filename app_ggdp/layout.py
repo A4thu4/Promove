@@ -236,14 +236,14 @@ def build_aperfeicoamentos(key_prefix="aperf"):
 
     if st.session_state.aperfeicoamentos:
         total_hrs = sum(f for _, f in st.session_state.aperfeicoamentos)
-        if total_hrs > 100:
-            total_hrs = 100
-            st.warning("Limie Máximo de Horas Atingido no Interstício de Evolução: **100**")
 
         cl = st.columns(2)
         
         with cl[0]: st.write("**-Aperfeiçoamentos Registrados-**")
         with cl[1]: st.write(f"**Total de Horas: {total_hrs}**")
+        if total_hrs > 100:
+            total_hrs = 100
+            st.warning("Limie Máximo de Horas Atingido no Interstício de Evolução: **100**")
         
         cols = st.columns(6)
         for i, (data, hrs) in enumerate(sorted(st.session_state.aperfeicoamentos, key=lambda data: data[0])):
