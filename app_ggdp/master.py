@@ -7,10 +7,13 @@ from layout import ensure_states, build_obrigatorios, build_afastamentos, build_
 ensure_states()
 from data_utils import DATA_CONCLUSAO
 
+def go_results():
+    st.session_state.navigation = '**Resultados**'
+
 st.set_page_config(page_title="SIMULADOR GGDP", page_icon="assets/Brasão.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/Logomarca SEAD.png", width=800)
+    st.image("assets/Logomarca_GNCP_transparente.png", width=800)
 
 st.markdown(
     """
@@ -22,9 +25,10 @@ st.markdown(
             --text-color: #000000 !important;  /* Preto */
         }
         img {
-            margin-top: -3rem !important;
-            margin-bottom: -1.2rem !important;
+            margin-top: -2rem !important;
+            margin-bottom: -2.5rem !important;
             align: center !important;
+            height: 100px !important;
         }
         h1 {
             font-size: 2.50rem !important;
@@ -161,6 +165,11 @@ def main():
         build_titulacoes()
         build_responsabilidades_unicas()
         build_responsabilidades_mensais()
+
+        st.write("")
+        st.write("")
+        c1, c2, c3 = st.columns([2.2, 2, 1])
+        with c2: ir_calculo = st.button("Calcular Resultados", type='primary', on_click=go_results)
 
     if tabs == '**Cálculo Múltiplo**':
         from logic import calcular_planilha
