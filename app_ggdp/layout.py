@@ -3,16 +3,19 @@ import streamlit as st
 from data_utils import  MIN_DATE, MAX_DATE, NIVEIS
 
 def ensure_states():
-    from data_utils import val_states
     """Inicializa todos os session_states necessários"""
+    from data_utils import val_states
+    import copy
     for key, val in val_states.items():
+        st.session_state.setdefault(key, copy.deepcopy(val))
         if key not in st.session_state:
-            st.session_state[key] = val
+            st.session_state[key] = copy.deepcopy(val)
 
 
 def clear_states():
-    from data_utils import val_states
     """Limpa todos os valores nos session_states"""
+    import copy
+    from data_utils import val_states
     for key, default_val in val_states.items():
         if isinstance(default_val, list):
             st.session_state[key] = []
@@ -21,7 +24,8 @@ def clear_states():
         elif isinstance(default_val, bool):
             st.session_state[key] = False
         else:
-            st.session_state[key] = default_val
+            # deepcopy garante que nenhum valor mutável seja reaproveitado
+            st.session_state[key] = copy.deepcopy(default_val)
 
 
 def build_obrigatorios(key_prefix="obg"):
