@@ -16,5 +16,8 @@ COPY . .
 # Expõe a porta que o Streamlit usa
 EXPOSE 8501
 
+# Define variável para Streamlit não tentar abrir navegador
+ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+
 # Define o comando para iniciar a aplicação quando o container for executado
-CMD ["streamlit", "run", "app_ggdp/master.py"]
+CMD ["streamlit", "run", "app_ggdp/master.py", "--server.port=8501", "--server.address=0.0.0.0"]
