@@ -82,29 +82,39 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         # Quanto desse curso ainda pode ser aproveitado
         horas_restantes = max(0, 100 - total_horas)
         horas_aproveitadas = min(horas_curso, horas_restantes)
+        horas_excedentes = max(0, horas_curso - horas_aproveitadas)
 
         # Atualiza acumulado de horas
         total_horas += horas_aproveitadas
 
-        # Só calcula pontos se ainda tiver horas aproveitáveis
+        # Só calcula pontos se ainda tiver horas aproveitáveis (máx 100h)
         if horas_aproveitadas > 0:
             pontos = horas_aproveitadas * 0.09
-
             # Encontra a linha na matriz carreira e insere os pontos
             for idx, linha in enumerate(carreira):
                 data_linha = linha[0]
                 data_linha = data_linha.date() if isinstance(data_linha, datetime) else data_linha
-                
                 if data_linha == data_aplicacao:
                     carreira[idx][3] += pontos
                     break
+        
+        # Se passar de 100h, adiciona os pontos excedentes aos remanescentes do usuário
+        pontos_excedentes = 0
+        if horas_excedentes > 0:
+            pontos_excedentes = horas_excedentes * 0.09
 
 # ---------- APLICA TITULAÇÕES ---------- #
     from data_utils import dados_tit
     total_pontos_tit = 0
+    ultima_titulacao = None
     LIMITE_TIT = 144
     for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0]):
         data_concl = data_concl.date() if isinstance(data_concl, datetime) else data_concl
+
+        # Bloqueia se já teve uma titulação nos últimos 12 meses (dupla confirmação)
+        if ultima_titulacao and data_concl < (ultima_titulacao + relativedelta(months=12)):
+            # Ignora esta titulação
+            continue
 
         # Achar dia 1
         if data_concl.month == 12:
@@ -115,13 +125,14 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         pontos_titulo = dados_tit.get(tipo, 0)
         pontos_restantes = max(0, LIMITE_TIT - total_pontos_tit)
         pontos_aproveitados = min(pontos_titulo, pontos_restantes)
+        
         total_pontos_tit += pontos_aproveitados
+        ultima_titulacao = data_concl
 
         if pontos_aproveitados > 0:
             for i, linha in enumerate(carreira):
                 d = linha[0]
                 d = d.date() if isinstance(d, datetime) else d
-
                 if d == data_aplicacao:
                     carreira[i][4] += pontos_aproveitados
                     break
@@ -236,7 +247,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     evolucao = None
     implementacao = None
     meses_ate_evolucao = None
-    pts_resto = None
+    pts_resto = pontos_excedentes
     novo_nivel = None
 
     for i in range(DATA_CONCLUSAO):
@@ -258,7 +269,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
-                pts_resto = pontos - 48
+                pts_resto += pontos - 48
                 break
 
         if data_atual >= data_prevista18:
@@ -266,7 +277,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
-                pts_resto = pontos - 48
+                pts_resto += pontos - 48
                 break
         
     desempenho, aperfeicoamento = 0, 0
@@ -343,7 +354,7 @@ def calcular_planilha(arquivo):
     df = pd.DataFrame(valores, columns=colunas)
     df = df.drop_duplicates()
     df = df.replace([None, np.nan], '')
-    
+
     # Remove linhas completamente vazias ou com dados inválidos
     colunas_validas = ["Servidor", "CPF", "Cód. Vinculo", "Nível Atual", "Data de Enquadramento ou Última Evolução"]
     st.markdown(

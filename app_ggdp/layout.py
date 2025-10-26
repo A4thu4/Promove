@@ -1,6 +1,6 @@
 import streamlit as st
-
 from data_utils import  MIN_DATE, MAX_DATE, NIVEIS
+from dateutil.relativedelta import relativedelta
 
 def ensure_states():
     """Inicializa todos os session_states necessários"""
@@ -33,7 +33,8 @@ def build_obrigatorios(key_prefix="obg"):
     Renderiza inputs para 'Requisitos Obrigatórios' e atualiza st.session_state.obrigatorios.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500; '><u>Dados do Servidor</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left; color:#000000; '>Critérios Obrigatórios</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Dados do Servidor</h2>", unsafe_allow_html=True)
 
     existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None)
     existing_nivel, existing_data_inicial, existing_pts = existing_data
@@ -44,9 +45,10 @@ def build_obrigatorios(key_prefix="obg"):
         with col0:
             nivel_atual = st.text_input(
                 "Nivel Atual",
-                max_chars=1,  
+                max_chars=1,
                 value=existing_nivel if existing_nivel else None,
-                key=f"{key_prefix}_nvl_atual"
+                key=f"{key_prefix}_nvl_atual",
+                help="Informe a letra do nível em que o servidor se encontra atualmente na carreira, com valores entre A e S."
             )
             if nivel_atual:
                 nivel_atual = nivel_atual.upper()
@@ -65,7 +67,8 @@ def build_obrigatorios(key_prefix="obg"):
                 value=existing_pts if existing_pts else None,
                 min_value=0.0,
                 format="%.3f",
-                key=f"{key_prefix}_pts_rem"
+                key=f"{key_prefix}_pts_rem",
+                help="Caso não haja pontuação remanescente, preencha com o número 0 (zero)."
             )     
         with col1:
             c0, c1 =st.columns([2,2])
@@ -74,17 +77,17 @@ def build_obrigatorios(key_prefix="obg"):
 
     if submitted:
         if not nivel_atual:
-            st.error("Campo 'Nivel Atual' é obrigatório.")
+            st.error("O campo 'Nivel Atual' é obrigatório. Preencha com valores entre A e S.")
         elif nivel_atual not in NIVEIS:
-            st.error(f"Nível '{nivel_atual}' não é válido. Níveis permitidos: {NIVEIS}.")
+            st.error(f"O nível '{nivel_atual}' não é válido. Níveis permitidos: {NIVEIS}.")
         if not st.session_state.data_inicial:
-            st.error("Data inicial é obrigatória.")
+            st.error("O campo 'Data inicial' é obrigatório. Preencha com a data da última evolução ou do último enquadramento.")
         if pts_remanescentes == None:
-            st.error("Pontos remanescentes é obrigatório (mesmo que seja 0).")
-        else:
-            st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, float(pts_remanescentes))]
-            st.session_state.nivel_atual = nivel_atual if nivel_atual else 'A'
+            st.error("O campo 'Pontos Remanescentes da Última Evolução' é obrigatório. Caso não haja pontuação remanescente, preencha com o número 0 (zero).")
+        if st.session_state.data_inicial and nivel_atual in NIVEIS and pts_remanescentes != None:
             st.session_state.pts_ultima_evolucao = float(pts_remanescentes)
+            st.session_state.nivel_atual = nivel_atual if nivel_atual else 'A'
+            st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, float(pts_remanescentes))]
             st.session_state.carreira = []
             st.rerun()
 
@@ -96,7 +99,7 @@ def build_obrigatorios(key_prefix="obg"):
             with col:
                 st.write(f"Nivel Atual: {nivel}.")
                 st.write(f"Data de Início: {data.strftime('%d/%m/%Y')}.")
-                st.write(f"Pontuação Inicial: {pts}.")
+                st.write(f"Pontuação Inicial: {pts}")
                 if remove:
                     st.session_state.obrigatorios.pop(i)
                     st.session_state.data_inicial = None
@@ -109,7 +112,7 @@ def build_afastamentos(key_prefix="afast"):
     Renderiza inputs para 'Afastamentos' e atualiza st.session_state.afastamentos.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500; '><u>Afastamentos Não Considerados Como Efetivo Exercício</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Afastamentos Não Considerados Como Efetivo Exercício</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         st.session_state[f"{key_prefix}_mes"] = None
@@ -120,18 +123,19 @@ def build_afastamentos(key_prefix="afast"):
         col0, col1 = st.columns([1, 1])
         with col0:
             mes_faltas = st.date_input(
-                "Mês (será considerado somente o mês)",
+                "Mês do Afastamento",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
                 max_value=MAX_DATE,
-                key=f"{key_prefix}_mes"
+                key=f"{key_prefix}_mes",
+                help="Preencha a data completa, no formato DD/MM/AAAA (exemplo: 01/01/2025). Será considerado apenas o mês e o ano no cálculo."
             )
             c, c11 = st.columns([2,1])
             with c11: submitted = st.form_submit_button("➕", use_container_width=True, type='primary')
         with col1:
             qntd_faltas = st.number_input(
-                "Faltas (nº)",
+                "Quantitativo Total de Afastamentos no Mês",
                 min_value=0,
                 step=1,
                 key=f"{key_prefix}_qntd"
@@ -144,13 +148,15 @@ def build_afastamentos(key_prefix="afast"):
         if not st.session_state.data_inicial: 
             st.error("Adicione a Data de Enquadramento/Última Evolução.")
         if not mes_faltas:
-            st.error("Preencha a Data corretamente.")
+            st.error("Preencha o campo 'Mês do Afastamento' com a data completa no formato DD/MM/AAAA. O cálculo levará em conta apenas o mês e o ano, independemente do dia preenchido. ")
         if not qntd_faltas or qntd_faltas == 0:
-            st.error("Número de faltas precisa ser maior do que 0.")
+            st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
         if st.session_state.data_inicial != None and mes_faltas:
             if mes_faltas < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
-            if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0:
+            if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
+                st.warning("Mês e ano já registrados.")
+            if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.session_state.afastamentos.append((mes_faltas, int(qntd_faltas)))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -180,13 +186,83 @@ def build_afastamentos(key_prefix="afast"):
                     st.rerun()
 
 
+def build_desempenho(key_prefix="des"):
+    """
+    Renderiza inputs para 'Desempenhos' e atualiza st.session_state.afastamentos.
+    """
+    ensure_states()
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Desempenho no Exercício das Atribuições</h2>", unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+        /* Campos desabilitados com melhor visibilidade */
+        input[disabled] {
+            color: #000000 !important;
+            opacity: 1 !important;
+            cursor: default !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            padding: 8px 12px !important;
+        }
+        input[disabled]:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        /* Label em negrito para melhor visibilidade */
+        .stTextInput label {
+            font-weight: 600 !important;
+            color: #000000 !important;
+        }
+        
+        /* Garantir que o texto fique realmente preto */
+        .stTextInput input[disabled] {
+            -webkit-text-fill-color: #000000 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    with st.form(key=f"{key_prefix}_form", clear_on_submit=False, enter_to_submit=False):
+        col0, col1, col2 = st.columns([1, 1, 1])
+        with col0:
+            st.text_input(
+                "Pontuação Mensal",
+                value="1.5",
+                key=f"{key_prefix}_pts_mes",
+                disabled=True,
+                help="Valor referencial padrão para pontuação mensal"
+            )
+        with col1:
+            st.text_input(
+                "Pontuação Semestral",
+                value="9",
+                key=f"{key_prefix}_pts_semestre",
+                disabled=True,
+                help="Valor referencial padrão para pontuação semestral"
+            )
+        with col2:
+            st.text_input(
+                "Pontuação Final por Ciclo de Evolução (24 meses)",
+                value="36",
+                key=f"{key_prefix}_pts_final",
+                disabled=True,
+                help="Valor referencial padrão para pontuação final"
+            )
+        
+        st.form_submit_button(
+            "Obs.: a pontuação referente ao desempenho no exercício das atribuições será calculada nesta simulação com os valores referenciais padrões. Os campos deste bloco não deverão ser preenchidos", 
+            use_container_width=True, 
+            disabled=True
+        )
+
+
 def build_aperfeicoamentos(key_prefix="aperf"):
     """
     Renderiza inputs para 'Aperfeiçoamentos' (data de conclusão + horas) e atualiza st.session_state.aperfeicoamentos.
     Aproveitamento das horas (limite 100h, pontos = horas * 0.09) fica em logic.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500'><u>Aperfeiçoamentos</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000'>Aperfeiçoamentos</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         st.session_state[f"{key_prefix}_data"] = None
@@ -266,7 +342,8 @@ def build_titulacoes(key_prefix="tit"):
     Renderiza inputs para 'Titulações' (data de conclusão + tipo da titulação) e atualiza st.session_state.titulacoes.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500'><u>Titulações</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left; color:#000000; '>Critérios Aceleradores</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000'>Titulações</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_tit
 
@@ -298,6 +375,11 @@ def build_titulacoes(key_prefix="tit"):
             with c03: remove = st.form_submit_button("➖",use_container_width=True)
             with c: cleared = st.form_submit_button("🗑️",use_container_width=True)
 
+    ultima_titulacao = None
+    if st.session_state.titulacoes:
+        # Pega a última titulação cadastrada (a mais recente)
+        ultima_titulacao = max(data for data, _ in st.session_state.titulacoes)
+
     if submitted:
         if not st.session_state.data_inicial: 
             st.error("Adicione a Data de Enquadramento/Última Evolução")
@@ -305,7 +387,9 @@ def build_titulacoes(key_prefix="tit"):
             st.error("Preencha a Data corretamente.")
         if tipo_tit == 'Nenhuma':
             st.error("Escolha uma Titulação válida.")
-        if st.session_state.data_inicial != None:
+        if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
+            st.warning("Limite de titulações excedido no período ( art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação )..") 
+        if st.session_state.data_inicial != None and data_conclusao > (ultima_titulacao + relativedelta(months=12)):
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
             if data_conclusao >= st.session_state.data_inicial and tipo_tit != 'Nenhuma':
@@ -336,6 +420,7 @@ def build_titulacoes(key_prefix="tit"):
                     st.session_state.titulacoes.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
                     st.rerun()
+                st.divider()
 
 
 def build_responsabilidades_unicas(key_prefix="resp_unic"):
@@ -343,7 +428,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500'><u>Responsabilidades Únicas</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Únicas</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos
 
@@ -357,7 +442,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- ARTIGOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_art = st.date_input(
@@ -407,7 +492,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.rerun()
 
 # ---------- LIVROS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_liv = st.date_input(
@@ -457,7 +542,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.rerun()
 
 # ---------- PESQUISAS CIENTIFICAS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_pesq = st.date_input(
@@ -507,7 +592,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_reg = st.date_input(
@@ -557,7 +642,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Estágio Pós-Doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-Doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_curso = st.date_input(
@@ -651,7 +736,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referencia_responsabilidade}.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:center; color:#003500'><u>Responsabilidades Mensais</u></h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Mensais</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente
 
@@ -666,7 +751,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- CARGO DE COMISSÃO ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             cargo_comissao = st.selectbox(
@@ -725,7 +810,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.rerun()
 
 # ---------- FUNÇÃO COMISSIONADA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_comissionada = st.selectbox(
@@ -784,7 +869,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.rerun()
 
 # ---------- FUNÇÃO DESIGNADA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_designada = st.selectbox(
@@ -843,7 +928,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.rerun()
 
 # ---------- ATUAÇÃO COMO AGENTE ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_agente = st.selectbox(
@@ -902,7 +987,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.rerun()
 
 # ---------- ATUAÇÃO EM CONSELHO ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_conselho = st.selectbox(
@@ -961,7 +1046,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.rerun()
 
 # ---------- ATUAÇÃO PRIORITÁRIA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#003500'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_prioritaria = st.selectbox(

@@ -3,16 +3,39 @@ import streamlit as st
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-from layout import ensure_states, build_obrigatorios, build_afastamentos, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
+from layout import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
 ensure_states()
 from data_utils import DATA_CONCLUSAO
 
 def go_results():
     st.session_state.navigation = '**Resultados**'
+
 def go_individual():
     st.session_state.navigation = '**Cálculo Individual**'    
 
-st.set_page_config(page_title="SIMULADOR GGDP", page_icon="assets/Brasão.png", layout="wide")
+def bloco_vertical(titulo, tamanho, cor):
+    return f"""
+    <div style="
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        background-color: {cor};
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        height: {tamanho}px;
+        width: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    ">
+        {titulo}
+    </div>
+    """
+
+
+st.set_page_config(page_title="PROMOVE - Simulador GGDP", page_icon="assets/Brasão.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.image("assets/Logomarca_GNCP_transparente.png", width=800)
@@ -27,20 +50,21 @@ st.markdown(
             --text-color: #000000 !important;  /* Preto */
         }
         img {
-            margin-top: -2rem !important;
-            margin-bottom: -2.5rem !important;
+            margin-top: 3rem !important;
+            margin-bottom: -1.5rem !important;
             align: center !important;
             height: 100px !important;
         }
         h1 {
             font-size: 2.50rem !important;
-            margin-bottom: 1rem !important;
-            margin-left: 1.6rem !important;
+            margin-top: -20px !important;
+            margin-bottom: 0.2rem !important;
+            margin-left: 0.25rem !important;
         }
         h2 {
             font-size: 1.90rem !important;
             margin-bottom: 1rem !important;
-            margin-left: 1.6rem !important;
+            margin-left: 0.5rem !important;
         }
 
         /* Fundo de Tela */
@@ -116,7 +140,7 @@ st.markdown(
             border: 1px solid #e0e0e0 !important;
             transition: all 0.3s ease !important;
             font-weight: 500 !important;
-            color: green !important;  /* VERDE em vez de vermelho */
+            color: black !important;  /* VERDE em vez de vermelho */
             background: linear-gradient(135deg, #fbfbf7, #fbfbf7) !important;
         }
 
@@ -144,33 +168,76 @@ def main():
 
 
     if tabs == '**Cálculo Individual**':
-        st.markdown("<h1 style='text-align:center; color:#003500; '><u>Critérios Obrigatórios</u></h1>", unsafe_allow_html=True)
-
-        build_obrigatorios()
+        st.markdown("<h1 style='text-align:center; color:#003500; '>PROMOVE – Simulador de evoluções funcionais (GGDP)</h1>", unsafe_allow_html=True)
+       
+        st.markdown(
+            """
+            <div style='
+                background-color: #fff3cd; 
+                border: 1px solid #ffeaa7; 
+                border-radius: 0.375rem; 
+                padding: 1rem; 
+                text-align: center; 
+                color: #856404;
+                margin: 1rem 0;
+            '>
+            <strong>⚠️ IMPORTANTE: este simulador destina-se à utilização por servidores lotados nas unidades setoriais e centrais de gestão e desenvolvimento de pessoas <br>
+            ou em unidades a elas equivalentes, como ferramenta de apoio à gestão das carreiras do Poder Executivo do Estado de Goiás vinculadas ao programa PROMOVE. ⚠️</strong>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
         
-        if st.session_state.data_inicial and not st.session_state.carreira:
-            st.session_state.data_fim = st.session_state.data_inicial + relativedelta(years=20)
-            DATA_FIM = st.session_state.data_fim
+        st.markdown(
+                """
+                <style>
+                /* Remove margem e padding padrão dos elementos principais */
+                .block-container {
+                    padding-top: 1rem !important;
+                    padding-left: 0.5rem !important;
+                    padding-right: 0.5rem !important;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+        
+        col1, col2 = st.columns([0.05, 1.93])
+        with col1: 
+            st.markdown(bloco_vertical("", 1100, "#003500"), unsafe_allow_html=True)
+        with col2:
+            build_obrigatorios()
+            
+            if st.session_state.data_inicial and not st.session_state.carreira:
+                st.session_state.data_fim = st.session_state.data_inicial + relativedelta(years=20)
+                DATA_FIM = st.session_state.data_fim
 
-            # Inicializa a carreira no session state
-            st.session_state.carreira = [
-                [st.session_state.data_inicial + timedelta(days=i)] + [0] * 7
-                for i in range(DATA_CONCLUSAO)
-            ]
+                # Inicializa a carreira no session state
+                st.session_state.carreira = [
+                    [st.session_state.data_inicial + timedelta(days=i)] + [0] * 7
+                    for i in range(DATA_CONCLUSAO)
+                ]
 
-            st.success(f"✅ Carreira inicializada com {len(st.session_state.carreira)} dias!")
-            st.rerun()  # Força atualização
+                st.success(f"✅ Carreira inicializada com {len(st.session_state.carreira)} dias!")
+                st.rerun()  # Força atualização
 
-        build_afastamentos()
-        build_aperfeicoamentos()
-        build_titulacoes()
-        build_responsabilidades_unicas()
-        build_responsabilidades_mensais()
+            build_afastamentos()
+            build_desempenho()
+            build_aperfeicoamentos()
+            st.divider()
+        
+        col1, col2 = st.columns([0.05, 1.93])
+        with col1: 
+            st.markdown(bloco_vertical("", 1980, "#fede01"), unsafe_allow_html=True)
+        with col2:
+            build_titulacoes()
+            build_responsabilidades_unicas()
+            build_responsabilidades_mensais()
 
         st.write("")
         st.write("")
         c1, c2, c3 = st.columns([2.2, 2, 1])
-        with c2: ir_calculo = st.button("Calcular Resultados", type='primary', on_click=go_results)
+        with c2: st.button("Calcular Resultados", type='primary', on_click=go_results)
 
     if tabs == '**Cálculo Múltiplo**':
         from logic import calcular_planilha
@@ -257,6 +324,8 @@ def main():
             df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
             st.markdown("<h3 style='text-align:center; color:#003500; '><u>Pontuações Mensais</u></h3>", unsafe_allow_html=True)
             st.dataframe(df_preview, hide_index=True)
+        c1, c2, c3 = st.columns([1.8, 2, 1])
+        with c2: st.button("Adicionar Novos Dados ao Cálculo Atual", type='primary', on_click=go_individual)
 
 if __name__ == "__main__":
     main()

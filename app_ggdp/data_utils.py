@@ -1,6 +1,4 @@
-import streamlit as st
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 DATA_CONCLUSAO = 3654 # 10 anos [7306 - 20 anos] (em dias)
 MIN_DATE = datetime(2000, 1, 1).date()
