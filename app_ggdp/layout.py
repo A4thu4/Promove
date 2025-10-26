@@ -104,6 +104,7 @@ def build_obrigatorios(key_prefix="obg"):
                     st.session_state.obrigatorios.pop(i)
                     st.session_state.data_inicial = None
                     st.session_state.carreira = []
+                    clear_states()
                     st.rerun()
 
 
