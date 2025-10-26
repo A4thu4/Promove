@@ -389,7 +389,7 @@ def build_titulacoes(key_prefix="tit"):
             st.error("Escolha uma Titulação válida.")
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
             st.warning("Limite de titulações excedido no período ( art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação )..") 
-        if st.session_state.data_inicial != None and data_conclusao > (ultima_titulacao + relativedelta(months=12)):
+    if st.session_state.data_inicial != None and data_conclusao > (ultima_titulacao + relativedelta(months=12) if ultima_titulacao != None else data_conclusao):
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
             if data_conclusao >= st.session_state.data_inicial and tipo_tit != 'Nenhuma':
