@@ -7,7 +7,7 @@ NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R
 
 val_states = {
     "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "carreira": [], "resultados_carreira": [],
-    "obrigatorios": [], "afastamentos": [], "aperfeicoamentos": [], "titulacoes": [],
+    "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "aperfeicoamentos": [], "titulacoes": [],
     "resp_mensais": [], 
     "comissao_lista": [], "func_c_lista": [], "func_d_lista": [], 
     "agente_lista": [], "conselho_lista": [], "prioritaria_lista": [], 
@@ -31,8 +31,8 @@ dados_tit = {
 
 dados_artigo = {
     'Nenhum': 0,
-    'Não Indexado em Base de Dados': 0.5,
-    'Indexado em Base de Dados': 3
+    'Indexado em Base de Dados': 3,
+    'Não Indexado em Base de Dados': 0.5
 }
 
 dados_livro = {
@@ -59,10 +59,10 @@ dados_registros = {
 dados_cursos = {
     'Nenhum': 0,
     'Pós-doutorado – igual a 6 meses': 6,   
-    'Pós-Doutorado - (6 a 12 meses)': 8,   
-    'Pós-Doutorado - (13 a 24 meses)': 12,  
-    'Pós-Doutorado - (25 a 48 meses)': 24,
-    'Pós-Doutorado - (maior ou igual a 48 meses)': 48  
+    'Pós-doutorado - (6 a 12 meses)': 8,   
+    'Pós-doutorado - (13 a 24 meses)': 12,  
+    'Pós-doutorado - (25 a 48 meses)': 24,
+    'Pós-doutorado - (maior ou igual a 48 meses)': 48  
 }
 
 # ---- RESPONSABILIDADES MENSAIS ---- #
