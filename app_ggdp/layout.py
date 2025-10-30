@@ -126,7 +126,6 @@ def build_afastamentos(key_prefix="afast"):
                 "Mês do Afastamento",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_mes",
                 help="Preencha a data completa, no formato DD/MM/AAAA (exemplo: 01/01/2025). Será considerado apenas o mês e o ano no cálculo."
@@ -1204,4 +1203,5 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
+
 
