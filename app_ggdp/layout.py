@@ -100,8 +100,6 @@ def build_obrigatorios(key_prefix="obg"):
             with col:
                 st.write(f"Nivel Atual: {nivel}.")
                 st.write(f"Data de Início: {data.strftime('%d/%m/%Y')}.")
-                if faltas > 0:
-                    st.write(f"Falta(s) Computada(s): {faltas}.")
                 st.write(f"Pontuação Inicial: {pts}")
                 if remove:
                     st.session_state.obrigatorios.pop(i)
@@ -1206,3 +1204,4 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
+
