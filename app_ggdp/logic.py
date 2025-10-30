@@ -4,6 +4,29 @@ from dateutil.relativedelta import relativedelta
 
 from data_utils import DATA_CONCLUSAO, NIVEIS
 
+def ensure_states():
+    """Inicializa todos os session_states necessários"""
+    from data_utils import val_states
+    import copy
+    for key, val in val_states.items():
+        st.session_state.setdefault(key, copy.deepcopy(val))
+        
+
+def clear_states():
+    """Limpa todos os valores nos session_states"""
+    from data_utils import val_states
+    for key, default_val in val_states.items():
+        if isinstance(default_val, list):
+            st.session_state[key] = []
+        elif isinstance(default_val, (int, float)):
+            st.session_state[key] = 0.0 if isinstance(default_val, float) else 0
+        elif isinstance(default_val, bool):
+            st.session_state[key] = False
+        else:
+            # deepcopy garante que nenhum valor mutável seja reaproveitado
+            st.session_state[key] = default_val
+
+        
 def zerar_carreira(carreira):
     from layout import ensure_states
     ensure_states()
@@ -70,6 +93,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
 # ---------- APLICA APERFEIÇOAMENTOS ---------- #
     total_horas = 0
+    pontos_excedentes = 0
     for data_conclusao, horas_curso in sorted(aperfeicoamentos, key=lambda data: data[0]):
         data_conclusao = data_conclusao.date() if isinstance(data_conclusao, datetime) else data_conclusao
 
@@ -99,7 +123,6 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                     break
         
         # Se passar de 100h, adiciona os pontos excedentes aos remanescentes do usuário
-        pontos_excedentes = 0
         if horas_excedentes > 0:
             pontos_excedentes = horas_excedentes * 0.09
 
@@ -177,10 +200,20 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 carreira[i][5] += pontos_aj
                 total_pontos_resp += pontos_aj
                 break
+
 # ---------- APLICA RESPONSABILIDADES MENSAIS ---------- #
-    for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[1]):
+    for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[0]):
         # garante que seja datetime.date
         inicio = inicio.date() if isinstance(inicio, datetime) else inicio
+
+        # Caso o início seja até 5 anos antes da data_inicial
+        if inicio < data_inicial and inicio >= data_inicial - relativedelta(years=5):
+            # Quantos meses retroativos até a data_inicial
+            delta = relativedelta(data_inicial, inicio)
+            meses_anteriores = delta.years * 12 + delta.months
+            if meses_anteriores > 0:
+                # Soma todos os pontos retroativos na primeira linha da carreira
+                carreira[0][6] += meses_anteriores * pontos
 
         # primeiro mês de aplicação é o mês seguinte
         mes_aplicacao = inicio.month + 1
@@ -357,6 +390,8 @@ def calcular_planilha(arquivo):
 
     # Remove linhas completamente vazias ou com dados inválidos
     colunas_validas = ["Servidor", "CPF", "Cód. Vinculo", "Nível Atual", "Data de Enquadramento ou Última Evolução"]
+    st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
+    
     st.markdown(
             """
             <div style='
@@ -368,7 +403,7 @@ def calcular_planilha(arquivo):
                 color: #856404;
                 margin: 1rem 0;
             '>
-            <strong>⚠️ Caso algum dos 'Obrigátorios' não tenha sido preenchido corretamente na Planilha ele não será calculado. ⚠️</strong>
+            <strong>⚠️ Caso os dados 'Obrigátorios' de algum servidor não tenha sido preenchido corretamente na planilha ele não será cálculado. </strong>
             </div>
             """, 
             unsafe_allow_html=True
@@ -393,7 +428,7 @@ def calcular_planilha(arquivo):
     df.columns = [str(c).strip() if not pd.isna(c) else "" for c in df.columns]
 
     st.dataframe(df.head(),hide_index=True)
-    st.markdown("<h1 style='text-align:center; color:#003500; '><u>Resultado(s) da Simulação</u></h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
     
     ids_processados = set()
     for i in range (len(df)):
@@ -549,7 +584,7 @@ def calcular_planilha(arquivo):
             "DAS3": 0.889, "DAS4": 0.889,
             "DAS5": 0.800, "DAS6": 0.800, "DAS7": 0.800, "DAID1A": 0.800, "AEG": 0.800,
             "DAI1": 0.667, "DAID1": 0.667, "DAID1B": 0.667, "DAID2": 0.667, "AE1": 0.667, "AE2": 0.667,
-            "DAI2": 0.500, "DAI3": 0.500, "DAID4": 0.500, "DAID5": 0.500, "DAID6": 0.500, "DAID7": 0.500,
+            "DAI2": 0.500, "DAI3": 0.500, "DAID3": 0.500, "DAID4": 0.500, "DAID5": 0.500, "DAID6": 0.500, "DAID7": 0.500,
             "DAID8": 0.500, "DAID9": 0.500, "DAID10": 0.500, "DAID11": 0.500, "DAID12": 0.500,
             "DAID13": 0.500, "DAID14": 0.500
         }
@@ -757,7 +792,7 @@ def calcular_planilha(arquivo):
             if nid is not None and nid != 0:
                 pontos = nid * 0.5 
             if art_id is not None and art_id != 0:
-                pontos = art_id * 4
+                pontos = art_id * 3
 
             data_orig = datetime.strptime(data_art, "%d/%m/%Y").date()
     
@@ -786,7 +821,7 @@ def calcular_planilha(arquivo):
             if org is not None and org != 0:
                 pontos = org * 1
             if cap is not None and cap != 0:
-                pontos = cap * 4
+                pontos = cap * 3
             if comp is not None and comp != 0:
                 pontos = comp * 6
 
@@ -819,7 +854,7 @@ def calcular_planilha(arquivo):
             if est is not None and est != 0:
                 pontos = est * 1
             if reg is not None and reg != 0:
-                pontos = reg * 3
+                pontos = reg * 2
             if nac is not None and nac != 0:
                 pontos = nac * 3
             if inter is not None and inter != 0:
@@ -848,9 +883,9 @@ def calcular_planilha(arquivo):
         # Agrupar por data e aplicar limite
         for pat, cult, data_reg in st.session_state.reg_lista_pl:
             if pat is not None and pat != 0:
-                pontos = pat * 8
+                pontos = pat * 6
             if cult is not None and cult != 0:
-                pontos = cult * 8
+                pontos = cult * 6
             
             data_orig = datetime.strptime(data_reg, "%d/%m/%Y").date()
     
@@ -1257,10 +1292,13 @@ def calcular_planilha(arquivo):
     excel_buffer = io.BytesIO()
     df_results.to_excel(excel_buffer, index=False, engine='openpyxl')
     excel_buffer.seek(0)
-    
-    st.download_button(
-            label="Exportar",
+
+    c1, c2, c3 = st.columns([2, 2, 1])
+    with c2:
+        st.write("")
+        st.download_button(
+            label="Exportar Resultados para Excel",
             data=excel_buffer.getvalue(),
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+        )
