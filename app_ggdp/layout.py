@@ -1,31 +1,7 @@
 import streamlit as st
 from data_utils import  MIN_DATE, MAX_DATE, NIVEIS
+from logic import ensure_states, clear_states
 from dateutil.relativedelta import relativedelta
-
-def ensure_states():
-    """Inicializa todos os session_states necessários"""
-    from data_utils import val_states
-    import copy
-    for key, val in val_states.items():
-        st.session_state.setdefault(key, copy.deepcopy(val))
-        if key not in st.session_state:
-            st.session_state[key] = copy.deepcopy(val)
-
-
-def clear_states():
-    """Limpa todos os valores nos session_states"""
-    import copy
-    from data_utils import val_states
-    for key, default_val in val_states.items():
-        if isinstance(default_val, list):
-            st.session_state[key] = []
-        elif isinstance(default_val, (int, float)):
-            st.session_state[key] = 0.0 if isinstance(default_val, float) else 0
-        elif isinstance(default_val, bool):
-            st.session_state[key] = False
-        else:
-            # deepcopy garante que nenhum valor mutável seja reaproveitado
-            st.session_state[key] = copy.deepcopy(default_val)
 
 
 def build_obrigatorios(key_prefix="obg"):
@@ -38,6 +14,12 @@ def build_obrigatorios(key_prefix="obg"):
 
     existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None)
     existing_nivel, existing_data_inicial, existing_pts = existing_data
+
+    if st.session_state.get(f"{key_prefix}_reset_fields", False):
+        st.session_state[f"{key_prefix}_nvl_atual"] = existing_nivel if existing_nivel else None
+        st.session_state[f"{key_prefix}_data_inicial"] = None
+        st.session_state[f"{key_prefix}_pts_rem"] = None
+        st.session_state[f"{key_prefix}_reset_fields"] = False
 
     # Usar st.form para evitar re-execução a cada input
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
@@ -75,6 +57,25 @@ def build_obrigatorios(key_prefix="obg"):
             with c0: submitted = st.form_submit_button("Enviar", use_container_width=True, type='primary')
             with c1: remove = st.form_submit_button("Remover", use_container_width=True)
 
+    faltas = 0
+    if st.session_state.data_inicial:
+        # Remove qualquer registro anterior automático de faltas
+        st.session_state.afastamentos_inicial = [
+            (mes, faltas)
+            for mes, faltas in st.session_state.afastamentos_inicial
+            if mes != st.session_state.get("data_inicial_anterior")
+        ]
+
+        data = st.session_state.data_inicial
+        faltas = data.day - 1  # dias antes do início
+        if faltas > 0:
+            st.session_state.afastamentos_inicial.append((data, int(faltas)))
+        else:
+            st.session_state.afastamentos_inicial.append((data, 0))
+
+        # Atualiza o controle da última data usada
+        st.session_state.data_inicial_anterior = data
+
     if submitted:
         if not nivel_atual:
             st.error("O campo 'Nivel Atual' é obrigatório. Preencha com valores entre A e S.")
@@ -99,12 +100,12 @@ def build_obrigatorios(key_prefix="obg"):
             with col:
                 st.write(f"Nivel Atual: {nivel}.")
                 st.write(f"Data de Início: {data.strftime('%d/%m/%Y')}.")
+                if faltas > 0:
+                    st.write(f"Falta(s) Computada(s): {faltas}.")
                 st.write(f"Pontuação Inicial: {pts}")
                 if remove:
                     st.session_state.obrigatorios.pop(i)
-                    st.session_state.data_inicial = None
-                    st.session_state.carreira = []
-                    clear_states()
+                    st.session_state[f"{key_prefix}_reset_fields"] = True
                     st.rerun()
 
 
@@ -165,6 +166,7 @@ def build_afastamentos(key_prefix="afast"):
     if cleared:
         st.session_state.afastamentos.clear()
         st.session_state[f"{key_prefix}_reset_fields"] = True
+        ensure_states()
         st.rerun()
 
     if st.session_state.afastamentos:
@@ -176,12 +178,14 @@ def build_afastamentos(key_prefix="afast"):
         with cl[1]: st.write(f"**Total de Afastamentos: {total_afast}**")
         
         cols = st.columns(6)
+        print("")
+
         for i, (mes, faltas) in enumerate(sorted(st.session_state.afastamentos, key=lambda data: data[0])):
             col = cols[i % 6]
             with col:
                 st.write(f"Data: {mes.strftime('%m/%Y')}.") 
                 st.write(f"{faltas} falta(s).")
-                if remove:
+                if remove and st.session_state.afastamentos:
                     st.session_state.afastamentos.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
                     st.rerun()
@@ -285,9 +289,8 @@ def build_aperfeicoamentos(key_prefix="aperf"):
             with c12: submitted = st.form_submit_button("➕", use_container_width=True, type='primary')
         with col2:
             horas_curso = st.number_input(
-                "Horas do Curso",
+                "Carga Horária por Atividade de Capacitação",
                 min_value=0,
-                max_value=100,
                 step=1,
                 key=f"{key_prefix}_hrs"
             )
@@ -299,9 +302,9 @@ def build_aperfeicoamentos(key_prefix="aperf"):
         if not st.session_state.data_inicial: 
             st.error("Adicione a Data de Enquadramento/Última Evolução")
         if not data_conclusao:
-            st.error("Preencha a Data Corretamente.")
+            st.error("Preencha o campo 'Data de Conclusão' com a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
         if not horas_curso or horas_curso < 4:
-            st.error("Preencha as Horas. O Mínimo de horas aceitado é 4hrs.")
+            st.error("O número mínimo de horas aceita por atividade de aperfeiçoamento é 4.")
         if st.session_state.data_inicial != None and data_conclusao:
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
@@ -324,7 +327,7 @@ def build_aperfeicoamentos(key_prefix="aperf"):
         with cl[1]: st.write(f"**Total de Horas: {total_hrs}**")
         if total_hrs > 100:
             total_hrs = 100
-            st.warning("Limie Máximo de Horas Atingido no Interstício de Evolução: **100**")
+            st.warning("O limite máximo de horas de atividades de aperfeiçoamento (100 horas) no ciclo de evolução foi atingido. As horas excedentes serão computadas como 'Pontuação Remanescente' para o(s) ciclo(s) seguinte(s).")
         
         cols = st.columns(6)
         for i, (data, hrs) in enumerate(sorted(st.session_state.aperfeicoamentos, key=lambda data: data[0])):
@@ -360,7 +363,7 @@ def build_titulacoes(key_prefix="tit"):
                 "Data de Conclusão",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=MIN_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data"
             )
@@ -385,11 +388,11 @@ def build_titulacoes(key_prefix="tit"):
         if not st.session_state.data_inicial: 
             st.error("Adicione a Data de Enquadramento/Última Evolução")
         if not data_conclusao:
-            st.error("Preencha a Data corretamente.")
+            st.error("O campo “Data de Conclusão” é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
         if tipo_tit == 'Nenhuma':
-            st.error("Escolha uma Titulação válida.")
+            st.error("Selecione um tipo de titulação válido.")
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
-            st.warning("Limite de titulações excedido no período ( art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação )..") 
+            st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
         if st.session_state.data_inicial != None and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
@@ -421,7 +424,6 @@ def build_titulacoes(key_prefix="tit"):
                     st.session_state.titulacoes.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
                     st.rerun()
-                st.divider()
 
 
 def build_responsabilidades_unicas(key_prefix="resp_unic"):
@@ -457,7 +459,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with col1:
             qntd_art = st.number_input(
                 "Quantidade",
-                value=0,
                 min_value=0,
                 key=f"{key_prefix}_qntd_art"
             )
@@ -477,20 +478,21 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
             if not data_publi_art:
-                st.error("Preencha a Data corretamente.")
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_art: 
-                st.error("Preencha Quantidade.")
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_art == 'Nenhum':
-                st.error("Escolha um Tipo válido.")
+                st.error("Selecione um tipo de responsabilidade única válido.")
             if data_publi_art and qntd_art and tipo_art != 'Nenhum':
                 st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove1:
-            st.session_state.artigos_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.artigos_lista:
+            if remove1:
+                st.session_state.artigos_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- LIVROS ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
@@ -507,7 +509,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with col1:
             qntd_liv = st.number_input(
                 "Quantidade",
-                value=0,
                 min_value=0,
                 key=f"{key_prefix}_qntd_liv"
             )
@@ -527,20 +528,21 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
             if not data_publi_liv:
-                st.error("Preencha a Data corretamente.")
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_liv: 
-                st.error("Preencha Quantidade.")
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_liv == 'Nenhum':
-                st.error("Escolha um Tipo válido.")
+                st.error("Selecione um tipo de responsabilidade única válido.")
             if data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
                 st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
         
-        if remove2:
-            st.session_state.livros_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.livros_lista:
+            if remove2:
+                st.session_state.livros_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- PESQUISAS CIENTIFICAS ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
@@ -557,7 +559,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with col1:
             qntd_pesq = st.number_input(
                 "Quantidade",
-                value=0,
                 min_value=0,
                 key=f"{key_prefix}_qntd_pesq"
             )
@@ -577,20 +578,21 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
             if not data_publi_pesq:
-                st.error("Preencha a Data corretamente.")
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_pesq: 
-                st.error("Preencha Quantidade.")
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_pesq == 'Nenhum':
-                st.error("Escolha um Tipo válido.")
+                st.error("Selecione um tipo de responsabilidade única válido.")
             if data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
                 st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove3:
-            st.session_state.pesquisas_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.pesquisas_lista:
+            if remove3:
+                st.session_state.pesquisas_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
@@ -607,7 +609,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with col1:
             qntd_reg = st.number_input(
                 "Quantidade",
-                value=0,
                 min_value=0,
                 key=f"{key_prefix}_qntd_reg"
             )
@@ -627,23 +628,24 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
             if not data_publi_reg:
-                st.error("Preencha a Data corretamente.")
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_reg: 
-                st.error("Preencha Quantidade.")
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_reg == 'Nenhum':
-                st.error("Escolha um Tipo válido.")
+                st.error("Selecione um tipo de responsabilidade única válido.")
             if data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
                 st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove4:
-            st.session_state.registros_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.registros_lista:
+            if remove4:
+                st.session_state.registros_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
-# ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-Doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
+# ---------- CURSOS ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             data_publi_curso = st.date_input(
@@ -657,7 +659,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with col1:
             qntd_curso = st.number_input(
                 "Quantidade",
-                value=0,
                 min_value=0,
                 key=f"{key_prefix}_qntd_curso"
             )
@@ -677,26 +678,27 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
             if not data_publi_curso:
-                st.error("Preencha a Data corretamente.")
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_curso: 
-                st.error("Preencha Quantidade.")
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_curso == 'Nenhum':
-                st.error("Escolha um Tipo válido.")
+                st.error("Selecione um tipo de responsabilidade única válido.")
             if data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
                 st.session_state.cursos_lista.append((data_publi_curso, qntd_curso, tipo_curso))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove5:
-            st.session_state.cursos_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.cursos_lista:
+            if remove5:
+                st.session_state.cursos_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 ### USAR 1 SÓ PARA TODAS AS RESPONSABILIDADES UNICAS ###
     from itertools import chain
-    dados_dict = {**dados_artigo, **dados_livro, **dados_pesquisas, **dados_registros, **dados_cursos}
+    dados_dict_u = {**dados_artigo, **dados_livro, **dados_pesquisas, **dados_registros, **dados_cursos}
     st.session_state.resp_unicas = [
-        (data, qntd * dados_dict.get(tipo, 0))
+        (data, qntd * dados_dict_u.get(tipo, 0))
         for data, qntd, tipo in chain(
             st.session_state.artigos_lista,
             st.session_state.livros_lista,
@@ -712,10 +714,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         
         total_ru = len(st.session_state.resp_unicas)
 
-        cl = st.columns(2)
+        cl0, cl1, cl2= st.columns([2,2,1])
         
-        with cl[0]: st.write("**-Responsabilidades Únicas Registradas-**")
-        with cl[1]: st.write(f"**Total de Responsabilidades Únicas: {total_ru}**")
+        with cl0: st.write("**-Responsabilidades Únicas Registradas-**")
+        with cl1: st.write(f"**Total de Responsabilidades Únicas: {total_ru}**")
+        with cl2: cleared = st.button("🗑️", use_container_width=True, type='primary', key=f"{key_prefix}_clear")
 
         cols = st.columns(4)
         all_items = list(chain(
@@ -724,12 +727,20 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.session_state.cursos_lista
         ))
 
+        all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "cursos_lista", "resp_unicas"]
+
         for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0])):
             col = cols[i % 4]
             with col:
                 st.write(f"Data: {data.strftime('%d/%m/%Y')} ")
                 st.write(f"{qntd} - {tipo} ")
                 st.write("")
+        
+        if cleared:
+            for nome in all_lists:
+                st.session_state[nome].clear()
+            st.session_state[f"{key_prefix}_reset_fields"] = True
+            st.rerun()
 
 
 def build_responsabilidades_mensais(key_prefix="resp_mensal"):
@@ -740,6 +751,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Mensais</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente
+    from natsort import natsorted
 
     suffixes = ["cc", "fc", "fd", "at_a", "at_c", "at_p" ]
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
@@ -753,11 +765,13 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- CARGO DE COMISSÃO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
+        cargos_ordenados = natsorted(dados_cargos.keys())
+        cargos_ordenados = ['Nenhum'] + [x for x in cargos_ordenados if x != 'Nenhum']
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             cargo_comissao = st.selectbox(
                 "Cargo",
-                sorted(dados_cargos.keys(), key=lambda x: (x != 'Nenhum', x)),
+                cargos_ordenados,
                 key=f"{key_prefix}_tipo_cc"
             )
         with col1:
@@ -765,7 +779,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_cc"
             )
@@ -774,9 +788,9 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
-                key=f"{key_prefix}_data_f_cc"
+                key=f"{key_prefix}_data_f_cc",
             )
         with col3:
             st.write("")
@@ -793,11 +807,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted1:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_cc or not data_f_cc:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_cc:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_cc:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if cargo_comissao == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_cc and data_i_cc and cargo_comissao != 'Nenhum':
+                st.error("Selecione um cargo de comissão válido.")
+            if data_i_cc and data_f_cc:
+                if data_f_cc <= data_i_cc or not data_f_cc > data_i_cc + relativedelta(months=1):
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if st.session_state.data_inicial and data_i_cc < st.session_state.data_inicial:
+
+                print("Funcionou")
+            if data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
                 ano = data_f_cc.year - data_i_cc.year
                 mes = data_f_cc.month - data_i_cc.month
                 tempo = ano * 12 + mes
@@ -805,10 +827,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove1:
-            st.session_state.comissao_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.comissao_lista:
+            if remove1:
+                st.session_state.comissao_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- FUNÇÃO COMISSIONADA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
@@ -824,7 +847,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fc"
             )
@@ -833,7 +856,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial- relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fc"
             )
@@ -852,11 +875,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted2:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_fc or not data_f_fc:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_fc:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_fc:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if funcao_comissionada == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_fc and data_i_fc and funcao_comissionada != 'Nenhum':
+                st.error("Selecione uma função comissionada válida.")
+            if data_i_fc and data_f_fc:
+                if data_f_fc <= data_i_fc or not data_f_fc > data_i_fc + relativedelta(months=1):
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
                 ano = data_f_fc.year - data_i_fc.year
                 mes = data_f_fc.month - data_i_fc.month
                 tempo = ano * 12 + mes
@@ -864,10 +892,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove2:
-            st.session_state.func_c_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.func_c_lista:
+            if remove2:
+                st.session_state.func_c_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- FUNÇÃO DESIGNADA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
@@ -883,7 +912,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fd"
             )
@@ -892,7 +921,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fd"
             )
@@ -911,11 +940,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted3:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_fd or not data_f_fd:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_fd:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_fd:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if funcao_designada == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_fd and data_i_fd and funcao_designada != 'Nenhum':
+                st.error("Selecione uma função designada válida.")
+            if data_i_fd and data_f_fd:
+                if data_f_fd <= data_i_fd or not data_f_fd > data_i_fd + relativedelta(months=1):
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
                 ano = data_f_fd.year - data_i_fd.year
                 mes = data_f_fd.month - data_i_fd.month
                 tempo = ano * 12 + mes
@@ -923,10 +957,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove3:
-            st.session_state.func_d_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.func_d_lista:
+            if remove3:
+                st.session_state.func_d_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- ATUAÇÃO COMO AGENTE ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
@@ -970,11 +1005,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted4:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_at_a or not data_f_at_a:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_at_a:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_at_a:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_agente == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_at_a and data_i_at_a and atuacao_agente != 'Nenhum':
+                st.error("Selecione uma atuação como agente válida.")
+            if data_i_at_a and data_f_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
+                if data_f_at_a <= data_i_at_a:
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
                 ano = data_f_at_a.year - data_i_at_a.year
                 mes = data_f_at_a.month - data_i_at_a.month
                 tempo = ano * 12 + mes
@@ -982,10 +1022,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove4:
-            st.session_state.agente_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.agente_lista:
+            if remove4:
+                st.session_state.agente_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- ATUAÇÃO EM CONSELHO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
@@ -1029,22 +1070,28 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted5:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_at_c or not data_f_at_c:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_at_c:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_at_c:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_conselho == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_at_c and data_i_at_c and atuacao_conselho != 'Nenhum':
+                st.error("Selecione uma atuação em conselho válida.")
+            if data_i_at_c and data_f_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
+                if data_f_at_c <= data_i_at_c:
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
                 ano = data_f_at_c.year - data_i_at_c.year
                 mes = data_f_at_c.month - data_i_at_c.month
                 tempo = ano * 12 + mes
                 st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
-
-        if remove5:
-            st.session_state.conselho_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        
+        if st.session_state.conselho_lista:
+            if remove5:
+                st.session_state.conselho_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
 # ---------- ATUAÇÃO PRIORITÁRIA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
@@ -1088,11 +1135,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted6:
             if not st.session_state.data_inicial: 
                 st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_i_at_p or not data_f_at_p:
-                st.error("Preencha a(s) Data(s) corretamente.")
+            if not data_i_at_p:
+                st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
+            if not data_f_at_p:
+                st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_prioritaria == 'Nenhum':
-                st.error("Escolha um Cargo válido.")
-            if data_f_at_p and data_i_at_p and atuacao_prioritaria != 'Nenhum':
+                st.error("Selecione uma atuação prioritária válida.")
+            if data_i_at_p and data_f_at_p:
+                if data_f_at_p <= data_i_at_p or not data_f_at_p > data_i_at_p + relativedelta(months=1):
+                    st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            if data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
                 ano = data_f_at_p.year - data_i_at_p.year
                 mes = data_f_at_p.month - data_i_at_p.month
                 tempo = ano * 12 + mes
@@ -1100,16 +1152,21 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
-        if remove6:
-            st.session_state.prioritaria_lista.pop()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
+        if st.session_state.prioritaria_lista:
+            if remove6:
+                st.session_state.prioritaria_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+    def _norm_tipo(s: str) -> str:
+        # remove prefixo até ": " se existir
+        return s.split(": ", 1)[-1] 
 
 ### USAR 1 SÓ PARA TODAS AS RESPONSABILIDADES MENSAIS ###
     from itertools import chain
-    dados_dict2 = {**dados_cargos, **dados_func_c, **dados_unicos, **dados_agente}
+    dados_dict_m = {**dados_cargos, **dados_func_c, **dados_unicos, **dados_agente}
     st.session_state.resp_mensais = [
-        (tipo, data_i_cg, tempo, dados_dict2.get(tipo, 0))
+        (tipo, data_i_cg, tempo, dados_dict_m.get(_norm_tipo(tipo), 0))
         for tipo, data_i_cg, tempo in chain(
             st.session_state.comissao_lista, st.session_state.func_c_lista,
             st.session_state.func_d_lista, st.session_state.agente_lista,
@@ -1123,10 +1180,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         
         total_rm = len(st.session_state.resp_mensais)
 
-        cl = st.columns(2)
+        cl0, cl1, cl2= st.columns([2,2,1])
         
-        with cl[0]: st.write("**-Responsabilidades Mensais Registradas-**")
-        with cl[1]: st.write(f"**Total de Responsabilidades Mensais: {total_rm}**")
+        with cl0: st.write("**-Responsabilidades Mensais Registradas-**")
+        with cl1: st.write(f"**Total de Responsabilidades Mensais: {total_rm}**")
+        with cl2: cleared = st.button("🗑️", use_container_width=True, type='primary', key=f"{key_prefix}_clear")
 
         cols = st.columns(4)
         all_items = list(chain(
@@ -1135,9 +1193,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.session_state.conselho_lista, st.session_state.prioritaria_lista
         ))
 
+        all_lists = ["comissao_lista", "func_c_lista", "func_d_lista", "agente_lista", "conselho_lista", "prioritaria_lista", "resp_mensais"]
+
         for i, (tipo, data_i_cg, tempo) in enumerate(sorted(all_items, key=lambda data: data[1])):
             col = cols[i % 4]
             with col:
                 st.write(f"Início: {data_i_cg.strftime('%d/%m/%Y')}")
+                st.write(f"{tipo} por {tempo} mese(s)")
 
-                st.write(f"{tipo} por {tempo} meses")
+        if cleared:
+            for nome in all_lists:
+                st.session_state[nome].clear()
+            st.session_state[f"{key_prefix}_reset_fields"] = True
+            st.rerun()
