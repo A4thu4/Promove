@@ -1,5 +1,5 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -152,7 +152,6 @@ st.markdown(
 
         .stButton > button[kind="secondary"]:hover,
         .stForm > div > div > button[kind="secondary"]:hover,
-        .stDownloadButton > button:hover,
         .stFormSubmitButton > button:hover { 
             background: linear-gradient(135deg, #1bb50b, #1bb50b) !important;
             color: #fbfbf7 !important; /* texto branco */
@@ -173,7 +172,6 @@ st.markdown(
 
         .stButton > button[kind="tertiary"]:hover,
         .stForm > div > div > button[kind="tertiary"]:hover,
-        .stDownloadButton > button:hover,
         .stFormSubmitButton > button:hover { 
             background: linear-gradient(135deg, #fbfbf7, #fbfbf7) !important;
             color: red !important; /* texto branco */
@@ -445,7 +443,7 @@ def main():
                 afast_total.extend(st.session_state.get("afastamentos_inicial", []))
                 afast_total.extend(st.session_state.get("afastamentos", []))
 
-                carreira_calculada, resultados_carreira = calcular_evolucao(
+                carreira_calculada, resultados_carreira, projecao_carreira = calcular_evolucao(
                     st.session_state.data_inicial,
                     st.session_state.nivel_atual, 
                     st.session_state.carreira, 
@@ -455,11 +453,12 @@ def main():
                     st.session_state.titulacoes,
                     st.session_state.resp_unicas,
                     st.session_state.resp_mensais
-                    )
+                )
                 
                 if carreira_calculada and resultados_carreira:
                     st.session_state.carreira = carreira_calculada
                     st.session_state.resultados_carreira = resultados_carreira
+                    st.session_state.projecao_carreira = projecao_carreira
                     st.session_state.calculo_executado = True
                     st.success("✅ Cálculo concluído!")
                     st.rerun()
@@ -497,8 +496,12 @@ def main():
             df_preview = df_preview[df_preview['Data'].dt.day == 1]
             df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
             st.markdown("<h3 style='text-align:center; color:#000000; '>Pontuações Mensais</h3>", unsafe_allow_html=True)
-            st.dataframe(df_preview, hide_index=True)
-        
+            st.dataframe(df_preview.head(241), hide_index=True)
+
+            if st.session_state.projecao_carreira:
+                df_view2 = pd.DataFrame(st.session_state.projecao_carreira)
+                st.markdown("<h2 style='text-align:center; color:#000000; '>Projeção de Carreira</h2>", unsafe_allow_html=True)
+                st.dataframe(df_view2, hide_index=True)
         
         c1, c2, c3, c4 = st.columns([1.2, 1.5, 1.5, 0.8])
         if 'df_preview' in locals() and not df_preview.empty:
