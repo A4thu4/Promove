@@ -39,7 +39,8 @@ def zerar_carreira(carreira):
 
 def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos, aperfeicoamentos, titulacoes, resp_unicas, resp_mensais):
     """
-    Calcula a proxima evolução da carreira aplicando os dados na matriz Carreira
+    Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
+    aplicando os dados na matriz Carreira
     TODAS as pontuações são aplicadas no dia 1 do mês seguinte
     """
     if not carreira:
