@@ -263,7 +263,7 @@ def main():
 
 
     if tabs == '**Cálculo Individual**':
-        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais (GGDP)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais</h1>", unsafe_allow_html=True)
        
         st.markdown(
             """
@@ -276,8 +276,8 @@ def main():
                 color: #856404;
                 margin: 1rem 0;
             '>
-            <strong>⚠️ IMPORTANTE: este simulador destina-se à utilização por servidores lotados nas unidades setoriais e centrais de gestão e desenvolvimento de pessoas <br>
-            ou em unidades a elas equivalentes, como ferramenta de apoio à gestão das carreiras do Poder Executivo do Estado de Goiás vinculadas ao programa PROMOVE. </strong>
+            <strong>⚠️ IMPORTANTE: o módulo de cálculo individual deste simulador destina-se à utilização por servidores <br>
+            do Poder Executivo do Estado de Goiás cujas carreiras estejam vinculadas ao programa PROMOVE. </strong>
             </div>
             """, 
             unsafe_allow_html=True
@@ -355,7 +355,7 @@ def main():
                 color: #856404;
                 margin: 1rem 0;
             '>
-            <strong>⚠️ IMPORTANTE: este simulador destina-se à utilização por servidores lotados nas unidades setoriais e centrais de gestão e desenvolvimento de pessoas <br>
+            <strong>⚠️ IMPORTANTE: o módulo de cálculo múltiplo deste simulador destina-se à utilização por servidores lotados nas unidades setoriais e centrais de gestão e desenvolvimento de pessoas <br>
             ou em unidades a elas equivalentes, como ferramenta de apoio à gestão das carreiras do Poder Executivo do Estado de Goiás vinculadas ao programa PROMOVE. </strong>
             </div>
             """, 
@@ -520,4 +520,5 @@ def main():
                 )
 
 if __name__ == "__main__":
+
     main()
