@@ -342,7 +342,7 @@ def main():
 
     if tabs == '**Cálculo Múltiplo**':
         from logic import calcular_planilha
-        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais (GGDP)</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais</h1>", unsafe_allow_html=True)
        
         st.markdown(
             """
@@ -392,7 +392,7 @@ def main():
                 margin-top: -3px;
             '>
             <strong> Após o preenchimento da planilha do Excel fornecida pelo Órgão Central de Gestão de Pessoal,<br> segure e arraste o arquivo para a área abaixo 
-            ou clique em “Carregar Arquivo” e o selecione na pasta do seu computador: </strong>
+            ou clique em “Carregar Arquivo” e o selecione na pasta do seu computador. </strong>
             </div>
             """, 
             unsafe_allow_html=True
@@ -522,3 +522,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
