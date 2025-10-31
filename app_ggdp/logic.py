@@ -39,14 +39,14 @@ def zerar_carreira(carreira):
 
 def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos, aperfeicoamentos, titulacoes, resp_unicas, resp_mensais):
     """
-    Calcula a evolução da carreira aplicando os dados
+    Calcula a proxima evolução da carreira aplicando os dados na matriz Carreira
     TODAS as pontuações são aplicadas no dia 1 do mês seguinte
     """
     if not carreira:
-        return carreira, []
+        return carreira, [], []
     elif not data_inicial:
         st.error("Sem data de Inicio.")
-        return carreira, []
+        return carreira, [], []
     
     zerar_carreira(carreira)
 
@@ -268,11 +268,11 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
     for i in range(DATA_CONCLUSAO):
         if i == 0:
-            carreira[i][7] = carreira[i][1] + carreira[i][2] + carreira[i][3] + carreira[i][4] + carreira[i][5] + carreira[i][6] + pts_ultima_evolucao 
+            carreira[i][7] = sum(carreira[i][1:7]) + pts_ultima_evolucao 
         else:
-            carreira[i][7] = carreira[i-1][7] + carreira[i][1] + carreira[i][2] + carreira[i][3] + carreira[i][4] + carreira[i][5] + carreira[i][6] 
+            carreira[i][7] = carreira[i-1][7] + sum(carreira[i][1:7]) 
 
-### ---------- CÁLCULO DE TEMPO ---------- ###
+### ---------- CÁLCULO DE TEMPO DA 1º EVOLUÇÃO ---------- ###
     resultado_niveis = []
 
     # Dados iniciais
@@ -349,7 +349,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
             "Data da Implementação": "-",
             "Interstício de Evolução": "-",
             "Pontuação Alcançada": "-",
-            "Pontos Remanescentes": "-"
+            "Pontos Excedentes": "-"
         })
     else:
         resultado_niveis.append({
@@ -360,10 +360,92 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
             "Data da Implementação": implementacao.strftime("%d/%m/%Y"),
             "Interstício de Evolução": meses_ate_evolucao,
             "Pontuação Alcançada": pontos,
-            "Pontos Remanescentes": round(pts_resto, 4)
+            "Pontos Excedentes": round(pts_resto, 4)
         })
     
-    return carreira, resultado_niveis
+### ---------- CÁLCULO DE TEMPO DA PROJEÇÃO DE 18 EVOLUÇÕES---------- ###
+    resultado_projecao = []
+    
+    # só projeta se houve uma evolução válida
+    if not resultado_niveis or resultado_niveis[0]["Status"] != "Apto a evoluir":
+        return carreira, resultado_niveis, resultado_projecao
+
+    data_inicio = datetime.strptime(
+        resultado_niveis[0]["Data da Implementação"], "%d/%m/%Y"
+    ).date()
+    pts_resto = float(resultado_niveis[0]["Pontos Excedentes"])
+    nivel_atual = resultado_niveis[0]["Próximo Nível"]
+
+    meses_totais = resultado_niveis[0]["Interstício de Evolução"]  # inicia do 1º ciclo
+
+    for ciclo in range(2,19):
+        if nivel_atual == "S":
+            break
+
+        pontos_ciclo = pts_resto
+        pts_resto = 0.0
+        data_base = data_inicio
+        evolucao = None
+        meses_ate_evolucao = None
+
+        for i in range(len(carreira)):
+            data_atual = carreira[i][0]
+            if data_atual <= data_base:
+                continue
+
+            delta = relativedelta(data_atual, data_base)
+            meses_passados = delta.years * 12 + delta.months
+            pontos_ciclo += (
+                carreira[i][1] + carreira[i][2] + carreira[i][3]
+                + carreira[i][4] + carreira[i][5] + carreira[i][6]
+            )
+
+            data_prevista12 = data_base + relativedelta(months=12)
+            data_prevista18 = data_base + relativedelta(months=18)
+
+            if data_prevista12 <= data_atual < data_prevista18:
+                if pontos_ciclo >= 96:
+                    evolucao = data_atual
+                    meses_ate_evolucao = meses_passados
+                    pts_resto = pontos_ciclo - 48
+                    break
+
+            if data_atual >= data_prevista18:
+                if pontos_ciclo >= 48:
+                    evolucao = data_atual
+                    meses_ate_evolucao = meses_passados
+                    pts_resto = pontos_ciclo - 48
+                    break
+
+        if not evolucao:
+            break
+
+        implementacao = evolucao + relativedelta(day=1, months=1)
+        meses_totais += meses_ate_evolucao  # acumula o total de tempo
+
+        anos_total = meses_totais // 12
+        resto_total = meses_totais % 12
+
+        proximo_nivel = (
+            NIVEIS[NIVEIS.index(nivel_atual) + 1]
+            if nivel_atual != "S"
+            else "S"
+        )
+
+        resultado_projecao.append({
+            "Nível": proximo_nivel,
+            "Evolução (Projeção)": f" {ciclo}ª Evolução",
+            "Data Inicial": data_inicio.strftime("%d/%m/%Y"),
+            "Data Alcançada": evolucao.strftime("%d/%m/%Y"),
+            "Meses Entre Níveis": meses_ate_evolucao,
+            "Pontuação Alcançada": round(pontos_ciclo, 3),
+            "Total": f"{anos_total} ano(s) {resto_total} mês(es)"
+        })
+
+        data_inicio = implementacao
+        nivel_atual = proximo_nivel
+
+    return carreira, resultado_niveis, resultado_projecao
 
 
 def calcular_planilha(arquivo):
@@ -427,7 +509,14 @@ def calcular_planilha(arquivo):
 
     df.columns = [str(c).strip() if not pd.isna(c) else "" for c in df.columns]
 
-    st.dataframe(df.head(),hide_index=True)
+    st.dataframe(
+        df.head(),
+        hide_index=True,
+        column_config={
+            "Cód. Vinculo": st.column_config.NumberColumn(format="%d"),
+            "Data de Enquadramento ou Última Evolução": st.column_config.DateColumn(format="DD/MM/YYYY")
+        }
+    )
     st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
     
     ids_processados = set()
@@ -461,7 +550,8 @@ def calcular_planilha(arquivo):
 
         mes_curso = str(df["Datas de Conclusão"].iloc[i])
         mes_curso = mes_curso.split(';')
-        hrs_curso = df["Carga Horaria"].iloc[i].split(';')
+        hrs_curso = str(df["Carga Horaria"].iloc[i])
+        hrs_curso = hrs_curso.split(';')
 
         mes_tit = str(df["Data de Conclusao"].iloc[i])
         mes_tit = mes_tit.split(';')
@@ -1186,8 +1276,6 @@ def calcular_planilha(arquivo):
         df_preview['Data'] = pd.to_datetime(df_preview['Data'])
         df_preview = df_preview[df_preview['Data'].dt.day == 1]
         df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
-        # st.markdown("<h3 style='text-align:center; color:#003500; '><u>Pontuações Mensais</u></h3>", unsafe_allow_html=True)
-        # st.dataframe(df_preview, hide_index=True)
 
 ### ---------- RESULTADOS ---------- ###
         # Dados iniciais
@@ -1286,7 +1374,17 @@ def calcular_planilha(arquivo):
             })
         
     df_results = pd.DataFrame(result_niveis)
-    st.dataframe(df_results, hide_index=True)
+    st.dataframe(
+        df_results, 
+        hide_index=True,
+        column_config={
+            "Cód. Vinculo": st.column_config.NumberColumn(format="%d")
+        }    
+    )
+
+    if len(ids_processados) == 1:
+        st.markdown("<h3 style='text-align:center; color:#000000; '>Pontuações Mensais</h3>", unsafe_allow_html=True)
+        st.dataframe(df_preview.head(240), hide_index=True)
 
     import io 
     excel_buffer = io.BytesIO()
