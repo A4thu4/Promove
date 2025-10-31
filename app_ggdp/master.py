@@ -397,6 +397,7 @@ def main():
             """, 
             unsafe_allow_html=True
         )
+        
         st.session_state.arquivo = st.file_uploader("Selecione o arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}", label_visibility="hidden")
         
         if st.session_state.arquivo is not None:
@@ -409,6 +410,7 @@ def main():
         from logic import calcular_evolucao
 
         st.markdown("<h1 style='text-align:center; color:#000000; '>Resultados da Simulação</h1>", unsafe_allow_html=True)
+        
         st.markdown(
             """
             <div style='
@@ -520,6 +522,4 @@ def main():
                 )
 
 if __name__ == "__main__":
-
     main()
-
