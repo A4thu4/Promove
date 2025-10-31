@@ -709,7 +709,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.session_state.pesquisas_lista, st.session_state.registros_lista,
             st.session_state.cursos_lista]):
         
-        total_ru = sum(f for _, f in st.session_state.resp_unicas)
+        all_items = list(chain(
+            st.session_state.artigos_lista, st.session_state.livros_lista,
+            st.session_state.pesquisas_lista, st.session_state.registros_lista,
+            st.session_state.cursos_lista
+        ))
+        
+        total_ru = sum(f for _, f, _ in all_items)
 
         cl0, cl1, cl2= st.columns([2,2,1])
         
@@ -718,11 +724,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         with cl2: cleared = st.button("🗑️", use_container_width=True, type='primary', key=f"{key_prefix}_clear")
 
         cols = st.columns(4)
-        all_items = list(chain(
-            st.session_state.artigos_lista, st.session_state.livros_lista,
-            st.session_state.pesquisas_lista, st.session_state.registros_lista,
-            st.session_state.cursos_lista
-        ))
 
         all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "cursos_lista", "resp_unicas"]
 
@@ -1203,4 +1204,5 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
+
 
