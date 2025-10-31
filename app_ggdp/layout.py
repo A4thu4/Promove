@@ -9,7 +9,7 @@ def build_obrigatorios(key_prefix="obg"):
     Renderiza inputs para 'Requisitos Obrigatórios' e atualiza st.session_state.obrigatorios.
     """
     ensure_states()
-    st.markdown("<h1 style='text-align:left; color:#000000; '>Critérios Obrigatórios</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Obrigatórios</h1>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:left; color:#000000; '>Dados do Servidor</h2>", unsafe_allow_html=True)
 
     existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None)
@@ -45,7 +45,7 @@ def build_obrigatorios(key_prefix="obg"):
             )   
         with col2:
             pts_remanescentes = st.number_input(
-                "Pontos Remanescentes da Última Evolução",
+                "Pontos Excedentes da Última Evolução",
                 value=existing_pts if existing_pts else None,
                 min_value=0.0,
                 format="%.3f",
@@ -152,7 +152,7 @@ def build_afastamentos(key_prefix="afast"):
             st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
         if st.session_state.data_inicial != None and mes_faltas:
             if mes_faltas < st.session_state.data_inicial:
-                st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
+                st.error("O mês do afastamento não pode ser anterior à data do enquadramento ou da última evolução.")
             if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.warning("Mês e ano já registrados.")
             if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
@@ -244,7 +244,7 @@ def build_desempenho(key_prefix="des"):
             )
         with col2:
             st.text_input(
-                "Pontuação Final por Ciclo de Evolução (24 meses)",
+                "Pontuação Final por Ciclo de Evolução",
                 value="36",
                 key=f"{key_prefix}_pts_final",
                 disabled=True,
@@ -324,7 +324,7 @@ def build_aperfeicoamentos(key_prefix="aperf"):
         with cl[1]: st.write(f"**Total de Horas: {total_hrs}**")
         if total_hrs > 100:
             total_hrs = 100
-            st.warning("O limite máximo de horas de atividades de aperfeiçoamento (100 horas) no ciclo de evolução foi atingido. As horas excedentes serão computadas como 'Pontuação Remanescente' para o(s) ciclo(s) seguinte(s).")
+            st.warning("O limite máximo de horas de atividades de aperfeiçoamento (100 horas) no ciclo de evolução foi atingido. As horas excedentes serão computadas como 'Pontos Excedentes' para o(s) ciclo(s) seguinte(s).")
         
         cols = st.columns(6)
         for i, (data, hrs) in enumerate(sorted(st.session_state.aperfeicoamentos, key=lambda data: data[0])):
@@ -343,8 +343,8 @@ def build_titulacoes(key_prefix="tit"):
     Renderiza inputs para 'Titulações' (data de conclusão + tipo da titulação) e atualiza st.session_state.titulacoes.
     """
     ensure_states()
-    st.markdown("<h1 style='text-align:left; color:#000000; '>Critérios Aceleradores</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:left; color:#000000'>Titulações</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Aceleradores</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Titulações</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_tit
 
@@ -709,7 +709,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.session_state.pesquisas_lista, st.session_state.registros_lista,
             st.session_state.cursos_lista]):
         
-        total_ru = len(st.session_state.resp_unicas)
+        total_ru = sum(f for _, f in st.session_state.resp_unicas)
 
         cl0, cl1, cl2= st.columns([2,2,1])
         
@@ -1203,5 +1203,4 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
-
 
