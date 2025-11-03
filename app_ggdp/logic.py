@@ -458,7 +458,7 @@ def calcular_planilha(arquivo):
     
     arq = px.load_workbook(arquivo, data_only=True)  
     aba = arq.active  # pega a aba ativa
-
+    
     # pega os valores das células
     data = list(aba.values)
 
@@ -507,7 +507,6 @@ def calcular_planilha(arquivo):
     # Converter ID para string e remover duplicatas baseadas no ID
     df["Cód. Vinculo"] = df["Cód. Vinculo"].astype(str).str.strip()
     df = df.drop_duplicates(subset=["Cód. Vinculo"], keep="first")
-    df["Data de Enquadramento ou Última Evolução"] = pd.to_datetime(df["Data de Enquadramento ou Última Evolução"], errors="coerce")
 
     df.columns = [str(c).strip() if not pd.isna(c) else "" for c in df.columns]
 
@@ -571,13 +570,13 @@ def calcular_planilha(arquivo):
             if len(partes) < 3:
                 continue  # pula se não tiver o formato esperado
 
-            qntd, tipo, data = partes[0], partes[1], partes[2]
-            qntd = int(qntd)
+            numero, tipo, data = partes[0], partes[1], partes[2]
+            numero = int(numero)
             
             if tipo == 'ID':
-                art_id.append((qntd,data))
+                art_id.append((numero,data))
             elif tipo == 'NID':
-                art_nid.append((qntd,data))
+                art_nid.append((numero,data))
             elif tipo not in ('ID','NID'):
                 st.error("Erro de Codigo em Artigos")
 
@@ -587,15 +586,15 @@ def calcular_planilha(arquivo):
             if len(partes) < 3:
                 continue  # pula se não tiver o formato esperado
 
-            qntd, tipo, data = partes[0], partes[1], partes[2]
-            qntd = int(qntd)
+            numero, tipo, data = partes[0], partes[1], partes[2]
+            numero = int(numero)
             
             if tipo == 'O':
-                lv_org.append((qntd,data))
+                lv_org.append((numero,data))
             elif tipo == 'C':
-                lv_cap.append((qntd,data))
+                lv_cap.append((numero,data))
             elif tipo == 'L':
-                lv_comp.append((qntd,data))
+                lv_comp.append((numero,data))
             elif tipo not in ('O','C','L'):
                 st.error("Erro de Codigo em Livros")
 
@@ -605,17 +604,17 @@ def calcular_planilha(arquivo):
             if len(partes) < 3:
                 continue  # pula se não tiver o formato esperado
 
-            qntd, tipo, data = partes[0], partes[1], partes[2]
-            qntd = int(qntd)
+            numero, tipo, data = partes[0], partes[1], partes[2]
+            numero = int(numero)
             
             if tipo == 'E':
-                pesq_est.append((qntd,data))
+                pesq_est.append((numero,data))
             elif tipo == 'R':
-                pesq_reg.append((qntd,data))
+                pesq_reg.append((numero,data))
             elif tipo == 'N':
-                pesq_nac.append((qntd,data))
+                pesq_nac.append((numero,data))
             elif tipo == 'I':
-                pesq_int.append((qntd,data))
+                pesq_int.append((numero,data))
             elif tipo not in ('E','R','N','I'):
                 st.error("Erro de Codigo em Pesquisas")
         
@@ -625,13 +624,13 @@ def calcular_planilha(arquivo):
             if len(partes) < 3:
                 continue  # pula se não tiver o formato esperado-
 
-            qntd, tipo, data = partes[0], partes[1], partes[2]
-            qntd = int(qntd)
+            numero, tipo, data = partes[0], partes[1], partes[2]
+            numero = int(numero)
             
             if tipo == 'P':
-                reg_pat.append((qntd,data))
+                reg_pat.append((numero,data))
             elif tipo == 'C':
-                reg_cult.append((qntd,data))
+                reg_cult.append((numero,data))
             elif tipo not in ('P','C'):
                 st.error("Erro de Codigo em Registros")
 
@@ -643,14 +642,12 @@ def calcular_planilha(arquivo):
             'P4': 24,
             'P5': 48 
         }
-
         for doc in cursos:
             partes = doc.split('-')
-            if len(partes) < 3:
+            if len(partes) < 2:
                 continue  # pula se não tiver o formato esperado
 
-            qntd, tipo, data = partes[0], partes[1], partes[2]
-            qntd = int(qntd)
+            tipo, data = partes[0], partes[1]
             
             if tipo == 'P1':
                 doc_1.append((pt_curso.get(tipo, 0),data))
@@ -876,10 +873,10 @@ def calcular_planilha(arquivo):
 
 ### ---------- ARTIGOS ---------- ###
         st.session_state.artigos_lista_pl = []
-        for quantidade, data_dt in art_id:
-            st.session_state.artigos_lista_pl.append((quantidade, 0, data_dt))  
-        for quantidade, data_dt in art_nid:
-            st.session_state.artigos_lista_pl.append((0, quantidade, data_dt)) 
+        for numero, data_dt in art_id:
+            st.session_state.artigos_lista_pl.append((numero, 0, data_dt))  
+        for numero, data_dt in art_nid:
+            st.session_state.artigos_lista_pl.append((0, numero, data_dt)) 
         
         # Agrupar por data e aplicar limite
         for art_id, nid, data_art in st.session_state.artigos_lista_pl:
@@ -903,12 +900,12 @@ def calcular_planilha(arquivo):
             
 ### ---------- LIVROS ---------- ##
         st.session_state.livros_lista_pl = []
-        for quantidade, data_dt in lv_org:
-            st.session_state.livros_lista_pl.append((quantidade, 0, 0, data_dt))  
-        for quantidade, data_dt in lv_cap:
-            st.session_state.livros_lista_pl.append((0, quantidade, 0, data_dt))  
-        for quantidade, data_dt in lv_comp:
-            st.session_state.livros_lista_pl.append((0, 0, quantidade, data_dt)) 
+        for numero, data_dt in lv_org:
+            st.session_state.livros_lista_pl.append((numero, 0, 0, data_dt))  
+        for numero, data_dt in lv_cap:
+            st.session_state.livros_lista_pl.append((0, numero, 0, data_dt))  
+        for numero, data_dt in lv_comp:
+            st.session_state.livros_lista_pl.append((0, 0, numero, data_dt)) 
         
         # Agrupar por data e aplicar limite
         for org, cap, comp, data_lv in st.session_state.livros_lista_pl:
@@ -934,14 +931,14 @@ def calcular_planilha(arquivo):
 
 ### ---------- PESQUISAS ---------- ###
         st.session_state.pesq_lista_pl = []
-        for quantidade, data_dt in pesq_est:
-            st.session_state.pesq_lista_pl.append((quantidade, 0, 0, 0, data_dt))  
-        for quantidade, data_dt in pesq_reg:
-            st.session_state.pesq_lista_pl.append((0, quantidade, 0, 0, data_dt))  
-        for quantidade, data_dt in pesq_nac:
-            st.session_state.pesq_lista_pl.append((0, 0, quantidade, 0, data_dt)) 
-        for quantidade, data_dt in pesq_int:
-            st.session_state.pesq_lista_pl.append((0, 0, 0, quantidade, data_dt)) 
+        for numero, data_dt in pesq_est:
+            st.session_state.pesq_lista_pl.append((numero, 0, 0, 0, data_dt))  
+        for numero, data_dt in pesq_reg:
+            st.session_state.pesq_lista_pl.append((0, numero, 0, 0, data_dt))  
+        for numero, data_dt in pesq_nac:
+            st.session_state.pesq_lista_pl.append((0, 0, numero, 0, data_dt)) 
+        for numero, data_dt in pesq_int:
+            st.session_state.pesq_lista_pl.append((0, 0, 0, numero, data_dt)) 
 
         # Agrupar por data e aplicar limite
         for est, reg, nac, inter, data_pesq in st.session_state.pesq_lista_pl:
@@ -969,10 +966,10 @@ def calcular_planilha(arquivo):
            
 ### ---------- REGISTROS ---------- ###
         st.session_state.reg_lista_pl = []
-        for quantidade, data_dt in reg_pat:
-            st.session_state.reg_lista_pl.append((quantidade, 0, data_dt))  
-        for quantidade, data_dt in reg_cult:
-            st.session_state.reg_lista_pl.append((0, quantidade, data_dt))  
+        for numero, data_dt in reg_pat:
+            st.session_state.reg_lista_pl.append((numero, 0, data_dt))  
+        for numero, data_dt in reg_cult:
+            st.session_state.reg_lista_pl.append((0, numero, data_dt))  
             
         # Agrupar por data e aplicar limite
         for pat, cult, data_reg in st.session_state.reg_lista_pl:
@@ -1405,4 +1402,5 @@ def calcular_planilha(arquivo):
             data=excel_buffer.getvalue(),
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
         )
