@@ -1264,6 +1264,8 @@ def calcular_planilha(arquivo):
                 
         
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
+        pts_remanescentes = int(pts_remanescentes)
+        
         for i in range(DATA_CONCLUSAO):
             if i == 0:
                 carreira[i][7] = carreira[i][1] + carreira[i][2] + carreira[i][3] + carreira[i][4] + carreira[i][5] + carreira[i][6] + pts_remanescentes
@@ -1400,4 +1402,5 @@ def calcular_planilha(arquivo):
             data=excel_buffer.getvalue(),
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
         )
