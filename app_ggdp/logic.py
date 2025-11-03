@@ -507,7 +507,6 @@ def calcular_planilha(arquivo):
     # Converter ID para string e remover duplicatas baseadas no ID
     df["Cód. Vinculo"] = df["Cód. Vinculo"].astype(str).str.strip()
     df = df.drop_duplicates(subset=["Cód. Vinculo"], keep="first")
-    df["Data de Enquadramento ou Última Evolução"] = pd.to_datetime(df["Data de Enquadramento ou Última Evolução"], errors="coerce")
 
     df.columns = [str(c).strip() if not pd.isna(c) else "" for c in df.columns]
 
