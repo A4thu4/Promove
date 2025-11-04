@@ -332,8 +332,8 @@ def main():
             st.markdown(bloco_vertical("", 1980, "#fede01"), unsafe_allow_html=True)
         with col2:
             build_titulacoes()
-            build_responsabilidades_unicas()
             build_responsabilidades_mensais()
+            build_responsabilidades_unicas()
 
         st.write("")
         st.write("")

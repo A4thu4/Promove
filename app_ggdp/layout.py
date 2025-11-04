@@ -423,324 +423,6 @@ def build_titulacoes(key_prefix="tit"):
                     st.rerun()
 
 
-def build_responsabilidades_unicas(key_prefix="resp_unic"):
-    """
-    Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
-    """
-    ensure_states()
-    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Únicas</h2>", unsafe_allow_html=True)
-
-    from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos
-
-    suffixes  = ["art", "liv", "pesq", "reg", "curso"]
-    if st.session_state.get(f"{key_prefix}_reset_fields", False):
-        for key_suffix in suffixes:
-            st.session_state[f"{key_prefix}_data_{key_suffix}"] = None
-            st.session_state[f"{key_prefix}_qntd_{key_suffix}"] = 0
-            st.session_state[f"{key_prefix}_tipo_{key_suffix}"] = "Nenhum"
-        st.session_state[f"{key_prefix}_reset_fields"] = False
-
-    with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
-# ---------- ARTIGOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
-        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
-        with col0:
-            data_publi_art = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_art"
-            )
-        with col1:
-            qntd_art = st.number_input(
-                "Quantidade",
-                min_value=0,
-                key=f"{key_prefix}_qntd_art"
-            )
-        with col2:
-            tipo_art = st.selectbox(
-                "Tipo de Artigo",
-                list(dados_artigo.keys()),
-                key=f"{key_prefix}_tipo_art"
-            )
-        with col3:
-            st.write("")            
-            c0, c1 = st.columns([1,1])
-            with c0: submitted1 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add1", type='primary')
-            with c1: remove1 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r1")
-
-        if submitted1:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_publi_art:
-                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
-            if not qntd_art: 
-                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
-            if tipo_art == 'Nenhum':
-                st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_art and qntd_art and tipo_art != 'Nenhum':
-                st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-        if st.session_state.artigos_lista:
-            if remove1:
-                st.session_state.artigos_lista.pop()
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-# ---------- LIVROS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
-        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
-        with col0:
-            data_publi_liv = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_liv"
-            )
-        with col1:
-            qntd_liv = st.number_input(
-                "Quantidade",
-                min_value=0,
-                key=f"{key_prefix}_qntd_liv"
-            )
-        with col2:
-            tipo_liv = st.selectbox(
-                "Tipo de Livro",
-                list(dados_livro.keys()),
-                key=f"{key_prefix}_tipo_liv"
-            )
-        with col3:
-            st.write("")            
-            c0, c1 = st.columns([1,1])
-            with c0: submitted2 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add2", type='primary')
-            with c1: remove2 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r2")
-
-        if submitted2:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_publi_liv:
-                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
-            if not qntd_liv: 
-                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
-            if tipo_liv == 'Nenhum':
-                st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
-                st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-        
-        if st.session_state.livros_lista:
-            if remove2:
-                st.session_state.livros_lista.pop()
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-# ---------- PESQUISAS CIENTIFICAS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
-        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
-        with col0:
-            data_publi_pesq = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_pesq"
-            )
-        with col1:
-            qntd_pesq = st.number_input(
-                "Quantidade",
-                min_value=0,
-                key=f"{key_prefix}_qntd_pesq"
-            )
-        with col2:
-            tipo_pesq = st.selectbox(
-                "Tipo de Pesquisa Aprovada",
-                list(dados_pesquisas.keys()),
-                key=f"{key_prefix}_tipo_pesq"
-            )
-        with col3:
-            st.write("")            
-            c0, c1 = st.columns([1,1])
-            with c0: submitted3 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add3", type='primary')
-            with c1: remove3 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r3")
-
-        if submitted3:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_publi_pesq:
-                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
-            if not qntd_pesq: 
-                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
-            if tipo_pesq == 'Nenhum':
-                st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
-                st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-        if st.session_state.pesquisas_lista:
-            if remove3:
-                st.session_state.pesquisas_lista.pop()
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-# ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
-        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
-        with col0:
-            data_publi_reg = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_reg"
-            )
-        with col1:
-            qntd_reg = st.number_input(
-                "Quantidade",
-                min_value=0,
-                key=f"{key_prefix}_qntd_reg"
-            )
-        with col2:
-            tipo_reg = st.selectbox(
-                "Tipo de Registro",
-                list(dados_registros.keys()),
-                key=f"{key_prefix}_tipo_reg"
-            )
-        with col3:
-            st.write("")            
-            c0, c1 = st.columns([1,1])
-            with c0: submitted4 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add4", type='primary')
-            with c1: remove4 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r4")
-
-        if submitted4:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_publi_reg:
-                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
-            if not qntd_reg: 
-                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
-            if tipo_reg == 'Nenhum':
-                st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
-                st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-        if st.session_state.registros_lista:
-            if remove4:
-                st.session_state.registros_lista.pop()
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-# ---------- CURSOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
-        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
-        with col0:
-            data_publi_curso = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_curso"
-            )
-        with col1:
-            qntd_curso = st.number_input(
-                "Quantidade",
-                min_value=0,
-                key=f"{key_prefix}_qntd_curso"
-            )
-        with col2:
-            tipo_curso = st.selectbox(
-                "Tipo de Curso",
-                list(dados_cursos.keys()),
-                key=f"{key_prefix}_tipo_curso"
-            )
-        with col3:
-            st.write("")            
-            c0, c1 = st.columns([1,1])
-            with c0: submitted5 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add5", type='primary')
-            with c1: remove5 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r5")
-
-        if submitted5:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
-            if not data_publi_curso:
-                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
-            if not qntd_curso: 
-                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
-            if tipo_curso == 'Nenhum':
-                st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
-                st.session_state.cursos_lista.append((data_publi_curso, qntd_curso, tipo_curso))
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-        if st.session_state.cursos_lista:
-            if remove5:
-                st.session_state.cursos_lista.pop()
-                st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
-
-### USAR 1 SÓ PARA TODAS AS RESPONSABILIDADES UNICAS ###
-    from itertools import chain
-    dados_dict_u = {**dados_artigo, **dados_livro, **dados_pesquisas, **dados_registros, **dados_cursos}
-    st.session_state.resp_unicas = [
-        (data, qntd * dados_dict_u.get(tipo, 0))
-        for data, qntd, tipo in chain(
-            st.session_state.artigos_lista,
-            st.session_state.livros_lista,
-            st.session_state.pesquisas_lista,
-            st.session_state.registros_lista,
-            st.session_state.cursos_lista
-        )
-    ]
-
-    if any([st.session_state.artigos_lista, st.session_state.livros_lista,
-            st.session_state.pesquisas_lista, st.session_state.registros_lista,
-            st.session_state.cursos_lista]):
-        
-        all_items = list(chain(
-            st.session_state.artigos_lista, st.session_state.livros_lista,
-            st.session_state.pesquisas_lista, st.session_state.registros_lista,
-            st.session_state.cursos_lista
-        ))
-        
-        total_ru = sum(f for _, f, _ in all_items)
-
-        cl0, cl1, cl2= st.columns([2,2,1])
-        
-        with cl0: st.write("**-Responsabilidades Únicas Registradas-**")
-        with cl1: st.write(f"**Total de Responsabilidades Únicas: {total_ru}**")
-        with cl2: cleared = st.button("🗑️", use_container_width=True, type='primary', key=f"{key_prefix}_clear")
-
-        cols = st.columns(4)
-
-        all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "cursos_lista", "resp_unicas"]
-
-        for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0])):
-            col = cols[i % 4]
-            with col:
-                st.write(f"Data: {data.strftime('%d/%m/%Y')} ")
-                st.write(f"{qntd} - {tipo} ")
-                st.write("")
-        
-        if cleared:
-            for nome in all_lists:
-                st.session_state[nome].clear()
-            st.session_state[f"{key_prefix}_reset_fields"] = True
-            st.rerun()
-
-
 def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     """
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referencia_responsabilidade}.
@@ -1199,6 +881,324 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.write(f"Início: {data_i_cg.strftime('%d/%m/%Y')}")
                 st.write(f"{tipo} por {tempo} mese(s)")
 
+        if cleared:
+            for nome in all_lists:
+                st.session_state[nome].clear()
+            st.session_state[f"{key_prefix}_reset_fields"] = True
+            st.rerun()
+
+
+def build_responsabilidades_unicas(key_prefix="resp_unic"):
+    """
+    Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
+    """
+    ensure_states()
+    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Únicas</h2>", unsafe_allow_html=True)
+
+    from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos
+
+    suffixes  = ["art", "liv", "pesq", "reg", "curso"]
+    if st.session_state.get(f"{key_prefix}_reset_fields", False):
+        for key_suffix in suffixes:
+            st.session_state[f"{key_prefix}_data_{key_suffix}"] = None
+            st.session_state[f"{key_prefix}_qntd_{key_suffix}"] = 0
+            st.session_state[f"{key_prefix}_tipo_{key_suffix}"] = "Nenhum"
+        st.session_state[f"{key_prefix}_reset_fields"] = False
+
+    with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
+# ---------- ARTIGOS ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
+        with col0:
+            data_publi_art = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_art"
+            )
+        with col1:
+            qntd_art = st.number_input(
+                "Quantidade",
+                min_value=0,
+                key=f"{key_prefix}_qntd_art"
+            )
+        with col2:
+            tipo_art = st.selectbox(
+                "Tipo de Artigo",
+                list(dados_artigo.keys()),
+                key=f"{key_prefix}_tipo_art"
+            )
+        with col3:
+            st.write("")            
+            c0, c1 = st.columns([1,1])
+            with c0: submitted1 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add1", type='primary')
+            with c1: remove1 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r1")
+
+        if submitted1:
+            if not st.session_state.data_inicial: 
+                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not data_publi_art:
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            if not qntd_art: 
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            if tipo_art == 'Nenhum':
+                st.error("Selecione um tipo de responsabilidade única válido.")
+            if data_publi_art and qntd_art and tipo_art != 'Nenhum':
+                st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+        if st.session_state.artigos_lista:
+            if remove1:
+                st.session_state.artigos_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+# ---------- LIVROS ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
+        with col0:
+            data_publi_liv = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_liv"
+            )
+        with col1:
+            qntd_liv = st.number_input(
+                "Quantidade",
+                min_value=0,
+                key=f"{key_prefix}_qntd_liv"
+            )
+        with col2:
+            tipo_liv = st.selectbox(
+                "Tipo de Livro",
+                list(dados_livro.keys()),
+                key=f"{key_prefix}_tipo_liv"
+            )
+        with col3:
+            st.write("")            
+            c0, c1 = st.columns([1,1])
+            with c0: submitted2 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add2", type='primary')
+            with c1: remove2 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r2")
+
+        if submitted2:
+            if not st.session_state.data_inicial: 
+                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not data_publi_liv:
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            if not qntd_liv: 
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            if tipo_liv == 'Nenhum':
+                st.error("Selecione um tipo de responsabilidade única válido.")
+            if data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
+                st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+        
+        if st.session_state.livros_lista:
+            if remove2:
+                st.session_state.livros_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+# ---------- PESQUISAS CIENTIFICAS ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
+        with col0:
+            data_publi_pesq = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_pesq"
+            )
+        with col1:
+            qntd_pesq = st.number_input(
+                "Quantidade",
+                min_value=0,
+                key=f"{key_prefix}_qntd_pesq"
+            )
+        with col2:
+            tipo_pesq = st.selectbox(
+                "Tipo de Pesquisa Aprovada",
+                list(dados_pesquisas.keys()),
+                key=f"{key_prefix}_tipo_pesq"
+            )
+        with col3:
+            st.write("")            
+            c0, c1 = st.columns([1,1])
+            with c0: submitted3 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add3", type='primary')
+            with c1: remove3 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r3")
+
+        if submitted3:
+            if not st.session_state.data_inicial: 
+                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not data_publi_pesq:
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            if not qntd_pesq: 
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            if tipo_pesq == 'Nenhum':
+                st.error("Selecione um tipo de responsabilidade única válido.")
+            if data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
+                st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+        if st.session_state.pesquisas_lista:
+            if remove3:
+                st.session_state.pesquisas_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+# ---------- PATENTES E CULTIVARES ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
+        with col0:
+            data_publi_reg = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_reg"
+            )
+        with col1:
+            qntd_reg = st.number_input(
+                "Quantidade",
+                min_value=0,
+                key=f"{key_prefix}_qntd_reg"
+            )
+        with col2:
+            tipo_reg = st.selectbox(
+                "Tipo de Registro",
+                list(dados_registros.keys()),
+                key=f"{key_prefix}_tipo_reg"
+            )
+        with col3:
+            st.write("")            
+            c0, c1 = st.columns([1,1])
+            with c0: submitted4 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add4", type='primary')
+            with c1: remove4 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r4")
+
+        if submitted4:
+            if not st.session_state.data_inicial: 
+                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not data_publi_reg:
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            if not qntd_reg: 
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            if tipo_reg == 'Nenhum':
+                st.error("Selecione um tipo de responsabilidade única válido.")
+            if data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
+                st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+        if st.session_state.registros_lista:
+            if remove4:
+                st.session_state.registros_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+# ---------- CURSOS ---------- #
+        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
+        with col0:
+            data_publi_curso = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_curso"
+            )
+        with col1:
+            qntd_curso = st.number_input(
+                "Quantidade",
+                min_value=0,
+                key=f"{key_prefix}_qntd_curso"
+            )
+        with col2:
+            tipo_curso = st.selectbox(
+                "Tipo de Curso",
+                list(dados_cursos.keys()),
+                key=f"{key_prefix}_tipo_curso"
+            )
+        with col3:
+            st.write("")            
+            c0, c1 = st.columns([1,1])
+            with c0: submitted5 = st.form_submit_button("➕", use_container_width=True, key=f"{key_prefix}_add5", type='primary')
+            with c1: remove5 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r5")
+
+        if submitted5:
+            if not st.session_state.data_inicial: 
+                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not data_publi_curso:
+                st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            if not qntd_curso: 
+                st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            if tipo_curso == 'Nenhum':
+                st.error("Selecione um tipo de responsabilidade única válido.")
+            if data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
+                st.session_state.cursos_lista.append((data_publi_curso, qntd_curso, tipo_curso))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+        if st.session_state.cursos_lista:
+            if remove5:
+                st.session_state.cursos_lista.pop()
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
+
+### USAR 1 SÓ PARA TODAS AS RESPONSABILIDADES UNICAS ###
+    from itertools import chain
+    dados_dict_u = {**dados_artigo, **dados_livro, **dados_pesquisas, **dados_registros, **dados_cursos}
+    st.session_state.resp_unicas = [
+        (data, qntd * dados_dict_u.get(tipo, 0))
+        for data, qntd, tipo in chain(
+            st.session_state.artigos_lista,
+            st.session_state.livros_lista,
+            st.session_state.pesquisas_lista,
+            st.session_state.registros_lista,
+            st.session_state.cursos_lista
+        )
+    ]
+
+    if any([st.session_state.artigos_lista, st.session_state.livros_lista,
+            st.session_state.pesquisas_lista, st.session_state.registros_lista,
+            st.session_state.cursos_lista]):
+        
+        all_items = list(chain(
+            st.session_state.artigos_lista, st.session_state.livros_lista,
+            st.session_state.pesquisas_lista, st.session_state.registros_lista,
+            st.session_state.cursos_lista
+        ))
+        
+        total_ru = sum(f for _, f, _ in all_items)
+
+        cl0, cl1, cl2= st.columns([2,2,1])
+        
+        with cl0: st.write("**-Responsabilidades Únicas Registradas-**")
+        with cl1: st.write(f"**Total de Responsabilidades Únicas: {total_ru}**")
+        with cl2: cleared = st.button("🗑️", use_container_width=True, type='primary', key=f"{key_prefix}_clear")
+
+        cols = st.columns(4)
+
+        all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "cursos_lista", "resp_unicas"]
+
+        for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0])):
+            col = cols[i % 4]
+            with col:
+                st.write(f"Data: {data.strftime('%d/%m/%Y')} ")
+                st.write(f"{qntd} - {tipo} ")
+                st.write("")
+        
         if cleared:
             for nome in all_lists:
                 st.session_state[nome].clear()
