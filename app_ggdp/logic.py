@@ -129,16 +129,17 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
 # ---------- APLICA TITULAÇÕES ---------- #
     from data_utils import dados_tit
+    
     total_pontos_tit = 0
     ultima_titulacao = None
     LIMITE_TIT = 144
+    
     for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0]):
         data_concl = data_concl.date() if isinstance(data_concl, datetime) else data_concl
 
         # Bloqueia se já teve uma titulação nos últimos 12 meses (dupla confirmação)
         if ultima_titulacao and data_concl < (ultima_titulacao + relativedelta(months=12)):
-            # Ignora esta titulação
-            continue
+            continue # Ignora esta titulação
 
         # Achar dia 1
         if data_concl.month == 12:
@@ -239,7 +240,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                         mes_anterior = 12
                         ano_anterior -= 1
 
-                    falta = next((faltas for mes, faltas in st.session_state.afastamentos
+                    falta = next((faltas for mes, faltas in afastamentos
                                 if mes.month == mes_anterior and mes.year == ano_anterior), 0)
                     
                     desconto = (pontos / 30) * falta
@@ -281,7 +282,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     evolucao = None
     implementacao = None
     meses_ate_evolucao = None
-    pts_resto = pontos_excedentes
+    pts_resto = None
     novo_nivel = None
 
     for i in range(DATA_CONCLUSAO):
@@ -303,7 +304,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
-                pts_resto += pontos - 48
+                pts_resto = pontos - 48
                 break
 
         if data_atual >= data_prevista18:
@@ -311,7 +312,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
-                pts_resto += pontos - 48
+                pts_resto = pontos - 48
                 break
         
     desempenho, aperfeicoamento = 0, 0
