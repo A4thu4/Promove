@@ -324,7 +324,7 @@ def build_aperfeicoamentos(key_prefix="aperf"):
         with cl[1]: st.write(f"**Total de Horas: {total_hrs}**")
         if total_hrs > 100:
             total_hrs = 100
-            st.warning("O limite máximo de horas de atividades de aperfeiçoamento (100 horas) no ciclo de evolução foi atingido. As horas excedentes serão computadas como 'Pontos Excedentes' para o(s) ciclo(s) seguinte(s).")
+            st.warning("O limite máximo de horas válidas de atividades de aperfeiçoamento (100 horas) no ciclo de evolução foi atingido. As horas excedentes não serão computadas.")
         
         cols = st.columns(6)
         for i, (data, hrs) in enumerate(sorted(st.session_state.aperfeicoamentos, key=lambda data: data[0])):
