@@ -537,7 +537,20 @@ def calcular_planilha(arquivo):
         
         data_inicio = df["Data de Enquadramento ou Última Evolução"].iloc[i].date()
 
+        faltas_inicial = 0
+        if data_inicio:
+            faltas_inicial = data_inicio.day - 1
+            if faltas_inicial > 0:
+                # aplica as faltas do início no mês de enquadramento
+                data_aplicacao = date(data_inicio.year, data_inicio.month+1, 1)
+                afastamentos_dict = {data_aplicacao: faltas_inicial}
+            else:
+                afastamentos_dict = {}
+        else:
+            afastamentos_dict = {}
+                
         DATA_FIM = data_inicio + relativedelta(years=20)
+        
         carreira = [
             [data_inicio + timedelta(days=i)] + [0] * 7
             for i in range(DATA_CONCLUSAO)
@@ -546,6 +559,8 @@ def calcular_planilha(arquivo):
         pts_remanescentes = df["Pontos Última Evolução"].iloc[i]
         if pts_remanescentes in ('None', 'NaT', 'Nan','', None): 
             pts_remanescentes = 0
+        pts_remanescentes = float(pts_remanescentes)
+        pts_remanescentes = round(pts_remanescentes, 4) if pts_remanescentes else 0
 
         mes_falta = str(df["Mês"].iloc[i])
         mes_falta = mes_falta.split(';')
@@ -769,11 +784,9 @@ def calcular_planilha(arquivo):
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         # ---------- APLICA AFASTAMENTOS ---------- #
-        afastamentos_dict = {}
         for mes_str, falta_str in zip(mes_falta, qntd_faltas):
             if mes_str and falta_str:  
                 mes_date = pd.to_datetime(mes_str, dayfirst=False, errors="coerce").date()
-                # mes_date = mes_date.strftime("%m/%Y")
                 faltas_int = int(float(falta_str))
                 
             # Calcula data de aplicação (dia 1 do mês seguinte)
@@ -787,6 +800,7 @@ def calcular_planilha(arquivo):
             else:
                 afastamentos_dict[data_aplicacao] = faltas_int
 
+        # Aplica os afastamentos nas datas correspondentes
         for i in range(len(carreira)):
             data_atual = carreira[i][0]
             
@@ -796,19 +810,24 @@ def calcular_planilha(arquivo):
             desconto = 0.0067 * falta
             desconto_des = 0.05 * falta
 
-            # Aplica pontuação padrão ou com desconto no dia 1 - IGUAL À calcular_evolucao
+            # Aplica pontuação padrão ou com desconto no dia 1 
             if data_atual.day == 1 and data_atual != data_inicio:
-                carreira[i][1] = 0.2  # Assiduidade
-                carreira[i][2] = 1.5  # Desempenho
+                carreira[i][1] = 0.2  
+                carreira[i][2] = 1.5  
                 
                 if falta > 0:
                     # Aplica desconto se houver afastamento
                     carreira[i][1] = max(min(0.2 - desconto, 0.2), 0)
                     carreira[i][2] = max(min(1.5 - desconto_des, 1.5), 0)
+                else:
+                    # Pontuação padrão sem desconto
+                    carreira[i][1] = 0.2
+                    carreira[i][2] = 1.5
 
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         # ---------- APLICA APERFEIÇOAMENTOS ---------- #
         total_horas = 0
+        pontos_excedentes = 0
         for mes_str, horas_str in zip(mes_curso, hrs_curso):
             if mes_str.strip() and horas_str.strip():  
                 data_conclusao = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
@@ -823,16 +842,22 @@ def calcular_planilha(arquivo):
                 # Quanto desse curso ainda pode ser aproveitado
                 horas_restantes = max(0, 100 - total_horas)
                 horas_aproveitadas = min(horas_curso_val, horas_restantes)
+                horas_excedentes = max(0, horas_curso_val - horas_aproveitadas)
+
                 total_horas += horas_aproveitadas
 
                 if horas_aproveitadas > 0:
                     pontos = horas_aproveitadas * 0.09
-
                     # Encontra a linha na matriz carreira e insere os pontos
                     for idx, linha in enumerate(carreira):
                         if linha[0] == data_aplicacao:
                             carreira[idx][3] += pontos  # Coluna 3 = Aperfeiçoamento
                             break
+                
+                # Se passar de 100h, adiciona os pontos excedentes aos remanescentes do usuário
+                if horas_excedentes > 0:
+                    pontos_excedentes = horas_excedentes * 0.09
+
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         # ---------- APLICA TITULAÇÕES ---------- #
         valores_tit = {
@@ -844,6 +869,7 @@ def calcular_planilha(arquivo):
         }
         
         total_pontos_tit = 0
+        ultima_titulacao = None
         LIMITE_TIT = 144
         
         for mes_str, tipo_str in zip(mes_tit, tipo_tit):
@@ -851,6 +877,10 @@ def calcular_planilha(arquivo):
                 data_concl = pd.to_datetime(mes_str, dayfirst=True, errors="coerce").date()
                 tipo = str(tipo_str.strip())
                 
+                # Bloqueia se já teve uma titulação nos últimos 12 meses (dupla confirmação)
+                if ultima_titulacao and data_concl < (ultima_titulacao + relativedelta(months=12)):
+                    continue # Ignora esta titulação
+
                 # Calcula data de aplicação (dia 1 do mês seguinte)
                 if data_concl.month == 12:
                     data_aplicacao = date(data_concl.year + 1, 1, 1)
@@ -860,8 +890,10 @@ def calcular_planilha(arquivo):
                 pontos_titulo = valores_tit.get(tipo, 0)
                 pontos_restantes = max(0, LIMITE_TIT - total_pontos_tit)
                 pontos_aproveitados = min(pontos_titulo, pontos_restantes)
+                
                 total_pontos_tit += pontos_aproveitados
-
+                ultima_titulacao = data_concl
+                
                 if pontos_aproveitados > 0:
                     for i, linha in enumerate(carreira):
                         if linha[0] == data_aplicacao:
@@ -1270,9 +1302,9 @@ def calcular_planilha(arquivo):
         
         for i in range(DATA_CONCLUSAO):
             if i == 0:
-                carreira[i][7] = carreira[i][1] + carreira[i][2] + carreira[i][3] + carreira[i][4] + carreira[i][5] + carreira[i][6] + pts_remanescentes
+                carreira[i][7] = sum(carreira[i][1:7]) + pts_remanescentes
             else:
-                carreira[i][7] = carreira[i-1][7] + carreira[i][1] + carreira[i][2] + carreira[i][3] + carreira[i][4] + carreira[i][5] + carreira[i][6]
+                carreira[i][7] = carreira[i-1][7] + sum(carreira[i][1:7])
 ####------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------####
         df_preview = pd.DataFrame(
                 carreira,
@@ -1361,7 +1393,7 @@ def calcular_planilha(arquivo):
                 "Data da Implementação": "-",
                 "Interstício de Evolução": "-",
                 "Pontuação Alcançada": "-",
-                "Pontos Remanescentes": "-"
+                "Pontos Excedentes": "-"
             })
         else:
             result_niveis.append({
@@ -1375,7 +1407,7 @@ def calcular_planilha(arquivo):
                 "Data da Implementação": implem.strftime("%d/%m/%Y"),
                 "Interstício de Evolução": meses_ate_evo,
                 "Pontuação Alcançada": round(pts_loop, 4),
-                "Pontos Remanescentes": round(pts_resto, 4)
+                "Pontos Excedentes": round(pts_resto, 4)
             })
         
     df_results = pd.DataFrame(result_niveis)
