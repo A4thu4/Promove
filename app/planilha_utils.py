@@ -269,9 +269,9 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
         "DAID8": 0.500, "DAID9": 0.500, "DAID10": 0.500, "DAID11": 0.500, "DAID12": 0.500,
         "DAID13": 0.500, "DAID14": 0.500
     }
-    pt_func_c = {"T1": 0.333, "T2": 0.364, "T3": 0.400, "T4": 0.444, "T5": 0.500}
-    pt_agente = {"V": 0.333, "IV": 0.364, "III": 0.400, "II": 0.444, "I": 0.500}
-    pt_fixa = {"H": 0.333}  # usada para designada, conselho e prioritária
+    pt_func_c = {"FCG5": 0.333, "FCG4": 0.364, "FCG3": 0.400, "FCG2": 0.444, "FCG1": 0.500}
+    pt_agente = {"APV": 0.333, "APIV": 0.364, "APIII": 0.400, "APII": 0.444, "API": 0.500}
+    pt_fixa = {"FD": 0.333, "GC": 0.333, "GT": 0.333}  # usada para designada, conselho e prioritária
 
     col_map = {
         "Exercício de Cargo em Comissão": pt_cargos,
@@ -344,11 +344,11 @@ def processar_responsabilidades_unicas(df, i, carreira):
     resp_dict = {}
 
     # Mapas de pontos
-    dados_artigo = {"ID": 3, "NID": 0.5}
-    dados_livro = {"O": 1, "C": 3, "L": 6}
-    dados_pesq = {"E": 1, "R": 2, "N": 3, "I": 4}
-    dados_reg = {"P": 6, "C": 6}
-    dados_curso = {"P1": 6, "P2": 8, "P3": 12, "P4": 24, "P5": 48}
+    dados_artigo = {"PUBID": 3, "PUBNID": 0.5}
+    dados_livro = {"PLO": 1, "PLC": 3, "PLL": 6}
+    dados_pesq = {"PUBE": 1, "PUBR": 2, "PUBN": 3, "PUBI": 4}
+    dados_reg = {"PAT": 6, "CULT": 6}
+    dados_curso = {"PD5": 6, "PD4": 8, "PD3": 12, "PD2": 24, "PD1": 48}
 
     def _aplicar(dicionario, texto_coluna):
         """Divide campo, extrai (quantidade, tipo, data) e acumula pontos."""
@@ -407,5 +407,3 @@ def processar_responsabilidades_unicas(df, i, carreira):
             break
 
     return carreira
-
-
