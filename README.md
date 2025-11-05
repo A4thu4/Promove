@@ -39,7 +39,7 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 
 ```bash
 git clone https://github.com/A4thu4/Promove.git
-cd Promove/app_ggdp 
+cd Promove/app
 ```
 
 2. Crie o ambiente virtual:
@@ -68,7 +68,7 @@ streamlit run master.py
 
 ```bash
 📦 Promove/
-├── app_ggdp
+├── app
     └── data_utils.py       # Referências de dados para os Cálculos 
     └── layout.py           # Renderização dos Inputs
     └── logic.py            # 'Cérebro' do sistema
