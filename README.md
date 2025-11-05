@@ -1,7 +1,7 @@
 # 📈 Simulador PROMOVE - Cálculo de Progressão Funcional
 
 - Foram feitos 2 Sistemas em Python - Streamlit - para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação, responsabilidades e carreira.
-- O 1º é um simulador geral que, baseado em uma **pontuação média irá, calculara possível próxima evolução e após irá *fazer uma projeção*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução.
+- O 1º é um simulador geral que, baseado em uma **pontuação média irá, calcular a possível próxima evolução e após irá *fazer uma projeção*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução.
 - O 2º é um simulador criado para facilitar o trabalho das GGDP's em fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito. 
 
 ---
