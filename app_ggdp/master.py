@@ -401,10 +401,10 @@ def main():
         st.session_state.arquivo = st.file_uploader("Selecione o arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}", label_visibility="hidden")
         
         if st.session_state.arquivo is not None:
-            # try:
-            calcular_planilha(st.session_state.arquivo)
-            # except Exception as e:
-            #     st.error(f"❌ Erro no cálculo: Verifque se todos os dados na planilha estão corretos. {e}")
+            try:
+                calcular_planilha(st.session_state.arquivo)
+            except Exception as e:
+                st.error(f"❌ Erro no cálculo: Verifque se todos os dados na planilha estão corretos. {e}")
 
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
@@ -440,7 +440,7 @@ def main():
                 st.rerun()
 
         if not st.session_state.calculo_executado:
-            # try:
+            try:
                 afast_total = []
                 afast_total.extend(st.session_state.get("afastamentos_inicial", []))
                 afast_total.extend(st.session_state.get("afastamentos", []))
@@ -482,8 +482,8 @@ def main():
                         unsafe_allow_html=True
                     )
 
-            # except Exception as e:
-            #     st.error(f"❌ Erro no cálculo: {str(e)}")
+            except Exception as e:
+                st.error(f"❌ Erro no cálculo: {str(e)}")
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
