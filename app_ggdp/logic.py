@@ -278,7 +278,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     resultado_niveis = []
 
     # Dados iniciais
-    data_inicio = carreira[0][0]  # primeira data 
+    data_inicio = data_inicial  # primeira data 
     evolucao = None
     implementacao = None
     meses_ate_evolucao = None
