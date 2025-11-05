@@ -20,9 +20,8 @@ val_states = {
 }
 
 # ---- TITULAÇÕES ---- #
-
 dados_tit = {
-    'Nenhuma': None,
+    'Nenhuma': 0,
     'Graduação': 6,
     'Especialização': 8,
     'Mestrado': 24,
@@ -30,7 +29,6 @@ dados_tit = {
 }
 
 # ---- RESPONSABILIDADES UNICAS ---- #
-
 dados_artigo = {
     'Nenhum': 0,
     'Indexado em Base de Dados': 3,
@@ -68,7 +66,6 @@ dados_cursos = {
 }
 
 # ---- RESPONSABILIDADES MENSAIS ---- #
-
 dados_cargos = {
     'Nenhum': 0,
     "DAS-1": 1.000, "DAS-2": 1.000,
@@ -89,11 +86,6 @@ dados_func_c = {
     "acima de 2.250,00": 0.500
 }
 
-dados_unicos = {
-    'Nenhum': 0,
-    'Houve': 0.333
-}
-
 dados_agente = {
     'Nenhum': 0,
     "I": 0.500, 
@@ -101,4 +93,9 @@ dados_agente = {
     "III": 0.400, 
     "IV": 0.364,  
     "V": 0.333
+}
+
+dados_unicos = {
+    'Nenhum': 0,
+    'Houve': 0.333
 }
