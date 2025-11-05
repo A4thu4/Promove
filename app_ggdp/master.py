@@ -41,10 +41,10 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
-st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/Brasão.png", layout="wide")
+st.set_page_config(page_title="PROMOVE - Simulador", page_icon="../assets/Brasão.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/Logomarca_GNCP_transparente.png", width=800)
+    st.image("../assets/Logomarca_GNCP_transparente.png", width=800)
 
 st.markdown(
     """
@@ -235,7 +235,7 @@ st.markdown(
     /* Oculta o texto original do botão "Browse files" */
     [data-testid="stFileUploaderDropzone"] button {
         visibility: hidden;
-        line-height: normal;
+        line-height: normal;4
     }
 
     /* Adiciona um novo texto ao botão "Browse files" */
@@ -244,7 +244,7 @@ st.markdown(
         visibility: visible;
         display: block;
         line-height: normal;
-        font-weight: 500;
+        font-weight: 500px;
         color: black;
     }
     </style>
@@ -397,14 +397,14 @@ def main():
             """, 
             unsafe_allow_html=True
         )
-        
+
         st.session_state.arquivo = st.file_uploader("Selecione o arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}", label_visibility="hidden")
         
         if st.session_state.arquivo is not None:
-            try:
-                calcular_planilha(st.session_state.arquivo)
-            except Exception as e:
-                st.error(f"❌ Erro no cálculo: Verifque se todos os dados na planilha estão corretos. {e}")
+            # try:
+            calcular_planilha(st.session_state.arquivo)
+            # except Exception as e:
+            #     st.error(f"❌ Erro no cálculo: Verifque se todos os dados na planilha estão corretos. {e}")
 
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
@@ -440,7 +440,7 @@ def main():
                 st.rerun()
 
         if not st.session_state.calculo_executado:
-            try:
+            # try:
                 afast_total = []
                 afast_total.extend(st.session_state.get("afastamentos_inicial", []))
                 afast_total.extend(st.session_state.get("afastamentos", []))
@@ -482,8 +482,8 @@ def main():
                         unsafe_allow_html=True
                     )
 
-            except Exception as e:
-                st.error(f"❌ Erro no cálculo: {str(e)}")
+            # except Exception as e:
+            #     st.error(f"❌ Erro no cálculo: {str(e)}")
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
