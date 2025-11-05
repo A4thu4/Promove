@@ -170,13 +170,10 @@ def build_afastamentos(key_prefix="afast"):
         total_afast = sum(f for _, f in st.session_state.afastamentos)
 
         cl = st.columns(2)
-        
         with cl[0]: st.write("**-Afastamentos Registrados-**")
         with cl[1]: st.write(f"**Total de Afastamentos: {total_afast}**")
         
         cols = st.columns(6)
-        print("")
-
         for i, (mes, faltas) in enumerate(sorted(st.session_state.afastamentos, key=lambda data: data[0])):
             col = cols[i % 6]
             with col:
@@ -496,9 +493,6 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_cc and data_f_cc:
                 if data_f_cc <= data_i_cc or not data_f_cc > data_i_cc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if st.session_state.data_inicial and data_i_cc < st.session_state.data_inicial:
-
-                print("Funcionou")
             if data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
                 ano = data_f_cc.year - data_i_cc.year
                 mes = data_f_cc.month - data_i_cc.month
@@ -910,13 +904,10 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         st.markdown("<h5 style='text-align:left; color:#000000'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
-            data_publi_art = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_art"
+            tipo_art = st.selectbox(
+                "Tipo de Artigo",
+                list(dados_artigo.keys()),
+                key=f"{key_prefix}_tipo_art"
             )
         with col1:
             qntd_art = st.number_input(
@@ -925,10 +916,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 key=f"{key_prefix}_qntd_art"
             )
         with col2:
-            tipo_art = st.selectbox(
-                "Tipo de Artigo",
-                list(dados_artigo.keys()),
-                key=f"{key_prefix}_tipo_art"
+            data_publi_art = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_art"
             )
         with col3:
             st.write("")            
@@ -960,14 +954,12 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
-            data_publi_liv = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_liv"
+            tipo_liv = st.selectbox(
+                "Tipo de Livro",
+                list(dados_livro.keys()),
+                key=f"{key_prefix}_tipo_liv"
             )
+            
         with col1:
             qntd_liv = st.number_input(
                 "Quantidade",
@@ -975,10 +967,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 key=f"{key_prefix}_qntd_liv"
             )
         with col2:
-            tipo_liv = st.selectbox(
-                "Tipo de Livro",
-                list(dados_livro.keys()),
-                key=f"{key_prefix}_tipo_liv"
+            data_publi_liv = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_liv"
             )
         with col3:
             st.write("")            
@@ -1010,14 +1005,12 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
-            data_publi_pesq = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_pesq"
+            tipo_pesq = st.selectbox(
+                "Tipo de Pesquisa Aprovada",
+                list(dados_pesquisas.keys()),
+                key=f"{key_prefix}_tipo_pesq"
             )
+            
         with col1:
             qntd_pesq = st.number_input(
                 "Quantidade",
@@ -1025,10 +1018,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 key=f"{key_prefix}_qntd_pesq"
             )
         with col2:
-            tipo_pesq = st.selectbox(
-                "Tipo de Pesquisa Aprovada",
-                list(dados_pesquisas.keys()),
-                key=f"{key_prefix}_tipo_pesq"
+            data_publi_pesq = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_pesq"
             )
         with col3:
             st.write("")            
@@ -1060,14 +1056,12 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
-            data_publi_reg = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_reg"
+            tipo_reg = st.selectbox(
+                "Tipo de Registro",
+                list(dados_registros.keys()),
+                key=f"{key_prefix}_tipo_reg"
             )
+            
         with col1:
             qntd_reg = st.number_input(
                 "Quantidade",
@@ -1075,10 +1069,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 key=f"{key_prefix}_qntd_reg"
             )
         with col2:
-            tipo_reg = st.selectbox(
-                "Tipo de Registro",
-                list(dados_registros.keys()),
-                key=f"{key_prefix}_tipo_reg"
+            data_publi_reg = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_reg"
             )
         with col3:
             st.write("")            
@@ -1110,14 +1107,12 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
-            data_publi_curso = st.date_input(
-                "Data de Conclusão",
-                format="DD/MM/YYYY",
-                value=None,
-                min_value=st.session_state.data_inicial,
-                max_value=MAX_DATE,
-                key=f"{key_prefix}_data_curso"
+            tipo_curso = st.selectbox(
+                "Tipo de Curso",
+                list(dados_cursos.keys()),
+                key=f"{key_prefix}_tipo_curso"
             )
+            
         with col1:
             qntd_curso = st.number_input(
                 "Quantidade",
@@ -1125,10 +1120,13 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 key=f"{key_prefix}_qntd_curso"
             )
         with col2:
-            tipo_curso = st.selectbox(
-                "Tipo de Curso",
-                list(dados_cursos.keys()),
-                key=f"{key_prefix}_tipo_curso"
+            data_publi_curso = st.date_input(
+                "Data de Conclusão",
+                format="DD/MM/YYYY",
+                value=None,
+                min_value=st.session_state.data_inicial,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_curso"
             )
         with col3:
             st.write("")            
