@@ -1,15 +1,14 @@
 # 📈 Simulador PROMOVE - Cálculo de Progressão Funcional
 
-- Foram feitos 2 Sistemas em Python + Streamlit para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação
-e carreira.
-- O 1º (main.py) é um simulador geral que, baseado em uma **pontuação média irá, *fazer uma previsão*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução.
-- O 2º (app_ggdp/master.py) é um simulador criado para facilitar o trabalho da GGDP para fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito. 
+- Foram feitos 2 Sistemas em Python - Streamlit - para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação, responsabilidades e carreira.
+- O 1º é um simulador geral que, baseado em uma **pontuação média irá, calculara possível próxima evolução e após irá *fazer uma projeção*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução.
+- O 2º é um simulador criado para facilitar o trabalho das GGDP's em fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito. 
 
 ---
 
 ## 🧠 Objetivo
 
-Facilitar a análise de **progressão de servidores públicos**, simulando automaticamente o avanço entre níveis/ciclos, com base nas **tabelas de pontuação** e **regras da unidade de produtividade** de acordo com regras pré-estabelecidas pelo Governo para os Orgãos.
+Facilitar a análise de **progressão de servidores públicos**, simulando automaticamente o avanço entre níveis/ciclos, com base nas **tabelas de pontuação** e **regras da unidade de produtividade** conforme regras pré-estabelecidas pelo Governo para os Orgãos.
 
 ---
 
@@ -19,17 +18,17 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 - 📅 Detecção de **tempo necessário** entre interstício.
 - ⚖️ Verificação de atingimento de requisitos mínimos.
 - 📈 Exibição em tabela dos resultados com pontuações e datas.
-- ✅ Ajuste dinâmico de critérios (nível, meta, início, etc).
+- ✅ Ajuste dinâmico de critérios (nível, início, etc).
 - 🎯 Ideal para simulações individuais ou em lote.
 
 ---
 
 ## 🛠 Tecnologias Usadas
 
-- [Python 3.9+](https://www.python.org/)
+- [Python 3.11+](https://www.python.org/)
 - [Streamlit](https://streamlit.io/)
-- Numpy
 - Pandas
+- Numpy
 - Openpyxl
 
 ---
@@ -40,8 +39,7 @@ Facilitar a análise de **progressão de servidores públicos**, simulando autom
 
 ```bash
 git clone https://github.com/A4thu4/Promove.git
-cd Promove
-cd app_ggdp # para o segundo sistema
+cd Promove/app_ggdp 
 ```
 
 2. Crie o ambiente virtual:
@@ -61,7 +59,7 @@ pip install -r requirements.txt
 4. Rode o app:
 
 ```bash
-streamlit run main.py # ou (master.py)
+streamlit run master.py
 ```
 
 ---
@@ -74,11 +72,10 @@ streamlit run main.py # ou (master.py)
     └── data_utils.py       # Referências de dados para os Cálculos 
     └── layout.py           # Renderização dos Inputs
     └── logic.py            # 'Cérebro' do sistema
-    └── master.py           # Código principal (GGDP)
+    └── master.py           # Código principal
 ├── assets/                 # Arquivos extras, imagens e licença
 ├── Dockerfile              # Arquivo para hospedagem em nuvem com Docker
 ├── README.md               # Este arquivo
-├── main.py                 # Código principal (Simulador)
 ├── requirements.txt        # Dependências
 ```
 
@@ -86,19 +83,27 @@ streamlit run main.py # ou (master.py)
 
 ## 🧪 Exemplo de uso
 
-- Digite os valores de pontuação mensais.
+- Digite os valores conforme requisitado.
+- Clique para calcular resultados
 - O sistema calcula automaticamente:
   - Se está Apto a evoluir.
   - Próximo Nível.
   - Quando atinge o próximo nível.
   - Quantos meses levou.
+  - Pontuação Excedente.
 - Mostra o resultado final com total de pontos e tempo acumulado.
+- Mostra projeção de carreira até último nível.
+
+---
+## 🌐 Link do Simulador
+
+- [SIMULADOR](https://simuladorpromove.streamlit.app/)
 
 ---
 
 ## 👨‍💻 Desenvolvedor
 
-> Feito por Arthur Mamedes – Estudante de Ciência da Computação e estagiário na Gerência de Normas e Critérios de Produtividade (GNCP).
+> Feito por Arthur Mamedes Borges – Estudante de Ciência da Computação e estagiário na Gerência de Normas e Critérios de Produtividade (GNCP) da SEAD-GO.
 
 📬 arthurmamedesborges@gmail.com
 
@@ -107,3 +112,4 @@ streamlit run main.py # ou (master.py)
 ## 📄 Licença
 
 Este projeto está sob a licença [MIT](assets/LICENSE).
+
