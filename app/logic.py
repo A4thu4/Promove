@@ -208,6 +208,16 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[0]):
         inicio = inicio.date() if isinstance(inicio, datetime) else inicio
 
+        # --- Caso o início seja até 5 anos antes da data_inicial ---
+        if inicio < data_inicial and inicio >= data_inicial - relativedelta(years=5):
+            delta = relativedelta(data_inicial, inicio)
+            meses_anteriores = delta.years * 12 + delta.months
+            if meses_anteriores > 0:
+                carreira[0][6] += meses_anteriores * pontos  # soma na primeira data
+            # redefine início para continuar cálculo normal
+            inicio = data_inicial
+
+        # Cálculo  normal
         mes_aplicacao = inicio.month + 1
         ano_aplicacao = inicio.year
         if mes_aplicacao > 12:
