@@ -280,12 +280,26 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
         data_prevista18 = data_inicio + relativedelta(months=18)
         data_prevista12 = data_inicio + relativedelta(months=12)
-        
+
         if data_atual < data_prevista12:
             continue
         
-        if data_prevista12 <= data_atual < data_prevista18 :
-            if pontos >= 96:
+        # Calcula desempenho e aperfeicoamento acumulados até a data atual
+        desempenho_atual = 0
+        aperfeicoamento_atual = 0
+        
+        for j in range(min(len(carreira), 7306)):
+            data = carreira[j][0]
+            if data <= data_atual:
+                desempenho_atual += carreira[j][2]
+                aperfeicoamento_atual += carreira[j][3]
+        
+        desempenho_atual = round(desempenho_atual, 2)
+        aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
+        
+        # Verifica condições para evolução
+        if data_prevista12 <= data_atual < data_prevista18:
+            if pontos >= 96 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
@@ -293,35 +307,39 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 break
 
         if data_atual >= data_prevista18:
-            if pontos >= 48:
+            if pontos >= 48 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
-        
-    desempenho, aperfeicoamento = 0, 0
-    for linha in carreira:
-        data = linha[0]
-        if data <= evolucao:
-            desempenho += linha[2] 
-            aperfeicoamento += linha[3]
-
-    desempenho = round(desempenho,4) if evolucao else 0
-    aperfeicoamento = round(aperfeicoamento,4) if evolucao else 0
     
     pendencias = False
     motivos = []
 
     if not evolucao:
-        pendencias = True
-        motivos.append("Pontuação mínima.")
-    if aperfeicoamento < 5.4:
-        pendencias = True
-        motivos.append("Aperfeiçoamento mínimo de 60 horas.")
-    if desempenho < 2.4:
-        pendencias = True
-        motivos.append("Desempenho mínimo de 2.4 pontos.")
+        if len(carreira) > 0:
+            ultima_data = carreira[min(len(carreira)-1, DATA_CONCLUSAO-1)][0]
+            
+            # Calcula totais atuais
+            desempenho_total = 0
+            aperfeicoamento_total = 0
+            for i in range(min(len(carreira), 7306)):
+                data = carreira[i][0]
+                if data <= ultima_data:
+                    desempenho_total += carreira[i][2]
+                    aperfeicoamento_total += carreira[i][3]
+            
+            desempenho_total = round(desempenho_total, 2)
+            aperfeicoamento_total = round(aperfeicoamento_total, 2)
+            
+            if aperfeicoamento_total < 5.4:
+                pendencias = True
+                motivos.append("aperfeiçoamento mínimo de 60 horas")
+            
+            if desempenho_total < 2.4:
+                pendencias = True
+                motivos.append("desempenho mínimo de 2.4 pontos")
 
     motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
@@ -337,89 +355,88 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         "Pontuação Alcançada": "-" if pendencias else round(pontos, 4),
         "Pontos Excedentes": "-" if pendencias else round(pts_resto, 4),
     })
- 
     
 ### ---------- CÁLCULO DE TEMPO DA PROJEÇÃO DE 18 EVOLUÇÕES---------- ###
     resultado_projecao = []
     
     # só projeta se houve uma evolução válida
-    if not resultado_niveis or resultado_niveis[0]["Status"] != "Apto a evoluir":
-        return carreira, resultado_niveis, resultado_projecao
+    # if not resultado_niveis or resultado_niveis[0]["Status"] != "Apto a evoluir":
+    #     return carreira, resultado_niveis, resultado_projecao
 
-    data_inicio = datetime.strptime(
-        resultado_niveis[0]["Data da Implementação"], "%d/%m/%Y"
-    ).date()
-    pts_resto = float(resultado_niveis[0]["Pontos Excedentes"])
-    nivel_atual = resultado_niveis[0]["Próximo Nível"]
+    # data_inicio = datetime.strptime(
+    #     resultado_niveis[0]["Data da Implementação"], "%d/%m/%Y"
+    # ).date()
+    # pts_resto = float(resultado_niveis[0]["Pontos Excedentes"])
+    # nivel_atual = resultado_niveis[0]["Próximo Nível"]
 
-    meses_totais = resultado_niveis[0]["Interstício de Evolução"]  # inicia do 1º ciclo
+    # meses_totais = resultado_niveis[0]["Interstício de Evolução"]  # inicia do 1º ciclo
 
-    for ciclo in range(2,19):
-        if nivel_atual == "S":
-            break
+    # for ciclo in range(2,19):
+    #     if nivel_atual == "S":
+    #         break
 
-        pontos_ciclo = pts_resto
-        pts_resto = 0.0
-        data_base = data_inicio
-        evolucao = None
-        meses_ate_evolucao = None
+    #     pontos_ciclo = pts_resto
+    #     pts_resto = 0.0
+    #     data_base = data_inicio
+    #     evolucao = None
+    #     meses_ate_evolucao = None
 
-        for i in range(len(carreira)):
-            data_atual = carreira[i][0]
-            if data_atual <= data_base:
-                continue
+    #     for i in range(len(carreira)):
+    #         data_atual = carreira[i][0]
+    #         if data_atual <= data_base:
+    #             continue
 
-            delta = relativedelta(data_atual, data_base)
-            meses_passados = delta.years * 12 + delta.months
-            pontos_ciclo += (
-                carreira[i][1] + carreira[i][2] + carreira[i][3]
-                + carreira[i][4] + carreira[i][5] + carreira[i][6]
-            )
+    #         delta = relativedelta(data_atual, data_base)
+    #         meses_passados = delta.years * 12 + delta.months
+    #         pontos_ciclo += (
+    #             carreira[i][1] + carreira[i][2] + carreira[i][3]
+    #             + carreira[i][4] + carreira[i][5] + carreira[i][6]
+    #         )
 
-            data_prevista12 = data_base + relativedelta(months=12)
-            data_prevista18 = data_base + relativedelta(months=18)
+    #         data_prevista12 = data_base + relativedelta(months=12)
+    #         data_prevista18 = data_base + relativedelta(months=18)
 
-            if data_prevista12 <= data_atual < data_prevista18:
-                if pontos_ciclo >= 96:
-                    evolucao = data_atual
-                    meses_ate_evolucao = meses_passados
-                    pts_resto = pontos_ciclo - 48
-                    break
+    #         if data_prevista12 <= data_atual < data_prevista18:
+    #             if pontos_ciclo >= 96:
+    #                 evolucao = data_atual
+    #                 meses_ate_evolucao = meses_passados
+    #                 pts_resto = pontos_ciclo - 48
+    #                 break
 
-            if data_atual >= data_prevista18:
-                if pontos_ciclo >= 48:
-                    evolucao = data_atual
-                    meses_ate_evolucao = meses_passados
-                    pts_resto = pontos_ciclo - 48
-                    break
+    #         if data_atual >= data_prevista18:
+    #             if pontos_ciclo >= 48:
+    #                 evolucao = data_atual
+    #                 meses_ate_evolucao = meses_passados
+    #                 pts_resto = pontos_ciclo - 48
+    #                 break
 
-        if not evolucao:
-            break
+    #     if not evolucao:
+    #         break
 
-        implementacao = evolucao + relativedelta(day=1, months=1)
-        meses_totais += meses_ate_evolucao  # acumula o total de tempo
+    #     implementacao = evolucao + relativedelta(day=1, months=1)
+    #     meses_totais += meses_ate_evolucao  # acumula o total de tempo
 
-        anos_total = meses_totais // 12
-        resto_total = meses_totais % 12
+    #     anos_total = meses_totais // 12
+    #     resto_total = meses_totais % 12
 
-        proximo_nivel = (
-            NIVEIS[NIVEIS.index(nivel_atual) + 1]
-            if nivel_atual != "S"
-            else "S"
-        )
+    #     proximo_nivel = (
+    #         NIVEIS[NIVEIS.index(nivel_atual) + 1]
+    #         if nivel_atual != "S"
+    #         else "S"
+    #     )
 
-        resultado_projecao.append({
-            "Nível": proximo_nivel,
-            "Evolução (Projeção)": f" {ciclo}ª Evolução",
-            "Data Inicial": data_inicio.strftime("%d/%m/%Y"),
-            "Data Alcançada": evolucao.strftime("%d/%m/%Y"),
-            "Meses Entre Níveis": meses_ate_evolucao,
-            "Pontuação Alcançada": round(pontos_ciclo, 3),
-            "Total": f"{anos_total} ano(s) {resto_total} mês(es)"
-        })
+    #     resultado_projecao.append({
+    #         "Nível": proximo_nivel,
+    #         "Evolução (Projeção)": f" {ciclo}ª Evolução",
+    #         "Data Inicial": data_inicio.strftime("%d/%m/%Y"),
+    #         "Data Alcançada": evolucao.strftime("%d/%m/%Y"),
+    #         "Meses Entre Níveis": meses_ate_evolucao,
+    #         "Pontuação Alcançada": round(pontos_ciclo, 3),
+    #         "Total": f"{anos_total} ano(s) {resto_total} mês(es)"
+    #     })
 
-        data_inicio = implementacao
-        nivel_atual = proximo_nivel
+    #     data_inicio = implementacao
+    #     nivel_atual = proximo_nivel
 
     return carreira, resultado_niveis, resultado_projecao
 
