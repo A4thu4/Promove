@@ -94,7 +94,6 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
 # ---------- APLICA APERFEIÇOAMENTOS ---------- #
     total_horas = 0
-    pontos_excedentes = 0
     for data_conclusao, horas_curso in sorted(aperfeicoamentos, key=lambda data: data[0]):
         data_conclusao = data_conclusao.date() if isinstance(data_conclusao, datetime) else data_conclusao
 
@@ -107,7 +106,6 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         # Quanto desse curso ainda pode ser aproveitado
         horas_restantes = max(0, 100 - total_horas)
         horas_aproveitadas = min(horas_curso, horas_restantes)
-        horas_excedentes = max(0, horas_curso - horas_aproveitadas)
 
         # Atualiza acumulado de horas
         total_horas += horas_aproveitadas
@@ -122,10 +120,6 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 if data_linha == data_aplicacao:
                     carreira[idx][3] += pontos
                     break
-        
-        # Se passar de 100h, adiciona os pontos excedentes aos remanescentes do usuário
-        if horas_excedentes > 0:
-            pontos_excedentes = horas_excedentes * 0.09
 
 # ---------- APLICA TITULAÇÕES ---------- #
     from data_utils import dados_tit
