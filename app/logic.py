@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime, timedelta, date
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
+
 
 from data_utils import DATA_CONCLUSAO, NIVEIS
 
@@ -286,15 +287,11 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         data_prevista18 = data_inicio + relativedelta(months=18)
         data_prevista12 = data_inicio + relativedelta(months=12)
         
-        # calcula o desempenho e aperfeiçoamento até esta data
-        desempenho_atual = sum(l[2] for l in carreira if l[0] <= dt_atual)
-        aperfeicoamento_atual = sum(l[3] for l in carreira if l[0] <= dt_atual)
-
         if data_atual < data_prevista12:
             continue
         
         if data_prevista12 <= data_atual < data_prevista18 :
-            if pontos >= 96 and aperfeicoamento_atual >= 5.4 and desempenho_atual >= 2.4:
+            if pontos >= 96:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
@@ -302,23 +299,33 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 break
 
         if data_atual >= data_prevista18:
-            if pontos >= 48 and aperfeicoamento_atual >= 5.4 and desempenho_atual >= 2.4:
+            if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
                 break
-        
+        
+    desempenho, aperfeicoamento = 0, 0
+    for linha in carreira:
+        data = linha[0]
+        if data <= evolucao:
+            desempenho += linha[2] 
+            aperfeicoamento += linha[3]
+
+    desempenho = round(desempenho,4) if evolucao else 0
+    aperfeicoamento = round(aperfeicoamento,4) if evolucao else 0
+    
     pendencias = False
     motivos = []
 
     if not evolucao:
         pendencias = True
         motivos.append("Pontuação mínima.")
-    if aperfeicoamento_atual < 5.4:
+    if aperfeicoamento < 5.4:
         pendencias = True
         motivos.append("Aperfeiçoamento mínimo de 60 horas.")
-    if desempenho_atual < 2.4:
+    if desempenho < 2.4:
         pendencias = True
         motivos.append("Desempenho mínimo de 2.4 pontos.")
 
