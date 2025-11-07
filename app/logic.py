@@ -287,8 +287,8 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         data_prevista12 = data_inicio + relativedelta(months=12)
         
         # calcula o desempenho e aperfeiçoamento até esta data
-        desempenho_atual = sum(l[2] for l in carreira if l[0] <= data_atual)
-        aperfeicoamento_atual = sum(l[3] for l in carreira if l[0] <= data_atual)
+        desempenho_atual = sum(l[2] for l in carreira if l[0] <= dt_atual)
+        aperfeicoamento_atual = sum(l[3] for l in carreira if l[0] <= dt_atual)
 
         if data_atual < data_prevista12:
             continue
