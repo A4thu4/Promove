@@ -323,7 +323,11 @@ def main():
                 st.rerun()  # Força atualização
 
             build_afastamentos()
+            st.divider()
+            
             build_desempenho()
+            st.divider()
+            
             build_aperfeicoamentos()
             st.divider()
         
@@ -332,7 +336,11 @@ def main():
             st.markdown(bloco_vertical("", 1980, "#fede01"), unsafe_allow_html=True)
         with col2:
             build_titulacoes()
+            st.divider()
+            
             build_responsabilidades_mensais()
+            st.divider()
+            
             build_responsabilidades_unicas()
 
         st.write("")
