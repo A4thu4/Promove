@@ -299,7 +299,7 @@ def main():
         
         col1, col2 = st.columns([0.05, 1.93])
         with col1: 
-            st.markdown(bloco_vertical("", 1100, "#003500"), unsafe_allow_html=True)
+            st.markdown(bloco_vertical("", 1215, "#003500"), unsafe_allow_html=True)
         with col2:
             build_obrigatorios()
             
@@ -333,7 +333,7 @@ def main():
         
         col1, col2 = st.columns([0.05, 1.93])
         with col1: 
-            st.markdown(bloco_vertical("", 1980, "#fede01"), unsafe_allow_html=True)
+            st.markdown(bloco_vertical("", 2297, "#fede01"), unsafe_allow_html=True)
         with col2:
             build_titulacoes()
             st.divider()
