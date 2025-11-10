@@ -157,7 +157,7 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
 def processar_aperfeicoamentos(df, i, carreira):
     """Aplica pontos de aperfeiçoamento (cursos) na matriz da carreira."""
     try:
-        mes_raw = str(df["Data de Conclusão do Aperfeiçoamento"].iloc[i]).strip()
+        mes_raw = str(df["Data de Validação do Aperfeiçoamento"].iloc[i]).strip()
         horas_raw = str(df["Carga Horária"].iloc[i]).strip()
     except KeyError:
         return carreira  # colunas ausentes
@@ -202,7 +202,7 @@ def processar_aperfeicoamentos(df, i, carreira):
 def processar_titulacoes(df, i, carreira):
     """Aplica pontuação de titulações acadêmicas na matriz da carreira."""
     try:
-        mes_raw = str(df["Data de Conclusão da Titulação"].iloc[i]).strip()
+        mes_raw = str(df["Data de Validação da Titulação"].iloc[i]).strip()
         tipo_raw = str(df["Tipo de Titulação"].iloc[i]).strip()
     except KeyError:
         return carreira  # colunas ausentes
