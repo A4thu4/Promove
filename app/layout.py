@@ -36,7 +36,7 @@ def build_obrigatorios(key_prefix="obg"):
                 nivel_atual = nivel_atual.upper()
         with col1:
             st.session_state.data_inicial = st.date_input(
-                "Data do Enquadramento ou Última Evolução",
+                "Data do Enquadramento ou da Última Evolução",
                 format="DD/MM/YYYY",
                 value=existing_data_inicial if existing_data_inicial else None,
                 min_value=MIN_DATE,
@@ -45,7 +45,7 @@ def build_obrigatorios(key_prefix="obg"):
             )   
         with col2:
             pts_remanescentes = st.number_input(
-                "Pontos Excedentes da Última Evolução",
+                "Pontuação Excedente da Última Evolução",
                 value=existing_pts if existing_pts else None,
                 min_value=0.0,
                 format="%.3f",
@@ -112,7 +112,7 @@ def build_afastamentos(key_prefix="afast"):
     Renderiza inputs para 'Afastamentos' e atualiza st.session_state.afastamentos.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Afastamentos Não Considerados Como Efetivo Exercício</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Afastamentos Não Considerados como Efetivo Exercício</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         st.session_state[f"{key_prefix}_mes"] = None
@@ -123,7 +123,7 @@ def build_afastamentos(key_prefix="afast"):
         col0, col1 = st.columns([1, 1])
         with col0:
             mes_faltas = st.date_input(
-                "Mês do Afastamento",
+                "Mês dos Afastamentos",
                 format="DD/MM/YYYY",
                 value=None,
                 max_value=MAX_DATE,
@@ -178,7 +178,7 @@ def build_afastamentos(key_prefix="afast"):
             col = cols[i % 6]
             with col:
                 st.write(f"Data: {mes.strftime('%m/%Y')}.") 
-                st.write(f"{faltas} falta(s).")
+                st.write(f"{faltas} afastamento(s).")
                 if remove and st.session_state.afastamentos:
                     st.session_state.afastamentos.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -272,7 +272,7 @@ def build_aperfeicoamentos(key_prefix="aperf"):
         col1, col2 = st.columns([1, 1])
         with col1:
             data_conclusao = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -341,7 +341,7 @@ def build_titulacoes(key_prefix="tit"):
     """
     ensure_states()
     st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Aceleradores</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Titulações</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:left; color:#000000; '>Titulações Acadêmicas</h2>", unsafe_allow_html=True)
 
     from data_utils import dados_tit
 
@@ -354,7 +354,7 @@ def build_titulacoes(key_prefix="tit"):
         col1, col2 = st.columns([1, 1])
         with col1:
             data_conclusao = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=MIN_DATE,
@@ -425,7 +425,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referencia_responsabilidade}.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Mensais</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left; color:#000000; '>Assunção de Responsabilidades</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Mensal</h3>", unsafe_allow_html=True)
 
     from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente
     from natsort import natsorted
@@ -447,7 +448,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             cargo_comissao = st.selectbox(
-                "Cargo",
+                "Símbolo",
                 cargos_ordenados,
                 key=f"{key_prefix}_tipo_cc"
             )
@@ -512,7 +513,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_comissionada = st.selectbox(
-                "Função Comissionada",
+                "Valor",
                 list(dados_func_c.keys()),
                 key=f"{key_prefix}_tipo_fc"
             )
@@ -577,7 +578,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_designada = st.selectbox(
-                "Função Designada",
+                "Selecione",
                 list(dados_unicos.keys()),
                 key=f"{key_prefix}_tipo_fd"
             )
@@ -642,7 +643,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_agente = st.selectbox(
-                "Atuação Como Agente",
+                "Faixa",
                 list(dados_agente.keys()),
                 key=f"{key_prefix}_tipo_at_a"
             )
@@ -707,7 +708,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_conselho = st.selectbox(
-                "Atuação em Conselho",
+                "Selecione",
                 list(dados_unicos.keys()),
                 key=f"{key_prefix}_tipo_at_c"
             )
@@ -772,7 +773,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_prioritaria = st.selectbox(
-                "Atuação Prioritária",
+                "Selecione",
                 list(dados_unicos.keys()),
                 key=f"{key_prefix}_tipo_at_p"
             )
@@ -887,7 +888,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
     """
     ensure_states()
-    st.markdown("<h2 style='text-align:left; color:#000000'>Responsabilidades Únicas</h2>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Única</h3>", unsafe_allow_html=True)
 
     from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos
 
@@ -901,11 +902,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- ARTIGOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicação de Artigos ou Pesquisas Científicas com ISSN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicação de Artigos ou Pesquisas Científicos com ISSN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_art = st.selectbox(
-                "Tipo de Artigo",
+                "Faixa",
                 list(dados_artigo.keys()),
                 key=f"{key_prefix}_tipo_art"
             )
@@ -917,7 +918,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             )
         with col2:
             data_publi_art = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -951,11 +952,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- LIVROS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_liv = st.selectbox(
-                "Tipo de Livro",
+                "Faixa",
                 list(dados_livro.keys()),
                 key=f"{key_prefix}_tipo_liv"
             )
@@ -968,7 +969,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             )
         with col2:
             data_publi_liv = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -1002,11 +1003,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- PESQUISAS CIENTIFICAS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Publicações de Artigos ou Pesquisas Científicas Aprovadas em Eventos Científicos</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Artigos ou Pesquisas Científicos Aprovados em Eventos Científicos</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_pesq = st.selectbox(
-                "Tipo de Pesquisa Aprovada",
+                "Faixa",
                 list(dados_pesquisas.keys()),
                 key=f"{key_prefix}_tipo_pesq"
             )
@@ -1019,7 +1020,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             )
         with col2:
             data_publi_pesq = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -1053,11 +1054,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000; '>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_reg = st.selectbox(
-                "Tipo de Registro",
+                "Faixa",
                 list(dados_registros.keys()),
                 key=f"{key_prefix}_tipo_reg"
             )
@@ -1070,7 +1071,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             )
         with col2:
             data_publi_reg = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -1104,11 +1105,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- CURSOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='text-align:left; color:#000000; '>Estágio Pós-doutoral Desenvolvido no Órgão</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_curso = st.selectbox(
-                "Tipo de Curso",
+                "Faixa",
                 list(dados_cursos.keys()),
                 key=f"{key_prefix}_tipo_curso"
             )
@@ -1121,7 +1122,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             )
         with col2:
             data_publi_curso = st.date_input(
-                "Data de Conclusão",
+                "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
                 min_value=st.session_state.data_inicial,
@@ -1202,5 +1203,3 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
-
-
