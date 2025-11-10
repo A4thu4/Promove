@@ -4,7 +4,6 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
 from logic import ensure_states
-ensure_states()
 from layout import build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
 from data_utils import DATA_CONCLUSAO
 
@@ -253,6 +252,8 @@ st.markdown(
 
 
 def main():
+    ensure_states()
+
     # ---------- NAVEGAÇÃO ---------- #
     with st.sidebar:
         tabs = st.radio("Navegar",
