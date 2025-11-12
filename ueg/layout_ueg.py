@@ -227,7 +227,7 @@ def build_desempenho(key_prefix="des"):
         with col0:
             st.text_input(
                 "Pontuação Mensal",
-                value="2.4",
+                value="1.8",
                 key=f"{key_prefix}_pts_mes",
                 disabled=True,
                 help="Valor referencial padrão para pontuação mensal"

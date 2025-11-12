@@ -76,21 +76,21 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         falta = afastamentos_dict.get(data_atual, 0)
 
         desconto = 0.0067 * falta
-        desconto_des = 0.08 * falta
+        desconto_des = 0.06 * falta
 
         # Aplica pontuação padrão ou com desconto no dia 1
         if data_atual.day == 1 and data_atual != data_inicial:
             carreira[i][1] = 0.2
-            carreira[i][2] = 2.4
+            carreira[i][2] = 1.8
             
             if falta > 0:
                 # Aplica desconto se houver afastamento
                 carreira[i][1] = max(min(0.2 - desconto, 0.2), 0)
-                carreira[i][2] = max(min(2.4 - desconto_des, 2.4), 0)
+                carreira[i][2] = max(min(1.8 - desconto_des, 1.8), 0)
             else:
                 # Pontuação padrão sem desconto
                 carreira[i][1] = 0.2
-                carreira[i][2] = 2.4
+                carreira[i][2] = 1.8
 
 # ---------- APLICA TITULAÇÕES ---------- #
     from data_utils_ueg import dados_tit

@@ -144,12 +144,12 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         falta = afastamentos_dict.get(data_atual, 0)
 
         desconto = 0.0067 * falta
-        desconto_des = 0.08 * falta
+        desconto_des = 0.06 * falta
 
         # Aplica no dia 1 (exceto na data inicial)
         if data_atual.day == 1:
             linha[1] = max(0.2 - desconto, 0)  # Efetivo Exercício
-            linha[2] = max(2.4 - desconto_des, 0)  # Desempenho
+            linha[2] = max(1.8 - desconto_des, 0)  # Desempenho
 
     return carreira
 
