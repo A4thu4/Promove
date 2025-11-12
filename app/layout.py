@@ -125,6 +125,7 @@ def build_afastamentos(key_prefix="afast"):
             mes_faltas = st.date_input(
                 "Mês dos Afastamentos",
                 format="DD/MM/YYYY",
+                min_value=st.session_state.data_inicial,
                 value=None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_mes",
@@ -1203,3 +1204,4 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
+
