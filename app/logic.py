@@ -45,9 +45,9 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     TODAS as pontuações são aplicadas no dia 1 do mês seguinte
     """
     if not carreira:
-        return carreira, [], []
+        return carreira, []
     elif not data_inicial:
-        return carreira, [], []
+        return carreira, []
     
     zerar_carreira(carreira)
 
@@ -339,90 +339,8 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         "Pontuação Alcançada": "-" if pendencias else round(pontos, 4),
         "Pontos Excedentes": "-" if pendencias else round(pts_resto, 4),
     })
-    
-### ---------- CÁLCULO DE TEMPO DA PROJEÇÃO DE 18 EVOLUÇÕES---------- ###
-    resultado_projecao = []
-    
-    # # só projeta se houve uma evolução válida
-    # if not resultado_niveis or resultado_niveis[0]["Status"] != "Apto a evoluir":
-    #     return carreira, resultado_niveis, resultado_projecao
 
-    # data_inicio = datetime.strptime(
-    #     resultado_niveis[0]["Data da Implementação"], "%d/%m/%Y"
-    # ).date()
-    # pts_resto = float(resultado_niveis[0]["Pontos Excedentes"])
-    # nivel_atual = resultado_niveis[0]["Próximo Nível"]
-
-    # meses_totais = resultado_niveis[0]["Interstício de Evolução"]  # inicia do 1º ciclo
-
-    # for ciclo in range(2,19):
-    #     if nivel_atual == "S":
-    #         break
-
-    #     pontos_ciclo = pts_resto
-    #     pts_resto = 0.0
-    #     data_base = data_inicio
-    #     evolucao = None
-    #     meses_ate_evolucao = None
-
-    #     for i in range(len(carreira)):
-    #         data_atual = carreira[i][0]
-    #         if data_atual <= data_base:
-    #             continue
-
-    #         delta = relativedelta(data_atual, data_base)
-    #         meses_passados = delta.years * 12 + delta.months
-    #         pontos_ciclo += (
-    #             carreira[i][1] + carreira[i][2] + carreira[i][3]
-    #             + carreira[i][4] + carreira[i][5] + carreira[i][6]
-    #         )
-
-    #         data_prevista12 = data_base + relativedelta(months=12)
-    #         data_prevista18 = data_base + relativedelta(months=18)
-
-    #         if data_prevista12 <= data_atual < data_prevista18:
-    #             if pontos_ciclo >= 96:
-    #                 evolucao = data_atual
-    #                 meses_ate_evolucao = meses_passados
-    #                 pts_resto = pontos_ciclo - 48
-    #                 break
-
-    #         if data_atual >= data_prevista18:
-    #             if pontos_ciclo >= 48:
-    #                 evolucao = data_atual
-    #                 meses_ate_evolucao = meses_passados
-    #                 pts_resto = pontos_ciclo - 48
-    #                 break
-
-    #     if not evolucao:
-    #         break
-
-    #     implementacao = evolucao + relativedelta(day=1, months=1)
-    #     meses_totais += meses_ate_evolucao  # acumula o total de tempo
-
-    #     anos_total = meses_totais // 12
-    #     resto_total = meses_totais % 12
-
-    #     proximo_nivel = (
-    #         NIVEIS[NIVEIS.index(nivel_atual) + 1]
-    #         if nivel_atual != "S"
-    #         else "S"
-    #     )
-
-    #     resultado_projecao.append({
-    #         "Nível": proximo_nivel,
-    #         "Evolução (Projeção)": f" {ciclo}ª Evolução",
-    #         "Data Inicial": data_inicio.strftime("%d/%m/%Y"),
-    #         "Data Alcançada": evolucao.strftime("%d/%m/%Y"),
-    #         "Meses Entre Níveis": meses_ate_evolucao,
-    #         "Pontuação Alcançada": round(pontos_ciclo, 3),
-    #         "Total": f"{anos_total} ano(s) {resto_total} mês(es)"
-    #     })
-
-    #     data_inicio = implementacao
-    #     nivel_atual = proximo_nivel
-
-    return carreira, resultado_niveis, resultado_projecao
+    return carreira, resultado_niveis
 
 
 def calcular_planilha(arquivo):
@@ -612,5 +530,6 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
 
 
