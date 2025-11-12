@@ -454,7 +454,7 @@ def main():
                 afast_total.extend(st.session_state.get("afastamentos_inicial", []))
                 afast_total.extend(st.session_state.get("afastamentos", []))
 
-                carreira_calculada, resultados_carreira, projecao_carreira = calcular_evolucao(
+                carreira_calculada, resultados_carreira = calcular_evolucao(
                     st.session_state.data_inicial,
                     st.session_state.nivel_atual, 
                     st.session_state.carreira, 
@@ -469,7 +469,6 @@ def main():
                 if carreira_calculada and resultados_carreira:
                     st.session_state.carreira = carreira_calculada
                     st.session_state.resultados_carreira = resultados_carreira
-                    st.session_state.projecao_carreira = projecao_carreira
                     st.session_state.calculo_executado = True
                     st.success("✅ Cálculo concluído!")
                     st.rerun()
@@ -508,11 +507,6 @@ def main():
             df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
             st.markdown("<h3 style='text-align:center; color:#000000; '>Pontuações Mensais</h3>", unsafe_allow_html=True)
             st.dataframe(df_preview.head(241), hide_index=True)
-
-            if st.session_state.projecao_carreira:
-                df_view2 = pd.DataFrame(st.session_state.projecao_carreira)
-                st.markdown("<h2 style='text-align:center; color:#000000; '>Projeção de Carreira</h2>", unsafe_allow_html=True)
-                st.dataframe(df_view2, hide_index=True)
         
         c1, c2, c3, c4 = st.columns([1.2, 1.5, 1.5, 0.8])
         if 'df_preview' in locals() and not df_preview.empty:
@@ -532,3 +526,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
