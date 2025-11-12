@@ -7,15 +7,19 @@ MAX_DATE = datetime(2050, 12, 31).date()
 NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S']
 
 val_states = {
-    "carreira": [], "resultados_carreira": [], "projecao_carreira": [],
+    "carreira": [], "resultados_carreira": [],
+    
     "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
     "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "aperfeicoamentos": [], "titulacoes": [],
+    
     "resp_mensais": [], 
     "comissao_lista": [], "func_c_lista": [], "func_d_lista": [], 
     "agente_lista": [], "conselho_lista": [], "prioritaria_lista": [], 
+    
     "resp_unicas":[], 
     "artigos_lista": [], "livros_lista": [], "pesquisas_lista": [], 
     "registros_lista": [], "cursos_lista": [],
+    
     "calculo_executado": False
 }
 
@@ -99,3 +103,4 @@ dados_unicos = {
     'Nenhum': 0,
     'Houve': 0.333
 }
+
