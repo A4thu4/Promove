@@ -316,14 +316,14 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     
     pendencias, motivos = False, []
     if not evolucao:
-        pendencias = True
-        motivos.append("pontuação mínima")
+        pendencias = True 
+        motivos += ["Pontuação mínima."]
     if aperfeicoamento_atual < 5.4:
-        pendencias = True
-        motivos.append("aperfeiçoamento mínimo de 60 horas")
+        pendencias = True 
+        motivos += ["Aperfeiçoamento mínimo de 60 horas."]
     if desempenho_atual < 2.4:
-        pendencias = True
-        motivos.append("desempenho mínimo de 2.4 pontos")
+        pendencias = True 
+        motivos += ["Desempenho mínimo de 2.4 pontos."]
 
     motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
@@ -561,28 +561,17 @@ def calcular_planilha(arquivo):
                     meses_ate_evo = meses_passados
                     pts_resto = pts_loop - 48
                     break
-
-        # Se não encontrou evolução, recalcula os totais até o final do período
-        if not evolucao:
-            desempenho_atual = 0
-            aperfeicoamento_atual = 0
-            
-            for j in range(min(len(carreira), 1000)):
-                data = carreira[j][0]
-                if data.day == 1 and data <= carreira[-1][0]:  # até a última data disponível
-                    desempenho_atual += carreira[j][2]
-                    aperfeicoamento_atual += carreira[j][3]
-            
-            desempenho_atual = round(desempenho_atual, 2)
-            aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
         pendencias, motivos = False, []
         if not evolucao:
-            pendencias, motivos = True, ["Pontuação mínima."]
+            pendencias = True 
+            motivos += ["Pontuação mínima."]
         if aperfeicoamento_atual < 5.4:
-            pendencias, motivos = True, motivos + ["Aperfeiçoamento mínimo de 60 horas."]
+            pendencias = True 
+            motivos += ["Aperfeiçoamento mínimo de 60 horas."]
         if desempenho_atual < 2.4:
-            pendencias, motivos = True, motivos + ["Desempenho mínimo de 2.4 pontos."]
+            pendencias = True 
+            motivos += ["Desempenho mínimo de 2.4 pontos."]
 
         motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
         
@@ -623,4 +612,5 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
 
