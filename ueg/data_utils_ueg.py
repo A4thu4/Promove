@@ -4,7 +4,7 @@ DATA_CONCLUSAO = 18268 # em dias
 #[3654 - 10 anos] [7306 - 20 anos] [14614 - 40 anos] [18268 - 50 anos]
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
-NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S']
+NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O']
 
 val_states = {
     "carreira": [], "resultados_carreira": [],
