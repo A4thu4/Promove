@@ -299,7 +299,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         
         # Verifica condições para evolução
         if data_prevista12 <= data_atual < data_prevista18:
-            if pontos >= 96 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
+            if pontos >= 96 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 3.6:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
