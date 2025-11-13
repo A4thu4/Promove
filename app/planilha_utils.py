@@ -203,7 +203,7 @@ def processar_titulacoes(df, i, carreira):
     """Aplica pontuação de titulações acadêmicas na matriz da carreira."""
     try:
         mes_raw = str(df["Data de Validação da Titulação"].iloc[i]).strip()
-        tipo_raw = str(df["Tipo de Titulação"].iloc[i]).strip()
+        tipo_raw = str(df["Tipo"].iloc[i]).strip()
     except KeyError:
         return carreira  # colunas ausentes
 
