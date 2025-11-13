@@ -283,7 +283,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
 
     motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
-    novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
+    novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'O' else 'O'
 
     resultado_niveis.append({
         "Status": "Não apto a evolução" if pendencias else "Apto a evolução",
@@ -429,7 +429,7 @@ def calcular_planilha(arquivo):
 
         motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
         
-        novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
+        novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'O' else 'O'
         identificador = int(float(identificador))
 
         result_niveis.append({
