@@ -269,6 +269,8 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     meses_ate_evolucao = None
     pts_resto = None
     novo_nivel = None
+    e12meses = False
+    e18meses = False
 
     for i in range(DATA_CONCLUSAO):
         data_atual = carreira[i][0]
@@ -536,6 +538,7 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
 
 
 
