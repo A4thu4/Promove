@@ -298,32 +298,38 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
         # Verifica condições para evolução
-        if data_prevista12 <= data_atual < data_prevista18:
-            if pontos >= 96 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 3.6:
+        if data_atual >= data_prevista12:
+            if pontos >= 96:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
+                e12meses = True
                 break
 
         if data_atual >= data_prevista18:
-            if pontos >= 48 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
+            if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
                 pts_resto = pontos - 48
+                e18meses = True
                 break
     
     pendencias, motivos = False, []
     if not evolucao:
         pendencias = True 
-        motivos += ["Pontuação mínima."]
-    if aperfeicoamento_atual < 5.4:
-        pendencias = True 
-        motivos += ["Aperfeiçoamento mínimo de 60 horas."]
+    if e12meses: 
+        if aperfeicoamento_atual < 3.6:
+            pendencias = True 
+            motivos += ["aperfeiçoamento mínimo de 40 horas"]
+    if e18meses:
+        if aperfeicoamento_atual < 5.4:
+            pendencias = True 
+            motivos += ["aperfeiçoamento mínimo de 60 horas"]
     if desempenho_atual < 2.4:
         pendencias = True 
-        motivos += ["Desempenho mínimo de 2.4 pontos."]
+        motivos += ["desempenho mínimo de 2.4 pontos"]
 
     motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
 
@@ -530,6 +536,7 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
 
 
 
