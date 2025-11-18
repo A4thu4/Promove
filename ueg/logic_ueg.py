@@ -266,7 +266,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         
         # Verifica condições para evolução
         if data_atual >= data_prevista18:
-            if pontos >= 48 and desempenho_atual >= 2.4:
+            if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
                 meses_ate_evolucao = meses_passados
@@ -276,12 +276,12 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     pendencias, motivos = False, []
     if not evolucao:
         pendencias = True
-        motivos += ["pontuação mínima"]
+        motivos += ["obrigatórios"]
     if desempenho_atual < 2.4:
         pendencias = True
-        motivos += ["desempenho mínimo de 2.4 pontos"]
+        motivos += ["de desempenho mínimo de 2.4 pontos"]
 
-    motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
+    motivo = "Não atingiu requisito(s) " + " e ".join(motivos) if motivos else ""
 
     novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'O' else 'O'
 
@@ -466,3 +466,4 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
