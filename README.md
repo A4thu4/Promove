@@ -98,7 +98,8 @@ streamlit run master.py
 ---
 ## 🌐 Link do Simulador
 
-- [SIMULADOR](https://simuladorpromove.streamlit.app/)  -[SIMULADOR-UEG](https://simuladorpromove-ueg.streamlit.app/)
+- [SIMULADOR](https://simuladorpromove.streamlit.app/)
+- [SIMULADOR-UEG](https://simuladorpromove-ueg.streamlit.app/)
 
 ---
 
