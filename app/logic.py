@@ -321,19 +321,20 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
     pendencias, motivos = False, []
     if not evolucao:
         pendencias = True 
+        motivos += ["obrigatórios"]
     if e12meses: 
         if aperfeicoamento_atual < 3.6:
             pendencias = True 
-            motivos += ["aperfeiçoamento mínimo de 40 horas"]
+            motivos += ["de aperfeiçoamento mínimo de 40 horas"]
     if e18meses:
         if aperfeicoamento_atual < 5.4:
             pendencias = True 
-            motivos += ["aperfeiçoamento mínimo de 60 horas"]
+            motivos += ["de aperfeiçoamento mínimo de 60 horas"]
     if desempenho_atual < 2.4:
         pendencias = True 
         motivos += ["desempenho mínimo de 2.4 pontos"]
 
-    motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
+    motivo = "Não atingiu requisito(s) " + " e ".join(motivos) if motivos else ""
 
     novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
 
@@ -538,8 +539,3 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-
-
-
-
-
