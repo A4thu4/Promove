@@ -73,8 +73,9 @@ streamlit run master.py
     └── layout.py           # Renderização dos Inputs
     └── logic.py            # 'Cérebro' do sistema
     └── master.py           # Código principal
-├── assets/                 # Arquivos extras, imagens e licença
+├── assets/                 # Arquivos extras e imagens 
 ├── Dockerfile              # Arquivo para hospedagem em nuvem com Docker
+├── LICENSE                 # Licença 
 ├── README.md               # Este arquivo
 ├── requirements.txt        # Dependências
 ```
