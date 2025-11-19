@@ -492,24 +492,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if cargo_comissao == 'Nenhum':
                 st.error("Selecione um cargo de comissão válido.")
-            
-            if st.session_state.func_c_lista or st.session_state.func_d_lista:
-                st.error("Já foi colocado uma responsabilidade desse tipo")
-            if len(st.session_state.comissao_lista) > 0:
-                st.error("Limite de cargo em comissão atingido.")
-            
             if data_i_cc and data_f_cc:
                 if data_f_cc <= data_i_cc or not data_f_cc > data_i_cc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.comissao_lista) < 1 and not (st.session_state.func_c_lista or st.session_state.func_d_lista):
-                if data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
-                    ano = data_f_cc.year - data_i_cc.year
-                    mes = data_f_cc.month - data_i_cc.month
-                    tempo = ano * 12 + mes
-                    st.session_state.comissao_lista.append((f"C. Comissão: {cargo_comissao}", data_i_cc, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
+                ano = data_f_cc.year - data_i_cc.year
+                mes = data_f_cc.month - data_i_cc.month
+                tempo = ano * 12 + mes
+                st.session_state.comissao_lista.append((f"C. Comissão: {cargo_comissao}", data_i_cc, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
         if st.session_state.comissao_lista:
             if remove1:
@@ -565,24 +557,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if funcao_comissionada == 'Nenhum':
                 st.error("Selecione uma função comissionada válida.")
-            
-            if st.session_state.comissao_lista or st.session_state.func_d_lista:
-                st.error("Já foi colocado uma responsabilidade desse tipo")
-            if len(st.session_state.func_c_lista) > 0:
-                st.error("Limite de função comissionada atingida.")
-
             if data_i_fc and data_f_fc:
                 if data_f_fc <= data_i_fc or not data_f_fc > data_i_fc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.func_c_lista) < 1 and not (st.session_state.comissao_lista or st.session_state.func_d_lista):
-                if data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
-                    ano = data_f_fc.year - data_i_fc.year
-                    mes = data_f_fc.month - data_i_fc.month
-                    tempo = ano * 12 + mes
-                    st.session_state.func_c_lista.append((f"F. Comissionada: {funcao_comissionada}", data_i_fc, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
+                ano = data_f_fc.year - data_i_fc.year
+                mes = data_f_fc.month - data_i_fc.month
+                tempo = ano * 12 + mes
+                st.session_state.func_c_lista.append((f"F. Comissionada: {funcao_comissionada}", data_i_fc, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
         if st.session_state.func_c_lista:
             if remove2:
@@ -638,24 +622,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if funcao_designada == 'Nenhum':
                 st.error("Selecione uma função designada válida.")
-            
-            if st.session_state.comissao_lista or st.session_state.func_c_lista:
-                st.error("Já foi colocado uma responsabilidade desse tipo")
-            if len(st.session_state.func_d_lista) > 0:
-                st.error("Limite de função designada atingida.")
-
             if data_i_fd and data_f_fd:
                 if data_f_fd <= data_i_fd or not data_f_fd > data_i_fd + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.func_d_lista) < 1 and not (st.session_state.comissao_lista or st.session_state.func_c_lista):
-                if data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
-                    ano = data_f_fd.year - data_i_fd.year
-                    mes = data_f_fd.month - data_i_fd.month
-                    tempo = ano * 12 + mes
-                    st.session_state.func_d_lista.append((f"F. Designada: {funcao_designada}", data_i_fd, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
+                ano = data_f_fd.year - data_i_fd.year
+                mes = data_f_fd.month - data_i_fd.month
+                tempo = ano * 12 + mes
+                st.session_state.func_d_lista.append((f"F. Designada: {funcao_designada}", data_i_fd, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
         if st.session_state.func_d_lista:
             if remove3:
@@ -711,22 +687,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_agente == 'Nenhum':
                 st.error("Selecione uma atuação como agente válida.")
-            
-            if len(st.session_state.agente_lista) > 1:
-                st.error("Limite de atuação como agente atingida.")
-
             if data_i_at_a and data_f_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
                 if data_f_at_a <= data_i_at_a:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.agente_lista) < 2:
-                if data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
-                    ano = data_f_at_a.year - data_i_at_a.year
-                    mes = data_f_at_a.month - data_i_at_a.month
-                    tempo = ano * 12 + mes
-                    st.session_state.agente_lista.append((f"At. Agente: {atuacao_agente}", data_i_at_a, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
+                ano = data_f_at_a.year - data_i_at_a.year
+                mes = data_f_at_a.month - data_i_at_a.month
+                tempo = ano * 12 + mes
+                st.session_state.agente_lista.append((f"At. Agente: {atuacao_agente}", data_i_at_a, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
         if st.session_state.agente_lista:
             if remove4:
@@ -782,22 +752,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_conselho == 'Nenhum':
                 st.error("Selecione uma atuação em conselho válida.")
-            
-            if len(st.session_state.conselho_lista) > 1:
-                st.error("Limite de atuação prioritaria atingida.")
-
             if data_i_at_c and data_f_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
                 if data_f_at_c <= data_i_at_c:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.conselho_lista) < 2:
-                if data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
-                    ano = data_f_at_c.year - data_i_at_c.year
-                    mes = data_f_at_c.month - data_i_at_c.month
-                    tempo = ano * 12 + mes
-                    st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
+                ano = data_f_at_c.year - data_i_at_c.year
+                mes = data_f_at_c.month - data_i_at_c.month
+                tempo = ano * 12 + mes
+                st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
         
         if st.session_state.conselho_lista:
             if remove5:
@@ -853,22 +817,16 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
             if atuacao_prioritaria == 'Nenhum':
                 st.error("Selecione uma atuação prioritária válida.")
-            
-            if len(st.session_state.prioritaria_lista) > 0:
-                st.error("Limite de atuação prioritaria atingida.")
-
             if data_i_at_p and data_f_at_p:
                 if data_f_at_p <= data_i_at_p or not data_f_at_p > data_i_at_p + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            
-            if len(st.session_state.prioritaria_lista) < 1:
-                if data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
-                    ano = data_f_at_p.year - data_i_at_p.year
-                    mes = data_f_at_p.month - data_i_at_p.month
-                    tempo = ano * 12 + mes
-                    st.session_state.prioritaria_lista.append((f"At. Prioritária: {atuacao_prioritaria}", data_i_at_p, tempo))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+            if data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
+                ano = data_f_at_p.year - data_i_at_p.year
+                mes = data_f_at_p.month - data_i_at_p.month
+                tempo = ano * 12 + mes
+                st.session_state.prioritaria_lista.append((f"At. Prioritária: {atuacao_prioritaria}", data_i_at_p, tempo))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
         if st.session_state.prioritaria_lista:
             if remove6:
