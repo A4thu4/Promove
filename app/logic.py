@@ -382,8 +382,13 @@ def calcular_planilha(arquivo):
         ids_processados.add(identificador)
         
         # ---------- CRIA MATRIZ BASE ----------
+        if data_inicio.month == 12:
+            data_base = date(data_inicio.year + 1, 1, 1)
+        else:
+            data_base = date(data_inicio.year, data_inicio.month + 1, 1)
+
         carreira = [
-            [data_inicio + timedelta(days=i)] + [0] * 7
+            [data_base + timedelta(days=i)] + [0] * 7
             for i in range(DATA_CONCLUSAO)
         ]
 
