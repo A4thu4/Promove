@@ -375,7 +375,7 @@ def main():
 
     if tabs == '**Cálculo Múltiplo**':
         from logic_ueg import calcular_planilha
-        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais (UEG)</h1>", unsafe_allow_html=True)
        
         st.markdown(
             """

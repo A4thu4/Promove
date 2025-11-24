@@ -204,7 +204,7 @@ def processar_titulacoes(df, i, carreira):
 
         for idx, linha in enumerate(carreira):
             if linha[0] == data_aplicacao:
-                carreira[idx][4] += pontos_aproveitados  # coluna 4 = Titulação
+                carreira[idx][3] += pontos_aproveitados  # coluna = Titulação
                 break
 
     return carreira
@@ -364,7 +364,7 @@ def processar_responsabilidades_unicas(df, i, carreira):
 
         for idx, linha in enumerate(carreira):
             if linha[0] == data_aplicacao:
-                carreira[idx][4] += pontos  # coluna 5 = R.Únicas
+                carreira[idx][3] += pontos  
                 total_pontos += pontos
                 break
 
