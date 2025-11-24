@@ -335,7 +335,7 @@ def calcular_planilha(arquivo):
             data_base = date(data_inicio.year, data_inicio.month + 1, 1)
             
         carreira = [
-            [data_inicio + timedelta(days=i)] + [0] * 6
+            [data_base + timedelta(days=i)] + [0] * 6
             for i in range(DATA_CONCLUSAO)
         ]
 
