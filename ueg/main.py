@@ -303,53 +303,75 @@ def main():
                 unsafe_allow_html=True
             )
         
-        col1, col2 = st.columns([0.05, 1.93])
-        with col1: 
-            st.markdown(bloco_vertical("", 900, "#003500"), unsafe_allow_html=True)
-        with col2:
-            build_obrigatorios()
+        if st.session_state.nivel_atual == 'S':
+            st.markdown(
+                f"""
+                <div style='
+                    background-color: #cdfece; 
+                    border: 1px solid #bffeb4; 
+                    border-radius: 0.375rem; 
+                    padding: 1rem; 
+                    text-align: center; 
+                    color: #378503;
+                    margin: 1rem 0;
+                '>
+                <strong> NÍVEL MÁXIMO ATINGIDO: o servidor não pode evoluir além do nível {st.session_state.nivel_atual}. </strong>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
             
-            if st.session_state.data_inicial and not st.session_state.carreira:
-                st.session_state.data_fim = st.session_state.data_inicial + relativedelta(years=20)
-                DATA_FIM = st.session_state.data_fim
-                
-                data_inicio = st.session_state.data_inicial
-                if data_inicio.month == 12:
-                    data_inicio = data_inicio.replace(year=data_inicio.year + 1, month=1, day=1)
-                else:
-                    data_inicio = data_inicio.replace(month=data_inicio.month + 1, day=1)
-
-                # Inicializa a carreira no session state
-                st.session_state.carreira = [
-                    [data_inicio + timedelta(days=i)] + [0] * 6
-                    for i in range(DATA_CONCLUSAO)
-                ]
-
-                st.success(f"✅ Carreira inicializada com {len(st.session_state.carreira)} dias!")
-                st.rerun()  # Força atualização
-
-            build_afastamentos()
-            st.divider()
-
-            build_desempenho()
-            st.divider()
+            cl0, cl1, cl2 = st.columns([3, 1, 3])
+            with cl1: st.button("🔄 Novo Cálculo", type="tertiary", on_click=novo_calculo)        
         
-        col1, col2 = st.columns([0.05, 1.93])
-        with col1: 
-            st.markdown(bloco_vertical("", 2140, "#fede01"), unsafe_allow_html=True)
-        with col2:
-            build_titulacoes()
-            st.divider()
-            
-            build_responsabilidades_mensais()
-            st.divider()
-            
-            build_responsabilidades_unicas()
+        else:
+            col1, col2 = st.columns([0.05, 1.93])
+            with col1: 
+                st.markdown(bloco_vertical("", 1215, "#003500"), unsafe_allow_html=True)
+            with col2:
+                build_obrigatorios()
+                
+                if st.session_state.data_inicial and not st.session_state.carreira:
+                    st.session_state.data_fim = st.session_state.data_inicial + relativedelta(years=20)
+                    DATA_FIM = st.session_state.data_fim
+                    
+                    data_inicio = st.session_state.data_inicial
+                    if data_inicio.month == 12:
+                        data_inicio = data_inicio.replace(year=data_inicio.year + 1, month=1, day=1)
+                    else:
+                        data_inicio = data_inicio.replace(month=data_inicio.month + 1, day=1)
 
-        st.write("")
-        st.write("")
-        c1, c2, c3 = st.columns([2.2, 2, 1])
-        with c2: st.button("Calcular Resultados", type='secondary', on_click=go_results)
+                    # Inicializa a carreira no session state
+                    st.session_state.carreira = [
+                        [data_inicio + timedelta(days=i)] + [0] * 7
+                        for i in range(DATA_CONCLUSAO)
+                    ]
+
+                    st.success(f"✅ Carreira inicializada com {len(st.session_state.carreira)} dias!")
+                    st.rerun()  # Força atualização
+
+                build_afastamentos()
+                st.divider()
+                
+                build_desempenho()
+                st.divider()
+            
+            col1, col2 = st.columns([0.05, 1.93])
+            with col1: 
+                st.markdown(bloco_vertical("", 2132, "#fede01"), unsafe_allow_html=True)
+            with col2:
+                build_titulacoes()
+                st.divider()
+                
+                build_responsabilidades_mensais()
+                st.divider()
+                
+                build_responsabilidades_unicas()
+
+            st.write("")
+            st.write("")
+            c1, c2, c3 = st.columns([2.2, 2, 1])
+            with c2: st.button("Calcular Resultados", type='secondary', on_click=go_results)
 
     if tabs == '**Cálculo Múltiplo**':
         from logic_ueg import calcular_planilha
