@@ -364,7 +364,7 @@ def processar_responsabilidades_unicas(df, i, carreira):
 
         for idx, linha in enumerate(carreira):
             if linha[0] == data_aplicacao:
-                carreira[idx][3] += pontos  
+                carreira[idx][4] += pontos  
                 total_pontos += pontos
                 break
 
