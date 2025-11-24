@@ -303,7 +303,7 @@ def main():
                 unsafe_allow_html=True
             )
         
-        if st.session_state.nivel_atual == 'S':
+        if st.session_state.nivel_atual == 'O':
             st.markdown(
                 f"""
                 <div style='
