@@ -343,7 +343,7 @@ def main():
 
                     # Inicializa a carreira no session state
                     st.session_state.carreira = [
-                        [data_inicio + timedelta(days=i)] + [0] * 7
+                        [data_inicio + timedelta(days=i)] + [0] * 6
                         for i in range(DATA_CONCLUSAO)
                     ]
 

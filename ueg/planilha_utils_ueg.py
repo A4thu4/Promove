@@ -262,7 +262,16 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
             pontos_base = mapa.get(tipo, 0)
             if pontos_base <= 0:
                 continue
+            
+            # ----- ACÚMULO RETROATIVO ----- #
+            if data_i < data_inicio and data_i >= data_inicio - relativedelta(years=5):
+                delta = relativedelta(data_inicio, data_i)
+                meses_anteriores = delta.years * 12 + delta.months
 
+                if meses_anteriores > 0:
+                    # Aplica tudo no 1º dia útil da carreira
+                    carreira[0][5] += meses_anteriores * pontos_base
+            
             ano, mes = data_i.year, data_i.month + 1
             if mes > 12:
                 mes, ano = 1, ano + 1
