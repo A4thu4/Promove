@@ -106,4 +106,4 @@ streamlit run main.py # ou (master.py)
 
 ## 📄 Licença
 
-Este projeto está sob a licença [MIT](assets/LICENSE).
+Este projeto está sob a licença [MIT](LICENSE).
