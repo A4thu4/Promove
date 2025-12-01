@@ -1,5 +1,8 @@
 # Define a imagem base do Python
-FROM python:3.11.13-slim
+FROM python:3.11-slim
+
+# Atualiza pacotes do sistema para corrigir vulnerabilidades
+RUN apt-get update && apt-get upgrade -y && apt-get clean
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
