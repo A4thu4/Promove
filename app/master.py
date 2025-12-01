@@ -442,6 +442,10 @@ def main():
 
         st.markdown("<h1 style='text-align:center; color:#000000; '>Resultados da Simulação</h1>", unsafe_allow_html=True)
         
+        cl00, cl11, cl11 = st.columns([1.2, 1, 3])
+        with cl11:
+            st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
+            
         st.markdown(
             """
             <div style='

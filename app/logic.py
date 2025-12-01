@@ -281,6 +281,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         meses_passados = ano * 12 + mes
 
         data_prevista18 = data_inicio + relativedelta(months=18)
+        data_prevista15 = data_inicio + relativedelta(months=15)
         data_prevista12 = data_inicio + relativedelta(months=12)
 
         if data_atual < data_prevista12:
@@ -309,7 +310,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 e12meses = True
                 break
 
-        if data_atual >= data_prevista18:
+        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18):
             if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
