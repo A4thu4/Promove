@@ -4,12 +4,13 @@ DATA_CONCLUSAO = 18268 # em dias
 #[3654 - 10 anos] [7306 - 20 anos] [14614 - 40 anos] [18268 - 50 anos]
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
+DECRETO_DATE = datetime(2025, 10, 22).date()
 NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S']
 
 val_states = {
     "carreira": [], "resultados_carreira": [],
-    
-    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
+
+    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "enquadramento": None,
     "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "aperfeicoamentos": [], "titulacoes": [],
     
     "resp_mensais": [], 
@@ -103,4 +104,3 @@ dados_unicos = {
     'Nenhum': 0,
     'Houve': 0.333
 }
-

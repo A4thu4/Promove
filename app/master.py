@@ -40,6 +40,12 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
+def destacar_obs(val):
+    if val != "-":
+        return "color: red; font-weight: bold;"
+    return ""
+
+
 st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/Brasão.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -481,6 +487,7 @@ def main():
                 afast_total.extend(st.session_state.get("afastamentos", []))
 
                 carreira_calculada, resultados_carreira = calcular_evolucao(
+                    st.session_state.enquadramento,
                     st.session_state.data_inicial,
                     st.session_state.nivel_atual, 
                     st.session_state.carreira, 
@@ -522,7 +529,7 @@ def main():
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
             st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado</h2>", unsafe_allow_html=True)
-            st.dataframe(df_view.head(1), hide_index=True)
+            st.dataframe(df_view.head(1).style.applymap(destacar_obs, subset=["Observação"]), hide_index=True)
         
             df_preview = pd.DataFrame(
                 st.session_state.carreira,
@@ -552,4 +559,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+ 

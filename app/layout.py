@@ -12,18 +12,19 @@ def build_obrigatorios(key_prefix="obg"):
     st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Obrigatórios</h1>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:left; color:#000000; '>Dados do Servidor</h2>", unsafe_allow_html=True)
 
-    existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None)
-    existing_nivel, existing_data_inicial, existing_pts = existing_data
+    existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None, None)
+    existing_nivel, existing_data_inicial, existing_data_enquadramento, existing_pts = existing_data
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         st.session_state[f"{key_prefix}_nvl_atual"] = existing_nivel if existing_nivel else None
         st.session_state[f"{key_prefix}_data_inicial"] = None
+        st.session_state[f"{key_prefix}_data_enquad"] = None
         st.session_state[f"{key_prefix}_pts_rem"] = None
         st.session_state[f"{key_prefix}_reset_fields"] = False
 
     # Usar st.form para evitar re-execução a cada input
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
-        col0, col1, col2 = st.columns([2, 2, 2])
+        col0, col1, col2, col3 = st.columns([2, 2, 2, 2])
         with col0:
             nivel_atual = st.text_input(
                 "Nivel Atual",
@@ -35,15 +36,24 @@ def build_obrigatorios(key_prefix="obg"):
             if nivel_atual:
                 nivel_atual = nivel_atual.upper()
         with col1:
+            st.session_state.enquadramento = st.date_input(
+                "Data do Enquadramento",
+                format="DD/MM/YYYY",
+                value=existing_data_enquadramento if existing_data_enquadramento else None,
+                min_value=None,
+                max_value=MAX_DATE,
+                key=f"{key_prefix}_data_enquad"
+            )
+        with col2:
             st.session_state.data_inicial = st.date_input(
-                "Data do Enquadramento ou da Última Evolução",
+                "Data da Última Evolução",
                 format="DD/MM/YYYY",
                 value=existing_data_inicial if existing_data_inicial else None,
                 min_value=MIN_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_inicial"
-            )   
-        with col2:
+            )
+        with col3:
             pts_remanescentes = st.number_input(
                 "Pontuação Excedente da Última Evolução",
                 value=existing_pts if existing_pts else None,
@@ -53,9 +63,11 @@ def build_obrigatorios(key_prefix="obg"):
                 help="Caso não haja pontuação remanescente, preencha com o número 0 (zero)."
             )     
         with col1:
-            c0, c1 =st.columns([2,2])
-            with c0: submitted = st.form_submit_button("Enviar", use_container_width=True, type='primary')
-            with c1: remove = st.form_submit_button("Remover", use_container_width=True)
+            c0, c1 = st.columns([2,2])
+            with c1: submitted = st.form_submit_button("Enviar", use_container_width=True, type='primary')
+        with col2:
+            c0, c1 = st.columns([2,2])
+            with c0: remove = st.form_submit_button("Remover", use_container_width=True)
 
     faltas = 0
     if st.session_state.data_inicial:
@@ -81,25 +93,26 @@ def build_obrigatorios(key_prefix="obg"):
             st.error("O campo 'Nivel Atual' é obrigatório. Preencha com valores entre A e S.")
         elif nivel_atual not in NIVEIS:
             st.error(f"O nível '{nivel_atual}' não é válido. Níveis permitidos: {NIVEIS}.")
-        if not st.session_state.data_inicial:
-            st.error("O campo 'Data inicial' é obrigatório. Preencha com a data da última evolução ou do último enquadramento.")
+        if not st.session_state.data_inicial or not st.session_state.enquadramento:
+            st.error("Os campos de 'Datas' são obrigatórios. Preencha a data da última evolução e a data do enquadramento.")
         if pts_remanescentes == None:
             st.error("O campo 'Pontos Remanescentes da Última Evolução' é obrigatório. Caso não haja pontuação remanescente, preencha com o número 0 (zero).")
-        if st.session_state.data_inicial and nivel_atual in NIVEIS and pts_remanescentes != None:
+        if st.session_state.data_inicial and st.session_state.enquadramento and nivel_atual in NIVEIS and pts_remanescentes != None:
             st.session_state.pts_ultima_evolucao = float(pts_remanescentes)
             st.session_state.nivel_atual = nivel_atual if nivel_atual else 'A'
-            st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, float(pts_remanescentes))]
+            st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, st.session_state.enquadramento, float(pts_remanescentes))]
             st.session_state.carreira = []
             st.rerun()
 
     # Mostrar pontos cadastrados 
     if st.session_state.obrigatorios:
         cols = st.columns(2)
-        for i, (nivel, data, pts) in enumerate(st.session_state.obrigatorios):
+        for i, (nivel, data1, data2, pts) in enumerate(st.session_state.obrigatorios):
             col = cols[i % 4]
             with col:
                 st.write(f"Nivel Atual: {nivel}.")
-                st.write(f"Data de Início: {data.strftime('%d/%m/%Y')}.")
+                st.write(f"Data de Início: {data1.strftime('%d/%m/%Y')}.")
+                st.write(f"Data do Enquadramento: {data2.strftime('%d/%m/%Y')}.")
                 st.write(f"Pontuação Inicial: {pts}")
                 if remove:
                     st.session_state.obrigatorios.pop(i)
@@ -145,15 +158,15 @@ def build_afastamentos(key_prefix="afast"):
             with c: cleared = st.form_submit_button("🗑️",use_container_width=True)
 
     if submitted:
-        if not st.session_state.data_inicial: 
-            st.error("Adicione a Data de Enquadramento/Última Evolução.")
+        if not st.session_state.obrigatorios: 
+            st.error("Adicione a Data de Enquadramento e a Data da Última Evolução.")
         if not mes_faltas:
             st.error("Preencha o campo 'Mês do Afastamento' com a data completa no formato DD/MM/AAAA. O cálculo levará em conta apenas o mês e o ano, independemente do dia preenchido. ")
         if not qntd_faltas or qntd_faltas == 0:
             st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
-        if st.session_state.data_inicial != None and mes_faltas:
+        if st.session_state.obrigatorios and mes_faltas:
             if mes_faltas < st.session_state.data_inicial:
-                st.error("O mês do afastamento não pode ser anterior à data do enquadramento ou da última evolução.")
+                st.error("O mês do afastamento não pode ser anterior à data da última evolução.")
             if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.warning("Mês e ano já registrados.")
             if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
@@ -294,13 +307,13 @@ def build_aperfeicoamentos(key_prefix="aperf"):
             with c: cleared = st.form_submit_button("🗑️",use_container_width=True)
     
     if submitted:
-        if not st.session_state.data_inicial: 
+        if not st.session_state.obrigatorios: 
             st.error("Adicione a Data de Enquadramento/Última Evolução")
         if not data_conclusao:
             st.error("Preencha o campo 'Data de Conclusão' com a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
         if not horas_curso or horas_curso < 4:
             st.error("O número mínimo de horas aceita por atividade de aperfeiçoamento é 4.")
-        if st.session_state.data_inicial != None and data_conclusao:
+        if st.session_state.obrigatorios and data_conclusao:
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
             if data_conclusao >= st.session_state.data_inicial and horas_curso >= 4:
@@ -366,7 +379,7 @@ def build_titulacoes(key_prefix="tit"):
             with c13: submitted = st.form_submit_button("➕", use_container_width=True, type='primary')
         with col2:
             tipo_tit = st.selectbox(
-                "Tipo de Titlução",
+                "Tipo de Titulação",
                 list(dados_tit.keys()),
                 key=f"{key_prefix}_tipo"
             )
@@ -380,15 +393,15 @@ def build_titulacoes(key_prefix="tit"):
         ultima_titulacao = max(data for data, _ in st.session_state.titulacoes)
 
     if submitted:
-        if not st.session_state.data_inicial: 
-            st.error("Adicione a Data de Enquadramento/Última Evolução")
+        if not st.session_state.obrigatorios: 
+            st.error("Adicione os Requisitos Obrigatórios.")
         if not data_conclusao:
             st.error("O campo “Data de Conclusão” é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
         if tipo_tit == 'Nenhuma':
             st.error("Selecione um tipo de titulação válido.")
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
             st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
-        if st.session_state.data_inicial != None and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
+        if st.session_state.obrigatorios != None and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
             if data_conclusao >= st.session_state.data_inicial and tipo_tit != 'Nenhuma':
@@ -428,8 +441,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     ensure_states()
     st.markdown("<h1 style='text-align:left; color:#000000; '>Assunção de Responsabilidades</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Mensal</h3>", unsafe_allow_html=True)
-
-    from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente
+    
+    from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente, DECRETO_DATE
     from natsort import natsorted
 
     suffixes = ["cc", "fc", "fd", "at_a", "at_c", "at_p" ]
@@ -440,7 +453,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             st.session_state[f"{key_prefix}_data_f_{key_suffix}"] = None
             st.session_state[f"{key_prefix}_sem_data_{key_suffix}"] = False
         st.session_state[f"{key_prefix}_reset_fields"] = False
-
+        
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- CARGO DE COMISSÃO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
@@ -458,7 +471,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_cc"
             )
@@ -467,7 +480,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_cc",
             )
@@ -484,8 +497,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove1 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r1")
 
         if submitted1:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_cc:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_cc:
@@ -495,7 +508,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_cc and data_f_cc:
                 if data_f_cc <= data_i_cc or not data_f_cc > data_i_cc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
                 ano = data_f_cc.year - data_i_cc.year
                 mes = data_f_cc.month - data_i_cc.month
                 tempo = ano * 12 + mes
@@ -523,7 +536,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fc"
             )
@@ -532,7 +545,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial- relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento- relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fc"
             )
@@ -549,8 +562,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove2 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r2")
 
         if submitted2:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_fc:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_fc:
@@ -560,7 +573,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_fc and data_f_fc:
                 if data_f_fc <= data_i_fc or not data_f_fc > data_i_fc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
                 ano = data_f_fc.year - data_i_fc.year
                 mes = data_f_fc.month - data_i_fc.month
                 tempo = ano * 12 + mes
@@ -588,7 +601,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fd"
             )
@@ -597,7 +610,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fd"
             )
@@ -614,8 +627,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove3 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r3")
 
         if submitted3:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_fd:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_fd:
@@ -625,7 +638,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_fd and data_f_fd:
                 if data_f_fd <= data_i_fd or not data_f_fd > data_i_fd + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
                 ano = data_f_fd.year - data_i_fd.year
                 mes = data_f_fd.month - data_i_fd.month
                 tempo = ano * 12 + mes
@@ -653,7 +666,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_at_a"
             )
@@ -662,7 +675,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_at_a"
             )
@@ -679,8 +692,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove4 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r4")
 
         if submitted4:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_at_a:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_a:
@@ -690,7 +703,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_at_a and data_f_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
                 if data_f_at_a <= data_i_at_a:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
                 ano = data_f_at_a.year - data_i_at_a.year
                 mes = data_f_at_a.month - data_i_at_a.month
                 tempo = ano * 12 + mes
@@ -718,7 +731,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_at_c"
             )
@@ -727,7 +740,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_at_c"
             )
@@ -744,8 +757,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove5 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r5")
 
         if submitted5:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_at_c:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_c:
@@ -755,7 +768,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_at_c and data_f_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
                 if data_f_at_c <= data_i_at_c:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
                 ano = data_f_at_c.year - data_i_at_c.year
                 mes = data_f_at_c.month - data_i_at_c.month
                 tempo = ano * 12 + mes
@@ -783,7 +796,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_at_p"
             )
@@ -792,7 +805,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_at_p"
             )
@@ -809,8 +822,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             with c1: remove6 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r6")
 
         if submitted6:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_i_at_p:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_p:
@@ -820,7 +833,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if data_i_at_p and data_f_at_p:
                 if data_f_at_p <= data_i_at_p or not data_f_at_p > data_i_at_p + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
-            if data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
+            if st.session_state.obrigatorios and data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
                 ano = data_f_at_p.year - data_i_at_p.year
                 mes = data_f_at_p.month - data_i_at_p.month
                 tempo = ano * 12 + mes
@@ -891,7 +904,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
     ensure_states()
     st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Única</h3>", unsafe_allow_html=True)
 
-    from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos
+    from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos, DECRETO_DATE
 
     suffixes  = ["art", "liv", "pesq", "reg", "curso"]
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
@@ -922,7 +935,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.enquadramento,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_art"
             )
@@ -933,15 +946,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             with c1: remove1 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r1")
 
         if submitted1:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_publi_art:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_art: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_art == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_art and qntd_art and tipo_art != 'Nenhum':
+            if st.session_state.obrigatorios and data_publi_art and qntd_art and tipo_art != 'Nenhum':
                 st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -973,7 +986,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_liv"
             )
@@ -984,15 +997,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             with c1: remove2 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r2")
 
         if submitted2:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_publi_liv:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_liv: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_liv == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
+            if st.session_state.obrigatorios and data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
                 st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -1024,7 +1037,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_pesq"
             )
@@ -1035,15 +1048,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             with c1: remove3 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r3")
 
         if submitted3:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_publi_pesq:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_pesq: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_pesq == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
+            if st.session_state.obrigatorios and data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
                 st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -1075,7 +1088,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_reg"
             )
@@ -1086,15 +1099,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             with c1: remove4 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r4")
 
         if submitted4:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_publi_reg:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_reg: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_reg == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
+            if st.session_state.obrigatorios and data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
                 st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -1126,7 +1139,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_curso"
             )
@@ -1137,15 +1150,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             with c1: remove5 = st.form_submit_button("➖",use_container_width=True, key=f"{key_prefix}_r5")
 
         if submitted5:
-            if not st.session_state.data_inicial: 
-                st.error("Adicione a Data de Enquadramento/Última Evolução.")
+            if not st.session_state.obrigatorios: 
+                st.error("Adicione os Requisitos Obrigatórios.")
             if not data_publi_curso:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
             if not qntd_curso: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
             if tipo_curso == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
-            if data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
+            if st.session_state.obrigatorios and data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
                 st.session_state.cursos_lista.append((data_publi_curso, qntd_curso, tipo_curso))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
