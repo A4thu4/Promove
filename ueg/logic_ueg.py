@@ -310,7 +310,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     # respeitando o limite global de responsabilidades
     if retro_total > 0 and total_pontos_resp < LIMITE_RESP:
         usar = min(retro_total, LIMITE_RESP - total_pontos_resp)
-        carreira[0][6] += usar
+        carreira[0][5] += usar
         total_pontos_resp += usar
 
     # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
@@ -325,7 +325,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             d = d.date() if isinstance(d, datetime) else d
 
             if d == data_aplicacao:
-                carreira[i][6] += pts
+                carreira[i][5] += pts
                 total_pontos_resp += pts
                 break
 
