@@ -46,13 +46,12 @@ def build_obrigatorios(key_prefix="obg"):
             )
         with col2:
             st.session_state.data_inicial = st.date_input(
-                "Data de Início dos Pontos",
+                "Data da Última Evolução",
                 format="DD/MM/YYYY",
                 value=existing_data_inicial if existing_data_inicial else None,
                 min_value=MIN_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_inicial"
-                help="Conforme disposições finais e transitórios do Decreto nº 10.802/2025"
             )
         with col3:
             pts_remanescentes = st.number_input(
@@ -1218,5 +1217,4 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
-
 
