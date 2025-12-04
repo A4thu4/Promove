@@ -465,8 +465,8 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         "Data da Pontuação Atingida": "-" if pendencias else evolucao.strftime("%d/%m/%Y"),
         "Data da Implementação": "-" if pendencias else implementacao.strftime("%d/%m/%Y"),
         "Interstício de Evolução": "-" if pendencias else meses_ate_evolucao,
-        "Pontuação Alcançada": "-" if pendencias else round(pontos, 4),
-        "Pontos Excedentes": "-" if pendencias else round(pts_resto, 4),
+        "Pontuação Alcançada": "-" if pendencias else  f"{pontos:.2f}",
+        "Pontos Excedentes": "-" if pendencias else f"{pts_resto:.2f}",
     })
 
     return carreira, resultado_niveis
