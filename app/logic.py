@@ -432,8 +432,10 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     if not evolucao:
         pendencias = True
         motivos += ["obrigatórios"]
+    
     if st.session_state.apo_especial == 'Sim':
         mot = "Aposentadoria Especial"
+    
     if e12meses: 
         if aperfeicoamento_atual < 3.6:
             pendencias = True 
@@ -442,6 +444,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if aperfeicoamento_atual < 5.4:
             pendencias = True 
             motivos += ["de aperfeiçoamento mínimo de 60 horas"]
+    
     if desempenho_atual < 2.4:
         pendencias = True 
         motivos += ["desempenho mínimo de 2.4 pontos"]
@@ -661,4 +664,3 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-

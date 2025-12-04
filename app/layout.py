@@ -46,13 +46,13 @@ def build_obrigatorios(key_prefix="obg"):
             )
         with col2:
             st.session_state.data_inicial = st.date_input(
-                "Data de início dos Pontos",
+                "Data de Início dos Pontos",
                 format="DD/MM/YYYY",
                 value=existing_data_inicial if existing_data_inicial else None,
                 min_value=MIN_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_inicial",
-                help="Conforme disposições finais e transitórios do Decreto nº 10.802/2025" 
+                help="Conforme disposições finais e transitórios do Decreto nº 10.802/2025"
             )
         with col3:
             pts_remanescentes = st.number_input(
@@ -402,9 +402,9 @@ def build_titulacoes(key_prefix="tit"):
             st.error("Selecione um tipo de titulação válido.")
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
             st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
-        if st.session_state.obrigatorios != None and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
+        if st.session_state.obrigatorios and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
             if data_conclusao < st.session_state.data_inicial:
-                st.error("Data não pode ser anterior a data de Enquadramento/Última Evolução.")
+                st.error("Data não pode ser anterior a data da Última Evolução.")
             if data_conclusao >= st.session_state.data_inicial and tipo_tit != 'Nenhuma':
                 st.session_state.titulacoes.append((data_conclusao, tipo_tit))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -500,15 +500,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted1:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+           
             if not data_i_cc:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_cc:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if cargo_comissao == 'Nenhum':
                 st.error("Selecione um cargo de comissão válido.")
+            
             if data_i_cc and data_f_cc:
                 if data_f_cc <= data_i_cc or not data_f_cc > data_i_cc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_cc and data_i_cc and (data_f_cc > data_i_cc + relativedelta(months=1)) and cargo_comissao != 'Nenhum':
                 ano = data_f_cc.year - data_i_cc.year
                 mes = data_f_cc.month - data_i_cc.month
@@ -565,15 +569,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted2:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_i_fc:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_fc:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if funcao_comissionada == 'Nenhum':
                 st.error("Selecione uma função comissionada válida.")
+            
             if data_i_fc and data_f_fc:
                 if data_f_fc <= data_i_fc or not data_f_fc > data_i_fc + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_fc and data_i_fc and (data_f_fc > data_i_fc + relativedelta(months=1)) and funcao_comissionada != 'Nenhum':
                 ano = data_f_fc.year - data_i_fc.year
                 mes = data_f_fc.month - data_i_fc.month
@@ -630,15 +638,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted3:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_i_fd:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_fd:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if funcao_designada == 'Nenhum':
                 st.error("Selecione uma função designada válida.")
+            
             if data_i_fd and data_f_fd:
                 if data_f_fd <= data_i_fd or not data_f_fd > data_i_fd + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_fd and data_i_fd and (data_f_fd > data_i_fd + relativedelta(months=1)) and funcao_designada != 'Nenhum':
                 ano = data_f_fd.year - data_i_fd.year
                 mes = data_f_fd.month - data_i_fd.month
@@ -695,15 +707,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted4:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_i_at_a:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_a:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if atuacao_agente == 'Nenhum':
                 st.error("Selecione uma atuação como agente válida.")
+            
             if data_i_at_a and data_f_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
                 if data_f_at_a <= data_i_at_a:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
                 ano = data_f_at_a.year - data_i_at_a.year
                 mes = data_f_at_a.month - data_i_at_a.month
@@ -760,15 +776,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted5:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_i_at_c:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_c:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if atuacao_conselho == 'Nenhum':
                 st.error("Selecione uma atuação em conselho válida.")
+            
             if data_i_at_c and data_f_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
                 if data_f_at_c <= data_i_at_c:
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
                 ano = data_f_at_c.year - data_i_at_c.year
                 mes = data_f_at_c.month - data_i_at_c.month
@@ -825,15 +845,19 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
         if submitted6:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_i_at_p:
                 st.error("O campo 'Data de Início' é obrigatório. Preencha com a data de início da responsabilidade mensal.")
             if not data_f_at_p:
                 st.error("O campo 'Data de Fim' é obrigatório. Preencha com a data de fim da responsabilidade mensal ou marque a opção 'Sem Data Fim'.")
+            
             if atuacao_prioritaria == 'Nenhum':
                 st.error("Selecione uma atuação prioritária válida.")
+            
             if data_i_at_p and data_f_at_p:
                 if data_f_at_p <= data_i_at_p or not data_f_at_p > data_i_at_p + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
+            
             if st.session_state.obrigatorios and data_f_at_p and data_i_at_p and (data_f_at_p > data_i_at_p + relativedelta(months=1)) and atuacao_prioritaria != 'Nenhum':
                 ano = data_f_at_p.year - data_i_at_p.year
                 mes = data_f_at_p.month - data_i_at_p.month
@@ -949,12 +973,16 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         if submitted1:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_publi_art:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            
             if not qntd_art: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            
             if tipo_art == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
+            
             if st.session_state.obrigatorios and data_publi_art and qntd_art and tipo_art != 'Nenhum':
                 st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -1000,12 +1028,16 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         if submitted2:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_publi_liv:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            
             if not qntd_liv: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            
             if tipo_liv == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
+            
             if st.session_state.obrigatorios and data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
                 st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -1051,12 +1083,16 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         if submitted3:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_publi_pesq:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            
             if not qntd_pesq: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            
             if tipo_pesq == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
+            
             if st.session_state.obrigatorios and data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
                 st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -1102,12 +1138,16 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         if submitted4:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_publi_reg:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            
             if not qntd_reg: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            
             if tipo_reg == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
+            
             if st.session_state.obrigatorios and data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
                 st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
@@ -1153,12 +1193,16 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
         if submitted5:
             if not st.session_state.obrigatorios: 
                 st.error("Adicione os Requisitos Obrigatórios.")
+            
             if not data_publi_curso:
                 st.error("O campo 'Data de Conclusão' é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
+            
             if not qntd_curso: 
                 st.error("O campo 'Quantidade' é obrigatório. Preencha com um valor numérico igual ou superior a 1 (um).")
+            
             if tipo_curso == 'Nenhum':
                 st.error("Selecione um tipo de responsabilidade única válido.")
+            
             if st.session_state.obrigatorios and data_publi_curso and qntd_curso and tipo_curso != 'Nenhum':
                 st.session_state.cursos_lista.append((data_publi_curso, qntd_curso, tipo_curso))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
