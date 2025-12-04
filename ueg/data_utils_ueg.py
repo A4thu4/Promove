@@ -10,7 +10,7 @@ NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O']
 val_states = {
     "carreira": [], "resultados_carreira": [],
     
-    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
+    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "enquadramento": None,
     "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "titulacoes": [],
     
     "resp_mensais": [], 
