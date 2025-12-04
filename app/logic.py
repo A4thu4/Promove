@@ -246,7 +246,10 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
                     ano_aplic += 1
 
                 # Limite: até o mês de competência imediatamente anterior à primeira data
-                limite_retro = date(data_inicial.year, data_inicial.month + 1, 1)
+                if data_inicial.month == 12:
+                    limite_retro = date(data_inicial.year + 1, 1, 1)
+                else:
+                    limite_retro = date(data_inicial.year, data_inicial.month + 1, 1)
 
                 while date(ano_aplic, mes_aplic, 1) < limite_retro:
                     data_retro = date(ano_aplic, mes_aplic, 1)
@@ -658,3 +661,4 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
