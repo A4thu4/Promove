@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from logic import ensure_states
 from layout import build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-from data_utils import DATA_CONCLUSAO
+from data_utils import DATA_CONCLUSAO, destacar_obs
 
 def novo_calculo():
     from layout import clear_states
@@ -41,12 +41,6 @@ def bloco_vertical(titulo, tamanho, cor):
         {titulo}
     </div>
     """
-
-
-def destacar_obs(val):
-    if val != "-":
-        return "color: red; font-weight: bold;"
-    return ""
 
 
 st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/Brasão.png", layout="wide")
@@ -438,6 +432,10 @@ def main():
             unsafe_allow_html=True
         )
 
+        cl00, cl11, cl12 = st.columns([3, 1, 3])
+        with cl11:
+            st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial_m", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
+    
         st.session_state.arquivo = st.file_uploader("Selecione o arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}", label_visibility="hidden")
         
         if st.session_state.arquivo is not None:

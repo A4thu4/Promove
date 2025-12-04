@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-from data_utils import DATA_CONCLUSAO, NIVEIS
+from data_utils import DATA_CONCLUSAO, NIVEIS, destacar_obs
 
 def ensure_states():
     """Inicializa todos os session_states necessários"""
@@ -465,7 +465,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         "Data da Pontuação Atingida": "-" if pendencias else evolucao.strftime("%d/%m/%Y"),
         "Data da Implementação": "-" if pendencias else implementacao.strftime("%d/%m/%Y"),
         "Interstício de Evolução": "-" if pendencias else meses_ate_evolucao,
-        "Pontuação Alcançada": "-" if pendencias else  f"{pontos:.2f}",
+        "Pontuação Alcançada": "-" if pendencias else f"{pontos:.2f}",
         "Pontos Excedentes": "-" if pendencias else f"{pts_resto:.2f}",
     })
 
@@ -572,13 +572,17 @@ def calcular_planilha(arquivo):
         meses_ate_evo = None
         pts_resto = None
         novo_nivel = None
+        e12meses = False
+        e18meses = False    
 
         for i in range(DATA_CONCLUSAO):
             dt_atual = carreira[i][0]
             pts_loop = carreira[i][7]
 
             meses_passados = (dt_atual.year - dt_inicial.year) * 12 + (dt_atual.month - dt_inicial.month)
+
             data_prevista12 = dt_inicial + relativedelta(months=12)
+            data_prevista15 = data_inicio + relativedelta(months=15)
             data_prevista18 = dt_inicial + relativedelta(months=18)
 
             if dt_atual < data_prevista12:
@@ -598,41 +602,59 @@ def calcular_planilha(arquivo):
             aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
 
             # Verifica condições para evolução
-            if data_prevista12 <= dt_atual < data_prevista18: 
-                if pts_loop >= 96 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
+            if dt_atual >= data_prevista12: 
+                if pts_loop >= 96:
                     evolucao = dt_atual
                     implementacao = evolucao + relativedelta(day=1, months=1)
                     meses_ate_evo = meses_passados
                     pts_resto = pts_loop - 48
+                    e12meses = True
                     break
 
-            if dt_atual >= data_prevista18: 
-                if pts_loop >= 48 and desempenho_atual >= 2.4 and aperfeicoamento_atual >= 5.4:
+            if dt_atual >= (data_prevista15 if st.session_state.apo_especial_m == 'Sim' else data_prevista18): 
+                if pts_loop >= 48:
                     evolucao = dt_atual
                     implementacao = evolucao + relativedelta(day=1, months=1)
                     meses_ate_evo = meses_passados
                     pts_resto = pts_loop - 48
+                    e18meses = True
                     break
         
         pendencias, motivos = False, []
+        mot = ""
         if not evolucao:
-            pendencias = True 
-            motivos += ["Pontuação mínima."]
-        if aperfeicoamento_atual < 5.4:
-            pendencias = True 
-            motivos += ["Aperfeiçoamento mínimo de 60 horas."]
+            pendencias = True
+            motivos += ["obrigatórios"]
+        
+        if st.session_state.apo_especial_m == 'Sim':
+            mot = "Aposentadoria Especial"
+        
+        if e12meses: 
+            if aperfeicoamento_atual < 3.6:
+                pendencias = True 
+                motivos += ["de aperfeiçoamento mínimo de 40 horas"]
+        if e18meses:
+            if aperfeicoamento_atual < 5.4:
+                pendencias = True 
+                motivos += ["de aperfeiçoamento mínimo de 60 horas"]
+        
         if desempenho_atual < 2.4:
             pendencias = True 
-            motivos += ["Desempenho mínimo de 2.4 pontos."]
+            motivos += ["desempenho mínimo de 2.4 pontos"]
 
-        motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
+        if pendencias and motivos:
+            motivo =( ((mot + ". ") if mot else "") + "Não atingiu requisito(s) " + " e ".join(motivos) )
+        elif mot:
+            motivo = mot
+        else:
+            motivo = "-"
         
         novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
         identificador = int(float(identificador))
 
         result_niveis.append({
             "Status": "Não apto a evolução" if pendencias else "Apto a evolução",
-            "Observação": motivo if pendencias else "-",
+            "Observação": motivo,
             "Servidor": nome_servidor,
             "CPF": cpf_servidor,
             "Vínculo": identificador,
@@ -640,12 +662,19 @@ def calcular_planilha(arquivo):
             "Data da Pontuação Atingida": "-" if pendencias else evolucao.strftime("%d/%m/%Y"),
             "Data da Implementação": "-" if pendencias else implementacao.strftime("%d/%m/%Y"),
             "Interstício de Evolução": "-" if pendencias else meses_ate_evo,
-            "Pontuação Alcançada": "-" if pendencias else round(pts_loop, 4),
-            "Pontos Excedentes": "-" if pendencias else round(pts_resto, 4),
+            "Pontuação Alcançada": "-" if pendencias else f"{pts_loop:.2f}",
+            "Pontos Excedentes": "-" if pendencias else f"{pts_resto:.2f}",
         })
         
     df_results = pd.DataFrame(result_niveis)
-    st.dataframe(df_results, hide_index=True, column_config={"Vínculo": st.column_config.NumberColumn(format="%d")})
+    df_results["Interstício de Evolução"] = df_results["Interstício de Evolução"].apply(
+        lambda x: f"{x:>5}" if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else x
+    )
+    df_results["Vínculo"] = df_results["Vínculo"].apply(
+        lambda x: f"{x:>5}" if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else x
+    )
+
+    st.dataframe(df_results.head(1).style.map(destacar_obs, subset=["Observação"]), hide_index=True)
 
     if len(ids_processados) == 1:
         st.markdown("<h3 style='text-align:center;'>Pontuações Mensais</h3>", unsafe_allow_html=True)
