@@ -532,9 +532,12 @@ def main():
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
+            df_view["Interstício de Evolução"] = df_view["Interstício de Evolução"].apply(
+                lambda x: f"{x:>5}" if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else x
+            )
             
             st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado</h2>", unsafe_allow_html=True)
-            st.dataframe(df_view.head(1).style.applymap(destacar_obs, subset=["Observação"]), hide_index=True)
+            st.dataframe(df_view.head(1).style.map(destacar_obs, subset=["Observação"]), hide_index=True)
         
             df_preview = pd.DataFrame(
                 st.session_state.carreira,
