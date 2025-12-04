@@ -46,12 +46,13 @@ def build_obrigatorios(key_prefix="obg"):
             )
         with col2:
             st.session_state.data_inicial = st.date_input(
-                "Data da Última Evolução",
+                "Data de início dos Pontos",
                 format="DD/MM/YYYY",
                 value=existing_data_inicial if existing_data_inicial else None,
                 min_value=MIN_DATE,
                 max_value=MAX_DATE,
-                key=f"{key_prefix}_data_inicial"
+                key=f"{key_prefix}_data_inicial",
+                help="Conforme disposições finais e transitórios do Decreto nº 10.802/2025" 
             )
         with col3:
             pts_remanescentes = st.number_input(
