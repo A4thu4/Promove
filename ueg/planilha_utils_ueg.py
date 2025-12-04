@@ -212,9 +212,9 @@ def processar_titulacoes(df, i, carreira):
 
 def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_inicio, data_fim):
     """Aplica pontos mensais (cargos, funções e atuações) na matriz da carreira."""
+    from collections import defaultdict
     LIMITE_RESP = 144
-    pts_acumulado = 0
-    resp_dict = {}
+    total_rm = 0.0
 
     # Mapas de pontos
     pt_cargos = {
@@ -228,77 +228,210 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
     }
     pt_func_c = {"FCG5": 0.333, "FCG4": 0.364, "FCG3": 0.400, "FCG2": 0.444, "FCG1": 0.500}
     pt_agente = {"GCV": 0.333, "GCIV": 0.364, "GCIII": 0.400, "GCII": 0.444, "GCI": 0.500}
-    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333, "PE": 0.333}  # usada para designada, conselho e prioritária
+    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333}  # usada para designada, conselho e prioritária
 
-    col_map = {
-        "Exercício de Cargo em Comissão": pt_cargos,
-        "Exercício de Função Comissionada/Gratificada": pt_func_c,
-        "Exercício de Função Designada": pt_fixa,
-        "Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios": pt_agente,
-        "Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho": pt_fixa,
-        "Exercício em Atuação Prioritária": pt_fixa,
-        "Execução de Projeto de Ensino, Pesquisa e/ou Extensão com Captação de Recursos": pt_fixa
+    # Mapeia coluna da planilha -> (rótulo base usado nos grupos, mapa de pontos)
+    colunas_resp = {
+        "Exercício de Cargo em Comissão": (
+            "C. Comissão",
+            pt_cargos,
+        ),
+        "Exercício de Função Comissionada/Gratificada": (
+            "F. Comissionada",
+            pt_func_c,
+        ),
+        "Exercício de Função Designada": (
+            "F. Designada",
+            pt_fixa,
+        ),
+        "Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios": (
+            "At. Agente",
+            pt_agente,
+        ),
+        "Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho": (
+            "At. Conselho",
+            pt_fixa,
+        ),
+        "Exercício em Atuação Prioritária": (
+            "At. Prioritária",
+            pt_fixa,
+        ),
+        "Execução de Projeto de Ensino, Pesquisa ou Extensão com Captação de Recursos": (
+            "Ex. Projeto",
+            pt_fixa,
+        ),
     }
 
-    for col, mapa in col_map.items():
+    # ---------- 1) LER A LINHA DA PLANILHA E GERAR UMA LISTA DE RESPONSABILIDADES ----------
+    # Formato interno: (tipo_base, data_início, data_fim, pontos_base)
+    resp_mensais = []
+
+    for col, (tipo_base, mapa) in colunas_resp.items():
         if col not in df.columns:
             continue
+
         texto = str(df[col].iloc[i]).strip()
         if not texto:
             continue
+
         partes = [p for p in texto.split(";") if p.strip()]
         for bloco in partes:
             dados = bloco.split("-")
             if len(dados) < 3:
                 continue
-            tipo = dados[0].strip()
-            data_i = pd.to_datetime(dados[1].strip(), dayfirst=True, errors="coerce")
-            data_f = pd.to_datetime(dados[2].strip(), dayfirst=True, errors="coerce")
+
+            simbolo = dados[0].strip()
+            di_raw = dados[1].strip()
+            df_raw = dados[2].strip()
+
+            data_i = pd.to_datetime(di_raw, dayfirst=True, errors="coerce")
+            data_f = pd.to_datetime(df_raw, dayfirst=True, errors="coerce")
+
             if pd.isna(data_i):
                 continue
-            data_f = data_f.date() if pd.notna(data_f) else data_fim
             data_i = data_i.date()
 
-            pontos_base = mapa.get(tipo, 0)
+            if pd.isna(data_f):
+                data_f = data_fim
+            else:
+                data_f = data_f.date()
+
+            pontos_base = mapa.get(simbolo, 0.0)
             if pontos_base <= 0:
                 continue
-            
-            # ----- ACÚMULO RETROATIVO ----- #
-            if data_i < data_inicio and data_i >= data_inicio - relativedelta(years=5):
-                delta = relativedelta(data_inicio, data_i)
-                meses_anteriores = delta.years * 12 + delta.months
 
-                if meses_anteriores > 0:
-                    # Aplica tudo no 1º dia útil da carreira
-                    carreira[0][5] += meses_anteriores * pontos_base
-            
-            ano, mes = data_i.year, data_i.month + 1
+            if data_f <= data_i:
+                # Período inválido: ignora
+                continue
+
+            resp_mensais.append((tipo_base, data_i, data_f, float(pontos_base)))
+
+    if not resp_mensais:
+        return carreira
+
+    # ---------- 2) DEFINIÇÃO DE GRUPOS E ESTRUTURAS DE ACÚMULO ----------
+    # Grupos reais 
+    GRUPO_REAL = {
+        "C. Comissão": "G1",        # I → só 1 no mês
+        "F. Comissionada": "G1",    # II → só 1 no mês
+        "F. Designada": "G1",       # III → só 1 no mês
+
+        "At. Agente": "G2",         # IV → até 2 no mês
+        "At. Conselho": "G3",       # V  → até 2 no mês
+        "Ex. Projeto": "G4",      # VII → até 2 no mês
+
+        "At. Prioritária": "G5",    # VI → só 1 no mês (mas separado de G1)
+    }
+
+    LIMITES_GRUPO = {
+        "G1": 1,    # I + II + III competem → só uma entrada
+        "G2": 2,    # IV → duas maiores
+        "G3": 2,    # V  → duas maiores
+        "G4": 2,    # VII → duas maiores
+        "G5": 1     # VI → só uma
+    }
+
+    # rm_bruto: data_aplicação -> grupo -> lista de pontos (já com desconto de faltas)
+    rm_bruto = defaultdict(lambda: defaultdict(list))
+    # retro_bruto: mesma coisa, só para meses anteriores ao início da carreira
+    retro_bruto = defaultdict(lambda: defaultdict(list))
+
+    enquadramento = data_inicio  # na planilha é "Data do Enquadramento ou da Última Evolução"
+    data_inicial = carreira[0][0]
+    if isinstance(data_inicial, datetime):
+        data_inicial = data_inicial.date()
+
+    # ---------- 3) DISTRIBUIR RESPONSABILIDADES MÊS A MÊS (RETRO + NORMAL) ----------
+    for tipo_base, inicio, fim, pontos in sorted(resp_mensais, key=lambda x: x[1]):
+        g = GRUPO_REAL.get(tipo_base)
+        if not g:
+            continue
+
+        # Retroativo só para G1 e até 5 anos antes do enquadramento (mesma lógica do individual)
+        retro_elegivel = (
+            g == "G1"
+            and inicio < enquadramento
+            and inicio >= enquadramento - relativedelta(years=5)
+        )
+
+        # Começa a contar a partir do mês seguinte ao início
+        ano = inicio.year
+        mes = inicio.month + 1
+        if mes > 12:
+            mes = 1
+            ano += 1
+
+        while date(ano, mes, 1) <= fim:
+            data_ap = date(ano, mes, 1)
+
+            # Faltas já estão em afastamentos_dict na própria data de aplicação (mês seguinte)
+            faltas = afastamentos_dict.get(data_ap, 0)
+            desconto = (pontos / 30.0) * faltas
+            pts_aj = max(0.0, pontos - desconto)
+
+            if pts_aj > 0:
+                if data_ap < data_inicial:
+                    # período retroativo
+                    if retro_elegivel:
+                        retro_bruto[data_ap][g].append(pts_aj)
+                else:
+                    # período normal
+                    rm_bruto[data_ap][g].append(pts_aj)
+
+            # próximo mês
+            mes += 1
             if mes > 12:
-                mes, ano = 1, ano + 1
+                mes = 1
+                ano += 1
 
-            while date(ano, mes, 1) <= data_f:
-                data_aplicacao = date(ano, mes, 1)
-                falta = next((f for m, f in afastamentos_dict.items() if m.month == mes and m.year == ano), 0)
-                pontos_aj = max(0, pontos_base - ((pontos_base / 30) * falta))
+    # ---------- 4) CONSOLIDAR PONTOS POR MÊS, RESPEITANDO LIMITES POR GRUPO ----------
+    rm_dict = {}  # data -> soma já consolidada do mês (após limites por grupo)
 
-                if data_aplicacao != data_inicio:
-                    resp_dict[data_aplicacao] = resp_dict.get(data_aplicacao, 0) + pontos_aj
+    for data_ap, grupos in rm_bruto.items():
+        total_mes = 0.0
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO.get(g, 0)
+            if not limite:
+                continue
+            valores_ordenados = sorted(valores, reverse=True)
+            total_mes += sum(valores_ordenados[:limite])
+        rm_dict[data_ap] = total_mes
 
-                mes += 1
-                if mes > 12:
-                    mes, ano = 1, ano + 1
-                if data_aplicacao >= data_f:
-                    break
+    # Retroativo: consolida mês a mês com os mesmos limites por grupo
+    retro_total = 0.0
+    for data_ap, grupos in retro_bruto.items():
+        total_mes = 0.0
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO.get(g, 0)
+            if not limite:
+                continue
+            valores_ordenados = sorted(valores, reverse=True)
+            total_mes += sum(valores_ordenados[:limite])
+        retro_total += total_mes
 
-    # aplica acumulado total respeitando limite
-    for data_mes, pontos in sorted(resp_dict.items()):
-        if pts_acumulado >= LIMITE_RESP:
+    # ---------- 5) APLICAR RETROATIVO NA PRIMEIRA LINHA (RESPEITANDO LIMITE 144) ----------
+    if retro_total > 0 and total_rm < LIMITE_RESP:
+        usar = min(retro_total, LIMITE_RESP - total_rm)
+        carreira[0][5] += usar  # coluna 6 = R.Mensais
+        total_rm += usar
+
+    # ---------- 6) APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
+    for data_ap, pts in sorted(rm_dict.items()):
+        if total_rm >= LIMITE_RESP:
             break
-        pontos = min(pontos, LIMITE_RESP - pts_acumulado)
+
+        pts_aj = min(pts, LIMITE_RESP - total_rm)
+        if pts_aj <= 0:
+            continue
+
         for idx, linha in enumerate(carreira):
-            if linha[0] == data_mes:
-                carreira[idx][5] += pontos
-                pts_acumulado += pontos
+            data_linha = linha[0]
+            if isinstance(data_linha, datetime):
+                data_linha = data_linha.date()
+
+            if data_linha == data_ap:
+                carreira[idx][5] += pts_aj
+                total_rm += pts_aj
                 break
 
     return carreira
@@ -364,7 +497,7 @@ def processar_responsabilidades_unicas(df, i, carreira):
 
         for idx, linha in enumerate(carreira):
             if linha[0] == data_aplicacao:
-                carreira[idx][4] += pontos  
+                carreira[idx][4] += pontos  # coluna 5 = R.Únicas
                 total_pontos += pontos
                 break
 

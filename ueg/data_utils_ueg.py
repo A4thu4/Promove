@@ -7,6 +7,11 @@ MAX_DATE = datetime(2050, 12, 31).date()
 DECRETO_DATE = datetime(2025, 10, 22).date()
 NIVEIS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O']
 
+def destacar_obs(val):
+    if val != "-":
+        return "color: red; font-weight: bold;"
+    return ""
+
 val_states = {
     "carreira": [], "resultados_carreira": [],
     
