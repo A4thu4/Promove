@@ -12,11 +12,14 @@ def novo_calculo():
     clear_states()
     st.session_state.navigation = '**Cálculo Individual**'
 
+
 def go_results():
     st.session_state.navigation = '**Resultados**'
 
+
 def go_individual():
     st.session_state.navigation = '**Cálculo Individual**'    
+
 
 def bloco_vertical(titulo, tamanho, cor):
     return f"""
@@ -38,6 +41,12 @@ def bloco_vertical(titulo, tamanho, cor):
         {titulo}
     </div>
     """
+
+
+def destacar_obs(val):
+    if val != "-":
+        return "color: red; font-weight: bold;"
+    return ""
 
 
 st.set_page_config(page_title="PROMOVE - Simulador UEG", page_icon="assets/Brasão.png", layout="wide")
@@ -327,7 +336,7 @@ def main():
         else:
             col1, col2 = st.columns([0.05, 1.93])
             with col1: 
-                st.markdown(bloco_vertical("", 1215, "#003500"), unsafe_allow_html=True)
+                st.markdown(bloco_vertical("", 900, "#003500"), unsafe_allow_html=True)
             with col2:
                 build_obrigatorios()
                 
@@ -358,7 +367,7 @@ def main():
             
             col1, col2 = st.columns([0.05, 1.93])
             with col1: 
-                st.markdown(bloco_vertical("", 2132, "#fede01"), unsafe_allow_html=True)
+                st.markdown(bloco_vertical("", 2155, "#fede01"), unsafe_allow_html=True)
             with col2:
                 build_titulacoes()
                 st.divider()
@@ -410,10 +419,10 @@ def main():
             )
         
         if "file_reset" not in st.session_state:
-            st.session_state.file_reset = 0
+            st.session_state.file_reset = 0 
         
         st.markdown(
-            """
+             """
             <div style='
                 background-color: #cde9fe; 
                 border: 1px solid #c4f7ff; 
@@ -443,6 +452,10 @@ def main():
         from logic_ueg import calcular_evolucao
 
         st.markdown("<h1 style='text-align:center; color:#000000; '>Resultados da Simulação</h1>", unsafe_allow_html=True)
+        
+        cl00, cl11, cl12 = st.columns([3, 1, 3])
+        with cl11:
+            st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
         
         st.markdown(
             """
@@ -479,6 +492,7 @@ def main():
                 afast_total.extend(st.session_state.get("afastamentos", []))
 
                 carreira_calculada, resultados_carreira = calcular_evolucao(
+                    st.session_state.enquadramento,
                     st.session_state.data_inicial,
                     st.session_state.nivel_atual, 
                     st.session_state.carreira, 
@@ -518,8 +532,9 @@ def main():
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
+            
             st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado</h2>", unsafe_allow_html=True)
-            st.dataframe(df_view.head(1), hide_index=True)
+            st.dataframe(df_view.head(1).style.applymap(destacar_obs, subset=["Observação"]), hide_index=True)
         
             df_preview = pd.DataFrame(
                 st.session_state.carreira,
@@ -528,6 +543,7 @@ def main():
             df_preview['Data'] = pd.to_datetime(df_preview['Data'])
             df_preview = df_preview[df_preview['Data'].dt.day == 1]
             df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
+            
             st.markdown("<h3 style='text-align:center; color:#000000; '>Pontuações Mensais</h3>", unsafe_allow_html=True)
             st.dataframe(df_preview.head(241), hide_index=True)
         

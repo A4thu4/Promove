@@ -34,11 +34,11 @@ def zerar_carreira(carreira):
 
     # ZERA todos os campos de cálculo antes de começar
     for i in range(len(carreira)):
-        for j in range(1, 7):  # Zera das colunas 1 a 9
+        for j in range(1, 7):  # Zera das colunas 1 a 8
             carreira[i][j] = 0
 
 
-def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais):
+def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais):
     """
     Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
     aplicando os dados na matriz Carreira
@@ -169,52 +169,163 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 break
 
 # ---------- APLICA RESPONSABILIDADES MENSAIS ---------- #
-    rm_dict = {}
-    for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[0]):
+    from collections import defaultdict
+
+    # Mapeamento dos tipos para grupos reais
+    GRUPO_REAL = {
+        "C. Comissão": "G1",        # I → só 1 no mês
+        "F. Comissionada": "G1",    # II → só 1 no mês
+        "F. Designada": "G1",       # III → só 1 no mês
+
+        "At. Agente": "G2",         # IV → até 2 no mês
+        "At. Conselho": "G3",       # V  → até 2 no mês
+        "Ex. Projeto": "G4",        # VII  → até 2 no mês
+
+        "At. Prioritária": "G5"     # VI → só 1 no mês (mas não pertence ao G1)
+    }
+
+    # limites de cada grupo dentro do mesmo mês
+    LIMITES_GRUPO = {
+        "G1": 1,    # I + II + III competem → só uma entrada
+        "G2": 2,    # IV → duas maiores
+        "G3": 2,    # V  → duas maiores
+        "G4": 2,    # VII → duas maiores
+        "G5": 1     # VI → só uma
+    }
+
+    # rm_bruto guarda: data -> grupo -> lista de pontos já descontados
+    rm_bruto = defaultdict(lambda: defaultdict(list))
+
+    # retro_bruto guarda as responsabilidades retroativas (somente G1), mês a mês
+    retro_bruto = defaultdict(lambda: defaultdict(list))
+    
+    # Ordena pela data de início 
+    for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[1]):
         inicio = inicio.date() if isinstance(inicio, datetime) else inicio
 
-        # --- Caso o início seja até 5 anos antes da data_inicial ---
-        if inicio < data_inicial and inicio >= data_inicial - relativedelta(years=5):
-            delta = relativedelta(data_inicial, inicio)
-            meses_anteriores = delta.years * 12 + delta.months
-            if meses_anteriores > 0:
-                carreira[0][5] += meses_anteriores * pontos  # soma na primeira data
-            # redefine início para continuar cálculo normal
-            inicio = data_inicial
+        # extrai o tipo-base ("C. Comissão: DAS-1" → "C. Comissão")
+        tipo_base = tipo.split(":", 1)[0].strip()
+        g = GRUPO_REAL.get(tipo_base)
+        if not g:
+            continue
 
-        # Cálculo  normal
+        # --- Retroativo: até 5 anos antes da data_inicial ---
+        if inicio < enquadramento:
+            if g == "G1" and inicio >= enquadramento - relativedelta(years=5):
+                # Aplica mês a mês no período retroativo
+                mes_aplic = inicio.month + 1
+                ano_aplic = inicio.year
+                if mes_aplic > 12:
+                    mes_aplic = 1
+                    ano_aplic += 1
+
+                # Limite: até o mês de competência imediatamente anterior à primeira data
+                if data_inicial.month == 12:
+                    limite_retro = date(data_inicial.year + 1, 1, 1)
+                else:
+                    limite_retro = date(data_inicial.year, data_inicial.month + 1, 1)
+
+                while date(ano_aplic, mes_aplic, 1) < limite_retro:
+                    data_retro = date(ano_aplic, mes_aplic, 1)
+
+                    pts_aj = max(0, pontos)
+
+                    # retroativo entra em retro_bruto (somente G1 aqui)
+                    retro_bruto[data_retro][g].append(pts_aj)
+
+                    # próximo mês retroativo
+                    mes_aplic += 1
+                    if mes_aplic > 12:
+                        mes_aplic = 1
+                        ano_aplic += 1
+
+                # A partir daqui, essa responsabilidade segue a partir da data_inicial
+                inicio = data_inicial
+            else:
+                # G2, G3, G4 não podem ter efeito retroativo:
+                # ignora o período anterior e começa a contar só da data_inicial
+                inicio = data_inicial
+
+        # mês seguinte ao início
         mes_aplicacao = inicio.month + 1
         ano_aplicacao = inicio.year
         if mes_aplicacao > 12:
             mes_aplicacao = 1
             ano_aplicacao += 1
 
+        # Aplica pelos meses declarados
         for _ in range(meses):
             data_aplicacao = date(ano_aplicacao, mes_aplicacao, 1)
 
-            # calcula desconto de faltas
+            # Desconto de faltas (mês anterior ao da aplicação)
             mes_ant, ano_ant = mes_aplicacao - 1, ano_aplicacao
             if mes_ant < 1:
                 mes_ant, ano_ant = 12, ano_aplicacao - 1
-            faltas = next((f for m, f in afastamentos if m.month == mes_ant and m.year == ano_ant), 0)
-            desconto = (pontos / 30) * faltas
 
-            rm_dict[data_aplicacao] = rm_dict.get(data_aplicacao, 0) + max(0, pontos - desconto)
+            falta = next(
+                (f for m, f in afastamentos if m.month == mes_ant and m.year == ano_ant),
+                0
+            )
 
+            desconto = (pontos / 30) * falta
+            pts_aj = max(0, pontos - desconto)
+
+            # adiciona dentro do grupo real
+            rm_bruto[data_aplicacao][g].append(pts_aj)
+
+            # próximo mês
             mes_aplicacao += 1
             if mes_aplicacao > 12:
                 mes_aplicacao = 1
                 ano_aplicacao += 1
 
+    # ---------- CONSOLIDAÇÃO COM LIMITES POR GRUPO ---------- #
+    rm_dict = {}
+
+    for data_aplicacao, grupos in rm_bruto.items():
+        total_mes = 0
+
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO[g]
+
+            # pega só as maiores dentro do grupo
+            valores_ordenados = sorted(valores, reverse=True)
+            total_mes += sum(valores_ordenados[:limite])
+
+        rm_dict[data_aplicacao] = total_mes
+    
+    # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
+    retro_total = 0
+    for data_aplicacao, grupos in retro_bruto.items():
+        total_mes = 0
+
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO[g]
+            valores_ordenados = sorted(valores, reverse=True)
+            total_mes += sum(valores_ordenados[:limite])
+
+        retro_total += total_mes
+
+    # Aplica o total retroativo diretamente na primeira linha da carreira,
+    # respeitando o limite global de responsabilidades
+    if retro_total > 0 and total_pontos_resp < LIMITE_RESP:
+        usar = min(retro_total, LIMITE_RESP - total_pontos_resp)
+        carreira[0][6] += usar
+        total_pontos_resp += usar
+
+    # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
     for data_aplicacao, pts in sorted(rm_dict.items()):
         if total_pontos_resp >= LIMITE_RESP:
             break
+
         pts = min(pts, LIMITE_RESP - total_pontos_resp)
+
         for i, linha in enumerate(carreira):
             d = linha[0]
             d = d.date() if isinstance(d, datetime) else d
+
             if d == data_aplicacao:
-                carreira[i][5] += pts
+                carreira[i][6] += pts
                 total_pontos_resp += pts
                 break
 
@@ -250,6 +361,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         meses_passados = ano * 12 + mes
 
         data_prevista18 = data_inicio + relativedelta(months=18)
+        data_prevista15 = data_inicio + relativedelta(months=15)
 
         if data_atual < data_prevista18:
             continue
@@ -265,7 +377,7 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
         desempenho_atual = round(desempenho_atual, 2)
         
         # Verifica condições para evolução
-        if data_atual >= data_prevista18:
+        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18):
             if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
@@ -274,20 +386,29 @@ def calcular_evolucao(data_inicial, nivel_atual, carreira, ult_evo, afastamentos
                 break
     
     pendencias, motivos = False, []
+    mot = ""
     if not evolucao:
         pendencias = True
         motivos += ["obrigatórios"]
+    if st.session_state.apo_especial == 'Sim':
+        mot = "Aposentadoria Especial"
+    
     if desempenho_atual < 2.4:
         pendencias = True
         motivos += ["de desempenho mínimo de 2.4 pontos"]
 
-    motivo = "Não atingiu requisito(s) " + " e ".join(motivos) if motivos else ""
+    if pendencias and motivos:
+        motivo =( ((mot + ". ") if mot else "") + "Não atingiu requisito(s) " + " e ".join(motivos) )
+    elif mot:
+        motivo = mot
+    else:
+        motivo = "-"
 
-    novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'O' else 'O'
+    novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
 
     resultado_niveis.append({
         "Status": "Não apto a evolução" if pendencias else "Apto a evolução",
-        "Observação": motivo if pendencias else "-",
+        "Observação": motivo,
         "Próximo Nível": "-" if pendencias else novo_nivel,
         "Data da Pontuação Atingida": "-" if pendencias else evolucao.strftime("%d/%m/%Y"),
         "Data da Implementação": "-" if pendencias else implementacao.strftime("%d/%m/%Y"),
@@ -333,7 +454,7 @@ def calcular_planilha(arquivo):
             data_base = date(data_inicio.year + 1, 1, 1)
         else:
             data_base = date(data_inicio.year, data_inicio.month + 1, 1)
-            
+
         carreira = [
             [data_base + timedelta(days=i)] + [0] * 6
             for i in range(DATA_CONCLUSAO)
@@ -434,7 +555,7 @@ def calcular_planilha(arquivo):
 
         motivo = "Não atingiu requisito de " + " e ".join(motivos) if motivos else ""
         
-        novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'O' else 'O'
+        novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
         identificador = int(float(identificador))
 
         result_niveis.append({
@@ -471,4 +592,3 @@ def calcular_planilha(arquivo):
             file_name="Resultado Evoluções.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
-
