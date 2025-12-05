@@ -392,7 +392,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_cc"
             )
@@ -401,7 +401,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_cc",
             )
@@ -461,7 +461,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fc"
             )
@@ -470,7 +470,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial- relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento- relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fc"
             )
@@ -530,7 +530,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Início",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_i_fd"
             )
@@ -539,7 +539,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 "Data de Fim",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=st.session_state.data_inicial - relativedelta(years=5) if st.session_state.data_inicial else None,
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data_f_fd"
             )
