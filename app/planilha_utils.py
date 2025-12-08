@@ -23,7 +23,7 @@ def ler_planilha_excel(arquivo):
         df = df.drop_duplicates().replace([None, np.nan], "")
         colunas_obrigatorias = [
             "Servidor", "CPF", "Vìnculo", "Nível Atual",
-            "Data de Inicio dos Pontos",
+            "Data de Início dos Pontos",
             "Pontos Excedentes da Última Evolução"
         ]
         ausentes = [c for c in colunas_obrigatorias if c not in df.columns]
@@ -41,7 +41,7 @@ def ler_planilha_excel(arquivo):
 
         df["Vìnculo"] = df["Vìnculo"].astype(str).str.strip()
         df = df.drop_duplicates(subset=["Vìnculo"], keep="first")
-        df["Data de Inicio dos Pontos"] = pd.to_datetime(
+        df["Data de Início dos Pontos"] = pd.to_datetime(
             df["Data de Inicio dos Pontos"], errors="coerce"
         )
 
@@ -51,7 +51,7 @@ def ler_planilha_excel(arquivo):
             hide_index=True,
             column_config={
                 "Vìnculo": st.column_config.NumberColumn(format="%d"),
-                "Data de Inicio dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY")
+                "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY")
             }
         )
 
@@ -71,7 +71,7 @@ def extrair_dados_basicos(df):
         cpf = str(row.get("CPF", "")).strip()
         vinculo = str(row.get("Vìnculo", "")).strip()
         nivel = str(row.get("Nível Atual", "")).strip().upper()
-        data_inicio = row.get("Data de Inicio dos Pontos")
+        data_inicio = row.get("Data de Início dos Pontos")
         pts_rem = row.get("Pontos Excedentes da Última Evolução")
 
         # Verificação mínima de integridade
