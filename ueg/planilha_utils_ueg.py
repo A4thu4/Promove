@@ -47,7 +47,7 @@ def ler_planilha_excel(arquivo):
 
         st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
         st.dataframe(
-            df.head(),
+            df,
             hide_index=True,
             column_config={
                 "Vìnculo": st.column_config.NumberColumn(format="%d"),
