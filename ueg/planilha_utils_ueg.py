@@ -71,7 +71,7 @@ def extrair_dados_basicos(df):
         cpf = str(row.get("CPF", "")).strip()
         vinculo = str(row.get("Vìnculo", "")).strip()
         nivel = str(row.get("Nível Atual", "")).strip().upper()
-        data_inicio = row.get("Data do Enquadramento ou da Última Evolução")
+        data_inicio = row.get("Data de Inicio dos Pontos")
         pts_rem = row.get("Pontos Excedentes da Última Evolução")
 
         # Verificação mínima de integridade
