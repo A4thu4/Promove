@@ -22,7 +22,7 @@ def ler_planilha_excel(arquivo):
         # Limpeza básica
         df = df.drop_duplicates().replace([None, np.nan], "")
         colunas_obrigatorias = [
-            "Servidor", "CPF", "Vìnculo", "Nível Atual",
+            "Servidor", "CPF", "Vínculo", "Nível Atual",
             "Data de Início dos Pontos",
             "Pontos Excedentes da Última Evolução"
         ]
@@ -35,12 +35,12 @@ def ler_planilha_excel(arquivo):
         df = df[
             df["Servidor"].astype(str).str.strip().ne("") &
             df["CPF"].astype(str).str.strip().ne("") &
-            df["Vìnculo"].astype(str).str.strip().ne("") &
+            df["Vínculo"].astype(str).str.strip().ne("") &
             df["Nível Atual"].astype(str).str.strip().ne("")
         ]
 
-        df["Vìnculo"] = df["Vìnculo"].astype(str).str.strip()
-        df = df.drop_duplicates(subset=["Vìnculo"], keep="first")
+        df["Vínculo"] = df["Vínculo"].astype(str).str.strip()
+        df = df.drop_duplicates(subset=["Vínculo"], keep="first")
         df["Data de Início dos Pontos"] = pd.to_datetime(
             df["Data de Início dos Pontos"], errors="coerce"
         )
@@ -69,7 +69,7 @@ def extrair_dados_basicos(df):
     for i, row in df.iterrows():
         nome = str(row.get("Servidor", "")).strip()
         cpf = str(row.get("CPF", "")).strip()
-        vinculo = str(row.get("Vìnculo", "")).strip()
+        vinculo = str(row.get("Vínculo", "")).strip()
         nivel = str(row.get("Nível Atual", "")).strip().upper()
         data_inicio = row.get("Data de Início dos Pontos")
         pts_rem = row.get("Pontos Excedentes da Última Evolução")
