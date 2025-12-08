@@ -41,8 +41,8 @@ def ler_planilha_excel(arquivo):
 
         df["Vìnculo"] = df["Vìnculo"].astype(str).str.strip()
         df = df.drop_duplicates(subset=["Vìnculo"], keep="first")
-        df["Data do Enquadramento ou da Última Evolução"] = pd.to_datetime(
-            df["Data do Enquadramento ou da Última Evolução"], errors="coerce"
+        df["Data de Inicio dos Pontos"] = pd.to_datetime(
+            df["Data de Inicio dos Pontos"], errors="coerce"
         )
 
         st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
@@ -51,7 +51,7 @@ def ler_planilha_excel(arquivo):
             hide_index=True,
             column_config={
                 "Vìnculo": st.column_config.NumberColumn(format="%d"),
-                "Data do Enquadramento ou da Última Evolução": st.column_config.DateColumn(format="DD/MM/YYYY")
+                "Data de Inicio dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY")
             }
         )
 
