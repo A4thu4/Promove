@@ -50,7 +50,7 @@ def ler_planilha_excel(arquivo):
             df,
             hide_index=True,
             column_config={
-                "Vìnculo": st.column_config.NumberColumn(format="%d"),
+                "Vínculo": st.column_config.NumberColumn(format="%d"),
                 "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY")
             }
         )
