@@ -23,7 +23,7 @@ def ler_planilha_excel(arquivo):
         df = df.drop_duplicates().replace([None, np.nan], "")
         colunas_obrigatorias = [
             "Servidor", "CPF", "Vìnculo", "Nível Atual",
-            "Data do Enquadramento ou da Última Evolução",
+            "Data de Inicio dos Pontos",
             "Pontos Excedentes da Última Evolução"
         ]
         ausentes = [c for c in colunas_obrigatorias if c not in df.columns]
