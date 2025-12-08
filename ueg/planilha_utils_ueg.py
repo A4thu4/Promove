@@ -228,7 +228,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
     }
     pt_func_c = {"FCG5": 0.333, "FCG4": 0.364, "FCG3": 0.400, "FCG2": 0.444, "FCG1": 0.500}
     pt_agente = {"GCV": 0.333, "GCIV": 0.364, "GCIII": 0.400, "GCII": 0.444, "GCI": 0.500}
-    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333}  # usada para designada, conselho e prioritária
+    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333, "EP": 0.333}  # usada para designada, conselho e prioritária e execuçã de projeto
 
     # Mapeia coluna da planilha -> (rótulo base usado nos grupos, mapa de pontos)
     colunas_resp = {
