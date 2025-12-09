@@ -260,7 +260,7 @@ def processar_titulacoes(df, i, carreira):
     return carreira
 
 
-def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_inicio, data_fim):
+def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_enquad, data_fim):
     """Aplica pontos mensais (cargos, funções e atuações) na matriz da carreira."""
     from collections import defaultdict
     LIMITE_RESP = 144
@@ -380,7 +380,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
     # retro_bruto: mesma coisa, só para meses anteriores ao início da carreira
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
-    enquadramento = data_inicio  # na planilha é "Data do Enquadramento ou da Última Evolução"
+    enquadramento = data_enquad  # na planilha é "Data do Enquadramento"
     data_inicial = carreira[0][0]
     if isinstance(data_inicial, datetime):
         data_inicial = data_inicial.date()

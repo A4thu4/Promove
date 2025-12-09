@@ -209,7 +209,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if not g:
             continue
 
-        # --- Retroativo: até 5 anos antes da data_inicial ---
+        # --- Retroativo: até 5 anos antes da data do enquadramento ---
         if inicio < enquadramento:
             if g == "G1" and inicio >= enquadramento - relativedelta(years=5):
                 # Aplica mês a mês no período retroativo
@@ -478,7 +478,7 @@ def calcular_planilha(arquivo):
         carreira = processar_titulacoes(df, i, carreira)
 
         # ---------- R.MENSAIS ----------
-        carreira = processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_inicio, DATA_FIM)
+        carreira = processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_enquad, DATA_FIM)
 
         # ---------- R.ÚNICAS ----------
         carreira = processar_responsabilidades_unicas(df, i, carreira)
