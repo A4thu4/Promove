@@ -23,7 +23,7 @@ def ler_planilha_excel(arquivo):
         df = df.drop_duplicates().replace([None, np.nan], "")
         colunas_obrigatorias = [
             "Servidor", "CPF", "Vínculo", "Nível Atual",
-            "Data de Início dos Pontos",
+            "Data do Enquadramento", "Data de Início dos Pontos",
             "Pontos Excedentes da Última Evolução"
         ]
         ausentes = [c for c in colunas_obrigatorias if c not in df.columns]
@@ -42,7 +42,10 @@ def ler_planilha_excel(arquivo):
         df["Vínculo"] = df["Vínculo"].astype(str).str.strip()
         df = df.drop_duplicates(subset=["Vínculo"], keep="first")
         df["Data de Início dos Pontos"] = pd.to_datetime(
-            df["Data de Início dos Pontos"], errors="coerce"
+            df["Data de Início dos Pontos"],  format="%d/%m/%Y", errors="coerce"
+        )
+        df["Data do Enquadramento"] = pd.to_datetime(
+            df["Data do Enquadramento"], format="%d/%m/%Y", errors="coerce"
         )
 
         st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
@@ -51,7 +54,8 @@ def ler_planilha_excel(arquivo):
             hide_index=True,
             column_config={
                 "Vínculo": st.column_config.NumberColumn(format="%d"),
-                "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY")
+                "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY"),
+                "Data do Enquadramento": st.column_config.DateColumn(format="DD/MM/YYYY")
             }
         )
 
@@ -72,15 +76,17 @@ def extrair_dados_basicos(df):
         vinculo = str(row.get("Vínculo", "")).strip()
         nivel = str(row.get("Nível Atual", "")).strip().upper()
         data_inicio = row.get("Data de Início dos Pontos")
+        data_enquad = row.get("Data do Enquadramento")
         pts_rem = row.get("Pontos Excedentes da Última Evolução")
 
         # Verificação mínima de integridade
-        if not all([nome, cpf, vinculo, nivel, data_inicio]):
+        if not all([nome, cpf, vinculo, nivel, data_inicio, data_enquad]):
             continue
 
         # Normaliza data e pontos
         try:
             data_inicio = pd.to_datetime(data_inicio, errors="coerce").date()
+            data_enquad = pd.to_datetime(data_enquad, errors="coerce").date()
         except Exception:
             continue
 
@@ -97,6 +103,7 @@ def extrair_dados_basicos(df):
             "Vinculo": vinculo,
             "NivelAtual": nivel,
             "DataInicio": data_inicio,
+            "DataEnquad": data_enquad,
             "DataFim": data_fim,
             "PontosExcedentes": round(pts_rem, 4),
         })

@@ -444,6 +444,7 @@ def calcular_planilha(arquivo):
         identificador = servidor["Vinculo"]
         nivel_atual = servidor["NivelAtual"]
         data_inicio = servidor["DataInicio"]
+        data_enquad = servidor["DataEnquad"]
         DATA_FIM = servidor["DataFim"]
         pts_remanescentes = servidor["PontosExcedentes"]
 
