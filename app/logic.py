@@ -577,8 +577,8 @@ def calcular_planilha(arquivo):
         meses_ate_evo = None
         pts_resto = None
         novo_nivel = None
-        e12meses = False
-        e18meses = False    
+        e12meses, atingiu_12 = False, False
+        e18meses, atingiu_18 = False, False 
 
         for i in range(DATA_CONCLUSAO):
             dt_atual = carreira[i][0]
@@ -607,41 +607,45 @@ def calcular_planilha(arquivo):
             aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
 
             # Verifica condições para evolução
-            if dt_atual >= data_prevista12: 
-                if pts_loop >= 96:
-                    evolucao = dt_atual
-                    implementacao = evolucao + relativedelta(day=1, months=1)
-                    meses_ate_evo = meses_passados
-                    pts_resto = pts_loop - 48
-                    e12meses = True
-                    break
+            if data_prevista12 >= dt_atual <= data_prevista18 and pts_loop >= 96: 
+                atingiu_12 = True
 
-            if dt_atual >= (data_prevista15 if st.session_state.apo_especial_m == 'Sim' else data_prevista18): 
-                if pts_loop >= 48:
-                    evolucao = dt_atual
-                    implementacao = evolucao + relativedelta(day=1, months=1)
-                    meses_ate_evo = meses_passados
-                    pts_resto = pts_loop - 48
-                    e18meses = True
-                    break
+            if atingiu_12 and aperfeicoamento_atual >= 3.6:
+                evolucao = dt_atual
+                implementacao = evolucao + relativedelta(day=1, months=1)
+                meses_ate_evo = meses_passados
+                pts_resto = pts_loop - 48
+                e12meses = True
+                break
+
+            if dt_atual >= (data_prevista15 if st.session_state.apo_especial_m == 'Sim' else data_prevista18) and pts_loop >= 48: 
+                atingiu_18 = True
+            
+            if atingiu_18 and aperfeicoamento_atual >= 5.4:
+                evolucao = dt_atual
+                implementacao = evolucao + relativedelta(day=1, months=1)
+                meses_ate_evo = meses_passados
+                pts_resto = pts_loop - 48
+                e18meses = True
+                break
         
-        pendencias, motivos = False, []
-        mot = ""
-        if not evolucao:
-            pendencias = True
-            motivos += ["obrigatórios"]
-        
+        pendencias, motivos, mot = False, [], ""
+
         if st.session_state.apo_especial_m == 'Sim':
             mot = "Aposentadoria Especial"
         
-        if e12meses: 
-            if aperfeicoamento_atual < 3.6:
-                pendencias = True 
-                motivos += ["de aperfeiçoamento mínimo de 40 horas"]
-        if e18meses:
-            if aperfeicoamento_atual < 5.4:
-                pendencias = True 
-                motivos += ["de aperfeiçoamento mínimo de 60 horas"]
+        if not evolucao:
+            pendencias = True
+            if e12meses or atingiu_12: 
+                if aperfeicoamento_atual < 3.6:
+                    motivos += ["aperfeiçoamento mínimo de 40 horas"]
+                else:
+                    if e18meses or atingiu_18:
+                        if aperfeicoamento_atual < 5.4:
+                            motivos += ["aperfeiçoamento mínimo de 60 horas"]
+            elif e18meses or atingiu_18:
+                if aperfeicoamento_atual < 5.4:
+                    motivos += ["aperfeiçoamento mínimo de 60 horas"]
         
         if desempenho_atual < 2.4:
             pendencias = True 
