@@ -38,7 +38,7 @@ dados_tit = {
     'Mestrado': 24,
     'Doutorado': 48,
 
-    'Pós-graduação em Nível de Certifação': 6,
+    'Pós-graduação em Nível de Certificaação': 6,
     'Pós-doutorado – igual a 6 meses': 6,   
     'Pós-doutorado - (6 a 12 meses)': 8,   
     'Pós-doutorado - (13 a 24 meses)': 12,  
@@ -108,3 +108,4 @@ dados_unicos = {
     'Nenhum': 0,
     'Houve': 0.333
 }
+
