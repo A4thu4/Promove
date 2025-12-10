@@ -300,7 +300,7 @@ def build_titulacoes(key_prefix="tit"):
             with c13: submitted = st.form_submit_button("➕", use_container_width=True, type='primary')
         with col2:
             tipo_tit = st.selectbox(
-                "Tipo de Titlução",
+                "Tipo de Titulação",
                 list(dados_tit.keys()),
                 key=f"{key_prefix}_tipo"
             )
@@ -1197,3 +1197,4 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
+
