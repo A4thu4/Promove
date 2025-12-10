@@ -377,8 +377,8 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     meses_ate_evolucao = None
     pts_resto = None
     novo_nivel = None
-    e12meses = False
-    e18meses = False
+    e12meses, atingiu_12 = False, False
+    e18meses, atingiu_18 = False, False
 
     for i in range(DATA_CONCLUSAO):
         data_atual = carreira[i][0]
@@ -409,48 +409,52 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
         # Verifica condições para evolução
-        if data_atual >= data_prevista12:
-            if pontos >= 96:
-                evolucao = data_atual
-                implementacao = evolucao + relativedelta(day=1, months=1)
-                meses_ate_evolucao = meses_passados
-                pts_resto = pontos - 48
-                e12meses = True
-                break
+        if data_prevista12 >= data_atual <= data_prevista18 and pontos >= 96:
+            atingiu_12 = True
+        
+        if atingiu_12 and aperfeicoamento_atual >= 3.6:
+            evolucao = data_atual
+            implementacao = evolucao + relativedelta(day=1, months=1)
+            meses_ate_evolucao = meses_passados
+            pts_resto = pontos - 48
+            e12meses = True
+            break
 
-        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18):
-            if pontos >= 48:
-                evolucao = data_atual
-                implementacao = evolucao + relativedelta(day=1, months=1)
-                meses_ate_evolucao = meses_passados
-                pts_resto = pontos - 48
-                e18meses = True
-                break
+        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18) and pontos >= 48 :
+            atingiu_18 = True
+        
+        if atingiu_18 and aperfeicoamento_atual >= 5.4:
+            evolucao = data_atual
+            implementacao = evolucao + relativedelta(day=1, months=1)
+            meses_ate_evolucao = meses_passados
+            pts_resto = pontos - 48
+            e18meses = True
+            break
     
-    pendencias, motivos = False, []
-    mot = ""
-    if not evolucao:
-        pendencias = True
-        motivos += ["obrigatórios"]
+    pendencias, motivos, mot = False, [], ""
     
     if st.session_state.apo_especial == 'Sim':
         mot = "Aposentadoria Especial"
     
-    if e12meses: 
-        if aperfeicoamento_atual < 3.6:
-            pendencias = True 
-            motivos += ["de aperfeiçoamento mínimo de 40 horas"]
-    if e18meses:
-        if aperfeicoamento_atual < 5.4:
-            pendencias = True 
-            motivos += ["de aperfeiçoamento mínimo de 60 horas"]
-    
+    if not evolucao:
+        pendencias = True
+        if e12meses or atingiu_12: 
+            if aperfeicoamento_atual < 3.6:
+                motivos += ["aperfeiçoamento mínimo de 40 horas"]
+            else:
+                if e18meses or atingiu_18:
+                    if aperfeicoamento_atual < 5.4:
+                        motivos += ["aperfeiçoamento mínimo de 60 horas"]
+        elif e18meses or atingiu_18:
+            if aperfeicoamento_atual < 5.4:
+                motivos += ["aperfeiçoamento mínimo de 60 horas"]
+
     if desempenho_atual < 2.4:
         pendencias = True 
         motivos += ["desempenho mínimo de 2.4 pontos"]
 
     if pendencias and motivos:
-        motivo =( ((mot + ". ") if mot else "") + "Não atingiu requisito(s) " + " e ".join(motivos) )
+        motivo =( ((mot + ". ") if mot else "") + "Não atingiu " + " e ".join(motivos) )
     elif mot:
         motivo = mot
     else:
