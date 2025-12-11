@@ -483,9 +483,6 @@ def main():
 
         if not st.session_state.calculo_executado:
             try:
-                afast_total = []
-                afast_total.extend(st.session_state.get("afastamentos_inicial", []))
-                afast_total.extend(st.session_state.get("afastamentos", []))
 
                 carreira_calculada, resultados_carreira = calcular_evolucao(
                     st.session_state.enquadramento,
@@ -493,7 +490,7 @@ def main():
                     st.session_state.nivel_atual, 
                     st.session_state.carreira, 
                     st.session_state.pts_ultima_evolucao, 
-                    afast_total, 
+                    st.session_state.afastamentos, 
                     st.session_state.aperfeicoamentos,
                     st.session_state.titulacoes,
                     st.session_state.resp_unicas,

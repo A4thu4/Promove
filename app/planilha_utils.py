@@ -260,7 +260,7 @@ def processar_titulacoes(df, i, carreira):
     return carreira
 
 
-def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_enquad, data_fim):
+def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp, data_enquad, data_fim):
     """Aplica pontos mensais (cargos, funções e atuações) na matriz da carreira."""
     from collections import defaultdict
     LIMITE_RESP = 144
@@ -381,6 +381,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
     enquadramento = data_enquad  # na planilha é "Data do Enquadramento"
+    from data_utils import DECRETO_DATE
     data_inicial = carreira[0][0]
     if isinstance(data_inicial, datetime):
         data_inicial = data_inicial.date()
@@ -392,11 +393,18 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
             continue
 
         # Retroativo só para G1 e até 5 anos antes do enquadramento (mesma lógica do individual)
-        retro_elegivel = (
-            g == "G1"
-            and inicio < enquadramento
-            and inicio >= enquadramento - relativedelta(years=5)
-        )
+        retro_elegivel = False
+        if g == "G1" and inicio < enquadramento:
+            limite_5anos = enquadramento - relativedelta(years=5)
+            if inicio < limite_5anos:
+                # corta o período: ignora tudo antes do limite de 5 anos
+                inicio = limite_5anos
+            retro_elegivel = True
+
+        # G2, G3, G4: NUNCA têm retroativo.
+        # Só contam pontos a partir da data do decreto.
+        if g != "G1" and inicio < DECRETO_DATE:
+            inicio = DECRETO_DATE
 
         # Começa a contar a partir do mês seguinte ao início
         ano = inicio.year
@@ -408,18 +416,18 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data
         while date(ano, mes, 1) <= fim:
             data_ap = date(ano, mes, 1)
 
-            # Faltas já estão em afastamentos_dict na própria data de aplicação (mês seguinte)
-            faltas = afastamentos_dict.get(data_ap, 0)
+            # faltas já estão em afastamentos_dict_resp na própria data de aplicação (mês seguinte)
+            faltas = afastamentos_dict_resp.get(data_ap, 0)
             desconto = (pontos / 30.0) * faltas
             pts_aj = max(0.0, pontos - desconto)
 
             if pts_aj > 0:
                 if data_ap < data_inicial:
-                    # período retroativo
-                    if retro_elegivel:
+                    # período RETROATIVO → soma em retro_bruto (só G1 e se elegível)
+                    if retro_elegivel and g == "G1":
                         retro_bruto[data_ap][g].append(pts_aj)
                 else:
-                    # período normal
+                    # período NORMAL → soma em rm_bruto
                     rm_bruto[data_ap][g].append(pts_aj)
 
             # próximo mês
@@ -486,6 +494,8 @@ def processar_responsabilidades_unicas(df, i, carreira):
     LIMITE_RESP = 144
     total_pontos = 0
     resp_dict = {}
+    
+    from data_utils import DECRETO_DATE
 
     # Mapas de pontos
     dados_artigo = {"PUBID": 3, "PUBNID": 0.5}
@@ -508,6 +518,8 @@ def processar_responsabilidades_unicas(df, i, carreira):
                 if not tipo or not data_str:
                     continue
                 data_concl = datetime.strptime(data_str, "%d/%m/%Y").date()
+                if data_concl < DECRETO_DATE:
+                    continue
             except Exception:
                 continue
 
