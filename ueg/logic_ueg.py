@@ -68,23 +68,28 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             afastamentos_dict[data_aplicacao] = faltas
 
     # --- Dias anteriores à Data de Início (faltas automáticas) só para Efetivo/Desempenho ---
+    # Importante: essas faltas NÃO devem afetar Responsabilidades (nem normal, nem retro).
+    data_aplic_auto = None
+    faltas_inicial = 0
     if data_inicial:
         faltas_inicial = data_inicial.day - 1
         if faltas_inicial > 0:
             # aplica no 1º dia do mês seguinte
             if data_inicial.month == 12:
-                data_aplic = date(data_inicial.year + 1, 1, 1)
+                data_aplic_auto = date(data_inicial.year + 1, 1, 1)
             else:
-                data_aplic = date(data_inicial.year, data_inicial.month + 1, 1)
+                data_aplic_auto = date(data_inicial.year, data_inicial.month + 1, 1)
 
-            afastamentos_dict[data_aplic] = afastamentos_dict.get(data_aplic, 0) + faltas_inicial
+            afastamentos_dict[data_aplic_auto] = afastamentos_dict.get(data_aplic_auto, 0) + faltas_inicial
 
-    # ----------- NOVO: AFASTAMENTOS PARA RESPONSABILIDADES (remove só o automático) -----------
+    # ----------- AFASTAMENTOS PARA RESPONSABILIDADES (remove só o automático) -----------
+    # Mantém todos os afastamentos informados (inclusive em período retroativo),
     afastamentos_dict_resp = dict(afastamentos_dict)
-    if data_aplic and data_aplic in afastamentos_dict_resp:
-        afastamentos_dict_resp[data_aplic] -= faltas_inicial
-        if afastamentos_dict_resp[data_aplic] <= 0:
-            del afastamentos_dict_resp[data_aplic]
+    if data_aplic_auto and data_aplic_auto in afastamentos_dict_resp:
+        afastamentos_dict_resp[data_aplic_auto] -= faltas_inicial
+        if afastamentos_dict_resp[data_aplic_auto] <= 0:
+            del afastamentos_dict_resp[data_aplic_auto]
+
 
     # Aplica os afastamentos nas datas correspondentes
     for i in range(len(carreira)):
