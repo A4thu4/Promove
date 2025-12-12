@@ -15,8 +15,8 @@ def destacar_obs(val):
 val_states = {
     "carreira": [], "resultados_carreira": [],
     
-    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "enquadramento": None,
-    "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "titulacoes": [],
+    "data_inicial": None, "data_fim": None, "enquadramento": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
+    "obrigatorios": [], "afastamentos": [], "titulacoes": [],
     
     "resp_mensais": [], 
     "comissao_lista": [], "func_c_lista": [], "func_d_lista": [], 
@@ -38,7 +38,7 @@ dados_tit = {
     'Mestrado': 24,
     'Doutorado': 48,
 
-    'Pós-graduação em Nível de Certificaação': 6,
+    'Pós-graduação em Nível de Certificação': 6,
     'Pós-doutorado – igual a 6 meses': 6,   
     'Pós-doutorado - (6 a 12 meses)': 8,   
     'Pós-doutorado - (13 a 24 meses)': 12,  

@@ -67,6 +67,25 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         else:
             afastamentos_dict[data_aplicacao] = faltas
 
+    # --- Dias anteriores à Data de Início (faltas automáticas) só para Efetivo/Desempenho ---
+    if data_inicial:
+        faltas_inicial = data_inicial.day - 1
+        if faltas_inicial > 0:
+            # aplica no 1º dia do mês seguinte
+            if data_inicial.month == 12:
+                data_aplic = date(data_inicial.year + 1, 1, 1)
+            else:
+                data_aplic = date(data_inicial.year, data_inicial.month + 1, 1)
+
+            afastamentos_dict[data_aplic] = afastamentos_dict.get(data_aplic, 0) + faltas_inicial
+
+    # ----------- NOVO: AFASTAMENTOS PARA RESPONSABILIDADES (remove só o automático) -----------
+    afastamentos_dict_resp = dict(afastamentos_dict)
+    if data_aplic and data_aplic in afastamentos_dict_resp:
+        afastamentos_dict_resp[data_aplic] -= faltas_inicial
+        if afastamentos_dict_resp[data_aplic] <= 0:
+            del afastamentos_dict_resp[data_aplic]
+
     # Aplica os afastamentos nas datas correspondentes
     for i in range(len(carreira)):
         data_atual = carreira[i][0]
@@ -228,11 +247,11 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
                 while date(ano_aplic, mes_aplic, 1) < limite_retro:
                     data_retro = date(ano_aplic, mes_aplic, 1)
 
-                    pts_aj = max(0, pontos)
-
-                    # retroativo entra em retro_bruto (somente G1 aqui)
+                    faltas = afastamentos_dict_resp.get(data_retro, 0)
+                    desconto = (pontos / 30.0) * faltas
+                    pts_aj = max(0.0, pontos - desconto)
                     retro_bruto[data_retro][g].append(pts_aj)
-
+                    
                     # próximo mês retroativo
                     mes_aplic += 1
                     if mes_aplic > 12:
@@ -262,13 +281,9 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             if mes_ant < 1:
                 mes_ant, ano_ant = 12, ano_aplicacao - 1
 
-            falta = next(
-                (f for m, f in afastamentos if m.month == mes_ant and m.year == ano_ant),
-                0
-            )
-
-            desconto = (pontos / 30) * falta
-            pts_aj = max(0, pontos - desconto)
+            faltas = afastamentos_dict_resp.get(data_aplicacao, 0)
+            desconto = (pontos / 30.0) * faltas
+            pts_aj = max(0.0, pontos - desconto)
 
             # adiciona dentro do grupo real
             rm_bruto[data_aplicacao][g].append(pts_aj)
@@ -464,21 +479,30 @@ def calcular_planilha(arquivo):
         # ---------- AFASTAMENTOS AUTOMÁTICOS ----------
         afastamentos_dict = {}
         faltas_inicial = data_inicio.day - 1
+        data_aplicacao_inicial = None
+
         if faltas_inicial > 0:
             # Aplica faltas do mês de enquadramento no mês seguinte
             mes_aplicacao = 1 if data_inicio.month == 12 else data_inicio.month + 1
             ano_aplicacao = data_inicio.year + 1 if data_inicio.month == 12 else data_inicio.year
-            data_aplicacao = date(ano_aplicacao, mes_aplicacao, 1)
-            afastamentos_dict[data_aplicacao] = faltas_inicial
+            data_aplicacao_inicial = date(ano_aplicacao, mes_aplicacao, 1)
+            afastamentos_dict[data_aplicacao_inicial] = faltas_inicial
 
         # ---------- AFASTAMENTOS ----------
         carreira = processar_afastamentos(df, i, afastamentos_dict, carreira)
+
+        # dicionário para responsabilidades, SEM os dias automáticos da Data de Início
+        afastamentos_dict_resp = afastamentos_dict.copy()
+        if data_aplicacao_inicial and data_aplicacao_inicial in afastamentos_dict_resp:
+            afastamentos_dict_resp[data_aplicacao_inicial] -= faltas_inicial
+            if afastamentos_dict_resp[data_aplicacao_inicial] <= 0:
+                del afastamentos_dict_resp[data_aplicacao_inicial]
 
         # ---------- TITULAÇÕES ----------
         carreira = processar_titulacoes(df, i, carreira)
 
         # ---------- R.MENSAIS ----------
-        carreira = processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict, data_enquad, DATA_FIM)
+        carreira = processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp, data_enquad, DATA_FIM)
 
         # ---------- R.ÚNICAS ----------
         carreira = processar_responsabilidades_unicas(df, i, carreira)

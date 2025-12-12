@@ -70,25 +70,6 @@ def build_obrigatorios(key_prefix="obg"):
             c0, c1 = st.columns([2,2])    
             with c0: remove = st.form_submit_button("Remover", use_container_width=True)
 
-    faltas = 0
-    if st.session_state.data_inicial:
-        # Remove qualquer registro anterior automático de faltas
-        st.session_state.afastamentos_inicial = [
-            (mes, faltas)
-            for mes, faltas in st.session_state.afastamentos_inicial
-            if mes != st.session_state.get("data_inicial_anterior")
-        ]
-
-        data = st.session_state.data_inicial
-        faltas = data.day - 1  # dias antes do início
-        if faltas > 0:
-            st.session_state.afastamentos_inicial.append((data, int(faltas)))
-        else:
-            st.session_state.afastamentos_inicial.append((data, 0))
-
-        # Atualiza o controle da última data usada
-        st.session_state.data_inicial_anterior = data
-
     if submitted:
         if not nivel_atual:
             st.error("O campo 'Nivel Atual' é obrigatório. Preencha com valores entre A e S.")
@@ -139,7 +120,7 @@ def build_afastamentos(key_prefix="afast"):
             mes_faltas = st.date_input(
                 "Mês dos Afastamentos",
                 format="DD/MM/YYYY",
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.enquadremento - relativedelta(years=5),
                 value=None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_mes",
@@ -166,11 +147,9 @@ def build_afastamentos(key_prefix="afast"):
         if not qntd_faltas or qntd_faltas == 0:
             st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
         if st.session_state.obrigatorios and mes_faltas:
-            if mes_faltas < st.session_state.data_inicial:
-                st.error("O mês do afastamento não pode ser anterior à data do enquadramento ou da última evolução.")
             if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.warning("Mês e ano já registrados.")
-            if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
+            if qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.session_state.afastamentos.append((mes_faltas, int(qntd_faltas)))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
