@@ -70,25 +70,6 @@ def build_obrigatorios(key_prefix="obg"):
             c0, c1 = st.columns([2,2])
             with c0: remove = st.form_submit_button("Remover", use_container_width=True)
 
-    faltas = 0
-    if st.session_state.data_inicial:
-        # Remove qualquer registro anterior automático de faltas
-        st.session_state.afastamentos_inicial = [
-            (mes, faltas)
-            for mes, faltas in st.session_state.afastamentos_inicial
-            if mes != st.session_state.get("data_inicial_anterior")
-        ]
-
-        data = st.session_state.data_inicial
-        faltas = data.day - 1  # dias antes do início
-        if faltas > 0:
-            st.session_state.afastamentos_inicial.append((data, int(faltas)))
-        else:
-            st.session_state.afastamentos_inicial.append((data, 0))
-
-        # Atualiza o controle da última data usada
-        st.session_state.data_inicial_anterior = data
-
     if submitted:
         if not nivel_atual:
             st.error("O campo 'Nivel Atual' é obrigatório. Preencha com valores entre A e S.")

@@ -15,8 +15,8 @@ def destacar_obs(val):
 val_states = {
     "carreira": [], "resultados_carreira": [],
 
-    "data_inicial": None, "data_fim": None, "nivel_atual": None, "pts_ultima_evolucao": None, "enquadramento": None,
-    "obrigatorios": [], "afastamentos": [], "afastamentos_inicial": [], "aperfeicoamentos": [], "titulacoes": [],
+    "data_inicial": None, "data_fim": None, "enquadramento": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
+    "obrigatorios": [], "afastamentos": [], "aperfeicoamentos": [], "titulacoes": [],
     
     "resp_mensais": [], 
     "comissao_lista": [], "func_c_lista": [], "func_d_lista": [], 
