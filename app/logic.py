@@ -78,6 +78,13 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
             afastamentos_dict[data_aplic] = afastamentos_dict.get(data_aplic, 0) + faltas_inicial
 
+    # ----------- NOVO: AFASTAMENTOS PARA RESPONSABILIDADES (remove só o automático) -----------
+    afastamentos_dict_resp = dict(afastamentos_dict)
+    if data_aplic and data_aplic in afastamentos_dict_resp:
+        afastamentos_dict_resp[data_aplic] -= faltas_inicial
+        if afastamentos_dict_resp[data_aplic] <= 0:
+            del afastamentos_dict_resp[data_aplic]
+
     # Aplica os afastamentos nas datas correspondentes
     for i in range(len(carreira)):
         data_atual = carreira[i][0]
@@ -266,9 +273,9 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
                 while date(ano_aplic, mes_aplic, 1) < limite_retro:
                     data_retro = date(ano_aplic, mes_aplic, 1)
 
-                    pts_aj = max(0, pontos)
-
-                    # retroativo entra em retro_bruto (somente G1 aqui)
+                    faltas = afastamentos_dict_resp.get(data_retro, 0)
+                    desconto = (pontos / 30.0) * faltas
+                    pts_aj = max(0.0, pontos - desconto)
                     retro_bruto[data_retro][g].append(pts_aj)
 
                     # próximo mês retroativo
@@ -300,13 +307,9 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             if mes_ant < 1:
                 mes_ant, ano_ant = 12, ano_aplicacao - 1
 
-            falta = next(
-                (f for m, f in afastamentos if m.month == mes_ant and m.year == ano_ant),
-                0
-            )
-
-            desconto = (pontos / 30) * falta
-            pts_aj = max(0, pontos - desconto)
+            faltas = afastamentos_dict_resp.get(data_aplicacao, 0)
+            desconto = (pontos / 30.0) * faltas
+            pts_aj = max(0.0, pontos - desconto)
 
             # adiciona dentro do grupo real
             rm_bruto[data_aplicacao][g].append(pts_aj)

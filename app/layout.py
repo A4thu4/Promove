@@ -139,7 +139,7 @@ def build_afastamentos(key_prefix="afast"):
             mes_faltas = st.date_input(
                 "Mês dos Afastamentos",
                 format="DD/MM/YYYY",
-                min_value=st.session_state.data_inicial,
+                min_value=st.session_state.enquadramento - relativedelta(years=5),
                 value=None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_mes",
@@ -166,11 +166,9 @@ def build_afastamentos(key_prefix="afast"):
         if not qntd_faltas or qntd_faltas == 0:
             st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
         if st.session_state.obrigatorios and mes_faltas:
-            if mes_faltas < st.session_state.data_inicial:
-                st.error("O mês do afastamento não pode ser anterior à data da última evolução.")
             if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.warning("Mês e ano já registrados.")
-            if mes_faltas >= st.session_state.data_inicial and qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
+            if qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.session_state.afastamentos.append((mes_faltas, int(qntd_faltas)))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
