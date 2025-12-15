@@ -120,7 +120,7 @@ def build_afastamentos(key_prefix="afast"):
             mes_faltas = st.date_input(
                 "Mês dos Afastamentos",
                 format="DD/MM/YYYY",
-                min_value=st.session_state.enquadramento - relativedelta(years=5),
+                min_value=st.session_state.enquadramento - relativedelta(years=5) if st.session_state.enquadramento else None,
                 value=None,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_mes",
