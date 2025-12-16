@@ -461,14 +461,14 @@ def calcular_planilha(arquivo):
     for i, servidor in enumerate(servidores):
         nome_servidor = servidor["Servidor"]
         cpf_servidor = servidor["CPF"]
-        identificador = servidor["Vinculo"]
+        vinculo = servidor["Vinculo"]
         nivel_atual = servidor["NivelAtual"]
         data_inicio = servidor["DataInicio"]
         data_enquad = servidor["DataEnquad"]
         DATA_FIM = servidor["DataFim"]
         pts_remanescentes = servidor["PontosExcedentes"]
 
-        ids_processados.add(identificador)
+        ids_processados.add(cpf_servidor)
         
         # ---------- CRIA MATRIZ BASE ----------
         if data_inicio.month == 12:
@@ -551,7 +551,10 @@ def calcular_planilha(arquivo):
             dt_atual = carreira[i][0]
             pts_loop = carreira[i][6]
 
-            meses_passados = (dt_atual.year - dt_inicial.year) * 12 + (dt_atual.month - dt_inicial.month)
+            # Calcula meses passados desde o início corretamente
+            ano = dt_atual.year - data_inicio.year
+            mes = dt_atual.month - data_inicio.month
+            meses_passados = ano * 12 + mes
             
             data_prevista18 = dt_inicial + relativedelta(months=18)
             data_prevista15 = data_inicio + relativedelta(months=15)
@@ -598,14 +601,18 @@ def calcular_planilha(arquivo):
             motivo = "-"
         
         novo_nivel = NIVEIS[NIVEIS.index(nivel_atual) + 1] if nivel_atual != 'S' else 'S'
-        identificador = int(float(identificador))
+        
+        try:
+            vinculo = int(float(vinculo))
+        except Exception:
+            vinculo = vinculo 
 
         result_niveis.append({
             "Status": "Não apto a evolução" if pendencias else "Apto a evolução",
             "Observação": motivo,
             "Servidor": nome_servidor,
             "CPF": cpf_servidor,
-            "Vínculo": identificador,
+            "Vínculo": vinculo,
             "Próximo Nível": "-" if pendencias else novo_nivel,
             "Data da Pontuação Atingida": "-" if pendencias else evolucao.strftime("%d/%m/%Y"),
             "Data da Implementação": "-" if pendencias else implementacao.strftime("%d/%m/%Y"),

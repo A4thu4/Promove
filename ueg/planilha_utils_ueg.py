@@ -15,12 +15,31 @@ def ler_planilha_excel(arquivo):
             st.error("Planilha incompleta: faltam cabeçalhos ou linhas de dados.")
             return pd.DataFrame()
 
-        colunas = [str(c).strip() for c in dados[2]]
+        raw_cols = dados[2]
+
+        colunas = []
+        contador = {}
+
+        for c in raw_cols:
+            nome = str(c).strip() if c not in (None, "", "None") else None
+
+            if not nome:
+                nome = "COL_VAZIA"
+
+            if nome in contador:
+                contador[nome] += 1
+                nome = f"{nome}_{contador[nome]}"
+            else:
+                contador[nome] = 1
+
+            colunas.append(nome)
+
         valores = dados[3:]
         df = pd.DataFrame(valores, columns=colunas)
 
         # Limpeza básica
         df = df.drop_duplicates().replace([None, np.nan], "")
+
         colunas_obrigatorias = [
             "Servidor", "CPF", "Vínculo", "Nível Atual",
             "Data do Enquadramento", "Data de Início dos Pontos",
@@ -33,17 +52,27 @@ def ler_planilha_excel(arquivo):
 
         # Remove linhas vazias e normaliza tipos
         df = df[
-            df["Servidor"].astype(str).str.strip().ne("") &
             df["CPF"].astype(str).str.strip().ne("") &
-            df["Vínculo"].astype(str).str.strip().ne("") &
-            df["Nível Atual"].astype(str).str.strip().ne("")
-        ]
+            df["Nível Atual"].astype(str).str.strip().ne("") &
+            df["Data de Início dos Pontos"].astype(str).str.strip().ne("") &
+            df["Data do Enquadramento"].astype(str).str.strip().ne("")
+        ].copy()
 
-        df["Vínculo"] = df["Vínculo"].astype(str).str.strip()
-        df = df.drop_duplicates(subset=["Vínculo"], keep="first")
+        if "Vínculo" in df.columns:
+            df["Vínculo"] = df["Vínculo"].astype(str).str.strip()
+        else:
+            df["Vínculo"] = ""
+
+        # remove duplicados APENAS quando Vínculo está preenchido
+        v = df["Vínculo"].astype(str).str.strip()
+        df_com_v = df[v.ne("")].drop_duplicates(subset=["Vínculo"], keep="first")
+        df_sem_v = df[v.eq("")]  # mantém todas
+        df = pd.concat([df_com_v, df_sem_v], ignore_index=True)
+        
         df["Data de Início dos Pontos"] = pd.to_datetime(
             df["Data de Início dos Pontos"],  format="%d/%m/%Y", errors="coerce"
         )
+        
         df["Data do Enquadramento"] = pd.to_datetime(
             df["Data do Enquadramento"], format="%d/%m/%Y", errors="coerce"
         )
@@ -53,7 +82,7 @@ def ler_planilha_excel(arquivo):
             df,
             hide_index=True,
             column_config={
-                "Vínculo": st.column_config.NumberColumn(format="%d"),
+                "Vínculo": st.column_config.NumberColumn(format="%d") if df["Vínculo"].str.strip().ne("").all() else st.column_config.TextColumn(),
                 "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY"),
                 "Data do Enquadramento": st.column_config.DateColumn(format="DD/MM/YYYY")
             }
@@ -78,9 +107,9 @@ def extrair_dados_basicos(df):
         data_inicio = row.get("Data de Início dos Pontos")
         data_enquad = row.get("Data do Enquadramento")
         pts_rem = row.get("Pontos Excedentes da Última Evolução")
-
+        
         # Verificação mínima de integridade
-        if not all([nome, cpf, vinculo, nivel, data_inicio, data_enquad]):
+        if not all([cpf, nivel, data_inicio, data_enquad]):
             continue
 
         # Normaliza data e pontos
