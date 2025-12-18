@@ -5,7 +5,29 @@ import openpyxl as px
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
+@st.cache_data(show_spinner=False)
+def _ler_planilha_excel_cached(file_bytes: bytes):
+    import io
+    return _ler_planilha_excel(io.BytesIO(file_bytes))
+
 def ler_planilha_excel(arquivo):
+    """
+    Lê e valida a planilha Excel e devolve DataFrame.
+    Aceita:
+      - bytes (conteúdo do xlsx)
+      - UploadedFile / file-like
+    """
+    import pandas as pd
+
+    if arquivo is None:
+        return pd.DataFrame()
+
+    if isinstance(arquivo, (bytes, bytearray)):
+        return _ler_planilha_excel_cached(bytes(arquivo))
+
+    return _ler_planilha_excel(arquivo)
+
+def _ler_planilha_excel(arquivo):
     """Lê e valida a planilha Excel, retornando um DataFrame limpo."""
     try:
         wb = px.load_workbook(arquivo, data_only=True)

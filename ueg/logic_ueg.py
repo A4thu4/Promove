@@ -29,7 +29,6 @@ def clear_states():
 
         
 def zerar_carreira(carreira):
-    from layout_ueg import ensure_states
     ensure_states()
 
     # ZERA todos os campos de cálculo antes de começar
@@ -477,7 +476,7 @@ def calcular_planilha(arquivo):
             data_base = date(data_inicio.year, data_inicio.month + 1, 1)
 
         carreira = [
-            [data_base + timedelta(days=i)] + [0] * 6
+            [data_base + relativedelta(months=i)] + [0] * 6
             for i in range(DATA_CONCLUSAO)
         ]
 
@@ -534,9 +533,9 @@ def calcular_planilha(arquivo):
                 "Soma Total",
             ],
         )
-        df_preview["Data"] = pd.to_datetime(df_preview["Data"])
-        df_preview = df_preview[df_preview["Data"].dt.day == 1]
-        df_preview["Data"] = df_preview["Data"].dt.strftime("%d/%m/%Y")
+
+        df_preview["Data"] = df_preview["Data"].apply(lambda d: d.strftime("%d/%m/%Y"))
+
 
 ### ---------- CÁLCULO DE EVOLUÇÃO ---------- ###
         # Dados iniciais

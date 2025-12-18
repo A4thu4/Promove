@@ -262,6 +262,12 @@ st.markdown(
 def main():
     ensure_states()
 
+     # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
+    if "calculando" not in st.session_state:
+        st.session_state.calculando = False
+    if "calculando_desde" not in st.session_state:
+        st.session_state.calculando_desde = None
+
     # ---------- NAVEGAÇÃO ---------- #
     with st.sidebar:
         tabs = st.radio("Navegar",
@@ -346,12 +352,9 @@ def main():
 
                     # Inicializa a carreira no session state
                     st.session_state.carreira = [
-                        [data_inicio + timedelta(days=i)] + [0] * 6
+                        [data_inicio + relativedelta(months=i)] + [0] * 6
                         for i in range(DATA_CONCLUSAO)
                     ]
-
-                    st.success(f"✅ Carreira inicializada com {len(st.session_state.carreira)} dias!")
-                    st.rerun()  # Força atualização
 
                 build_afastamentos()
                 st.divider()
@@ -438,13 +441,40 @@ def main():
         with cl11:
             st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial_m", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
             
-        st.session_state.arquivo = st.file_uploader("Selecione o arquivo", type=["xlsx", "xls", "xlsm"], key=f"wb_{st.session_state.file_reset}", label_visibility="hidden")
-        
-        if st.session_state.arquivo is not None:
-            try:
-                calcular_planilha(st.session_state.arquivo)
-            except Exception as e:
-                st.error(f"❌ Erro no cálculo: Verifque se todos os dados na planilha estão corretos. {e}")
+        import hashlib, time
+
+        with st.form("form_calculo_multiplo", clear_on_submit=False):
+            arquivo_up = st.file_uploader(
+                "Selecione o arquivo",
+                type=["xlsx", "xls", "xlsm"],
+                key=f"wb_{st.session_state.file_reset}",
+                label_visibility="hidden"
+            )
+            submitted = st.form_submit_button("Calcular")
+
+        if submitted:
+            if arquivo_up is None:
+                st.warning("Carregue a planilha antes de calcular.")
+            else:
+                # trava de reentrância com timeout (evita deadlock se o worker cair no meio)
+                if st.session_state.calculando_desde and (time.time() - st.session_state.calculando_desde) < 120:
+                    st.warning("Cálculo já em andamento. Aguarde.")
+                    st.stop()
+
+                st.session_state.calculando = True
+                st.session_state.calculando_desde = time.time()
+                try:
+                    file_bytes = arquivo_up.getvalue()
+                    st.session_state.multi_file_hash = hashlib.md5(file_bytes).hexdigest()
+                    st.session_state.multi_file_name = arquivo_up.name
+
+                    with st.spinner("Calculando..."):
+                        calcular_planilha(file_bytes)  # planilha_utils_ueg.py deve aceitar bytes
+                except Exception as e:
+                    st.error(f"❌ Erro no cálculo: Verifique se todos os dados na planilha estão corretos. {e}")
+                finally:
+                    st.session_state.calculando = False
+                    st.session_state.calculando_desde = None
 
     if tabs == '**Resultados**':
         from logic_ueg import calcular_evolucao
@@ -478,10 +508,8 @@ def main():
                 from logic_ueg import zerar_carreira
                 zerar_carreira(st.session_state.carreira)
                 st.session_state.calculo_executado = False
-                st.rerun()
         with col2:
-            if st.button("🔄 Novo Cálculo", type="tertiary", on_click=novo_calculo):
-                st.rerun()
+            st.button("🔄 Novo Cálculo", type="tertiary", on_click=novo_calculo)
 
         if not st.session_state.calculo_executado:
             try:
@@ -502,8 +530,6 @@ def main():
                     st.session_state.carreira = carreira_calculada
                     st.session_state.resultados_carreira = resultados_carreira
                     st.session_state.calculo_executado = True
-                    st.success("✅ Cálculo concluído!")
-                    st.rerun()
                 else:
                     st.markdown(
                         """
@@ -538,9 +564,8 @@ def main():
                 st.session_state.carreira,
                 columns=['Data', 'Efetivo Exercício', 'Desempenho', 'Titulação Acadêmica', 'R.Únicas', 'R.Mensais', 'Soma Total']
             )
-            df_preview['Data'] = pd.to_datetime(df_preview['Data'])
-            df_preview = df_preview[df_preview['Data'].dt.day == 1]
-            df_preview['Data'] = df_preview['Data'].dt.strftime('%d/%m/%Y')
+
+            df_preview["Data"] = df_preview["Data"].apply(lambda d: d.strftime("%d/%m/%Y"))
             
             st.markdown("<h3 style='text-align:center; color:#000000; '>Pontuações Mensais</h3>", unsafe_allow_html=True)
             st.dataframe(df_preview.head(241), hide_index=True)

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-DATA_CONCLUSAO = 18268 # em dias
+DATA_CONCLUSAO = 241 # em meses 20 anos
 #[3654 - 10 anos] [7306 - 20 anos] [14614 - 40 anos] [18268 - 50 anos]
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
@@ -108,4 +108,3 @@ dados_unicos = {
     'Nenhum': 0,
     'Houve': 0.333
 }
-

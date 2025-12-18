@@ -84,7 +84,6 @@ def build_obrigatorios(key_prefix="obg"):
             st.session_state.nivel_atual = nivel_atual if nivel_atual else 'A'
             st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, st.session_state.enquadramento,  float(pts_remanescentes))]
             st.session_state.carreira = []
-            st.rerun()
 
     # Mostrar pontos cadastrados 
     if st.session_state.obrigatorios:
@@ -152,7 +151,6 @@ def build_afastamentos(key_prefix="afast"):
             if qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.session_state.afastamentos.append((mes_faltas, int(qntd_faltas)))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
     if cleared:
         st.session_state.afastamentos.clear()
@@ -176,7 +174,6 @@ def build_afastamentos(key_prefix="afast"):
                 if remove and st.session_state.afastamentos:
                     st.session_state.afastamentos.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
 
 
 def build_desempenho(key_prefix="des"):
@@ -307,7 +304,6 @@ def build_titulacoes(key_prefix="tit"):
             if data_conclusao >= st.session_state.data_inicial and tipo_tit != 'Nenhuma':
                 st.session_state.titulacoes.append((data_conclusao, tipo_tit))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
     if cleared:
         st.session_state.titulacoes.clear()
@@ -331,7 +327,6 @@ def build_titulacoes(key_prefix="tit"):
                 if remove:
                     st.session_state.titulacoes.pop()
                     st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
 
 
 def build_responsabilidades_mensais(key_prefix="resp_mensal"):
@@ -418,13 +413,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.comissao_lista.append((f"C. Comissão: {cargo_comissao}", data_i_cc, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.comissao_lista:
             if remove1:
                 st.session_state.comissao_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- FUNÇÃO COMISSIONADA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
@@ -487,13 +480,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.func_c_lista.append((f"F. Comissionada: {funcao_comissionada}", data_i_fc, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.func_c_lista:
             if remove2:
                 st.session_state.func_c_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- FUNÇÃO DESIGNADA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
@@ -556,13 +547,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.func_d_lista.append((f"F. Designada: {funcao_designada}", data_i_fd, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.func_d_lista:
             if remove3:
                 st.session_state.func_d_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- ATUAÇÃO COMO AGENTE ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
@@ -625,13 +614,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.agente_lista.append((f"At. Agente: {atuacao_agente}", data_i_at_a, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.agente_lista:
             if remove4:
                 st.session_state.agente_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- ATUAÇÃO EM CONSELHO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
@@ -694,13 +681,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
         
         if st.session_state.conselho_lista:
             if remove5:
                 st.session_state.conselho_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- ATUAÇÃO PRIORITÁRIA ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
@@ -763,13 +748,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.prioritaria_lista.append((f"At. Prioritária: {atuacao_prioritaria}", data_i_at_p, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.prioritaria_lista:
             if remove6:
                 st.session_state.prioritaria_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- EXECUÇÃO/EXTENSÃO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000; '>Execução de Projeto de Ensino, Pesquisa e/ou Extensão com Captação de Recursos</h5>", unsafe_allow_html=True)
@@ -832,13 +815,11 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 tempo = ano * 12 + mes
                 st.session_state.projeto_lista.append((f"Ex. Projeto: {exec_projeto}", data_i_ex_p, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.projeto_lista:
             if remove7:
                 st.session_state.projeto_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
     def _norm_tipo(s: str) -> str:
         # remove prefixo até ": " se existir
@@ -958,13 +939,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if st.session_state.obrigatorios and data_publi_art and qntd_art and tipo_art != 'Nenhum':
                 st.session_state.artigos_lista.append((data_publi_art, qntd_art, tipo_art))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.artigos_lista:
             if remove1:
                 st.session_state.artigos_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- LIVROS ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
@@ -1013,13 +992,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if st.session_state.obrigatorios and data_publi_liv and qntd_liv and tipo_liv != 'Nenhum':
                 st.session_state.livros_lista.append((data_publi_liv, qntd_liv, tipo_liv))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
         
         if st.session_state.livros_lista:
             if remove2:
                 st.session_state.livros_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- PESQUISAS CIENTIFICAS ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Artigos ou Pesquisas Científicos Aprovados em Eventos Científicos</h5>", unsafe_allow_html=True)
@@ -1068,13 +1045,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if st.session_state.obrigatorios and data_publi_pesq and qntd_pesq and tipo_pesq != 'Nenhum':
                 st.session_state.pesquisas_lista.append((data_publi_pesq, qntd_pesq, tipo_pesq))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.pesquisas_lista:
             if remove3:
                 st.session_state.pesquisas_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000; '>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
@@ -1123,13 +1098,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             if st.session_state.obrigatorios and data_publi_reg and qntd_reg and tipo_reg != 'Nenhum':
                 st.session_state.registros_lista.append((data_publi_reg, qntd_reg, tipo_reg))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
         if st.session_state.registros_lista:
             if remove4:
                 st.session_state.registros_lista.pop()
                 st.session_state[f"{key_prefix}_reset_fields"] = True
-                st.rerun()
 
 
 ### USAR 1 SÓ PARA TODAS AS RESPONSABILIDADES UNICAS ###
@@ -1176,4 +1149,3 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.session_state[nome].clear()
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
-
