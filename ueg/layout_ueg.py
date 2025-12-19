@@ -1135,7 +1135,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
         cols = st.columns(4)
 
-        all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "cursos_lista", "resp_unicas"]
+        all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "resp_unicas"]
 
         for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0])):
             col = cols[i % 4]
