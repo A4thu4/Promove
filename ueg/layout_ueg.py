@@ -604,8 +604,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if atuacao_agente == 'Nenhum':
                 st.error("Selecione uma atuação como agente válida.")
 
-            if data_i_at_a and data_f_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
-                if data_f_at_a <= data_i_at_a:
+            if data_i_at_a and data_f_at_a:
+                if data_f_at_a <= data_i_at_a or not data_f_at_a > data_i_at_a + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_at_a and data_i_at_a and (data_f_at_a > data_i_at_a + relativedelta(months=1)) and atuacao_agente != 'Nenhum':
@@ -671,8 +671,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if atuacao_conselho == 'Nenhum':
                 st.error("Selecione uma atuação em conselho válida.")
 
-            if data_i_at_c and data_f_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
-                if data_f_at_c <= data_i_at_c:
+            if data_i_at_c and data_f_at_c:
+                if data_f_at_c <= data_i_at_c or not data_f_at_c > data_i_at_c + relativedelta(months=1):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_at_c and data_i_at_c and (data_f_at_c > data_i_at_c + relativedelta(months=1)) and atuacao_conselho != 'Nenhum':
