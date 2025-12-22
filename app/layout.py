@@ -374,8 +374,9 @@ def build_titulacoes(key_prefix="tit"):
             st.error("O campo “Data de Conclusão” é obrigatório. Preencha a data completa no formato DD/MM/AAAA (exemplo: 01/01/2025).")
         if tipo_tit == 'Nenhuma':
             st.error("Selecione um tipo de titulação válido.")
-        if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
-            st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
+        if ultima_titulacao:
+            if data_conclusao < (ultima_titulacao + relativedelta(months=12)):
+                st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
         if st.session_state.obrigatorios and (ultima_titulacao is None or data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1))):
             if data_conclusao < st.session_state.data_inicial:
                 st.error("Data não pode ser anterior a data da Última Evolução.")
