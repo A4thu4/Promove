@@ -1,43 +1,16 @@
-import streamlit as st
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-
-from data_utils_ueg import DATA_CONCLUSAO, NIVEIS, destacar_obs
-
-def ensure_states():
-    """Inicializa todos os session_states necessários"""
-    from data_utils_ueg import val_states
-    import copy
-    for key, val in val_states.items():
-        st.session_state.setdefault(key, copy.deepcopy(val))
-        
-
-def clear_states():
-    """Limpa todos os valores nos session_states"""
-    from data_utils_ueg import val_states
-    for key, default_val in val_states.items():
-        if isinstance(default_val, list):
-            st.session_state[key] = []
-        elif isinstance(default_val, (int, float)):
-            st.session_state[key] = 0.0 if isinstance(default_val, float) else 0
-        elif isinstance(default_val, bool):
-            st.session_state[key] = False
-        else:
-            # deepcopy garante que nenhum valor mutável seja reaproveitado
-            st.session_state[key] = default_val
-
+from data_utils_ueg import DATA_CONCLUSAO, NIVEIS
         
 def zerar_carreira(carreira):
-    ensure_states()
-
     # ZERA todos os campos de cálculo antes de começar
     for i in range(len(carreira)):
         for j in range(1, 7):  # Zera das colunas 1 a 8
             carreira[i][j] = 0
 
 
-def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais):
+def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais, apo_especial:bool):
     """
     Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
     aplicando os dados na matriz Carreira
@@ -396,7 +369,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         desempenho_atual = round(desempenho_atual, 2)
         
         # Verifica condições para evolução
-        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18):
+        if data_atual >= (data_prevista15 if apo_especial else data_prevista18):
             if pontos >= 48:
                 evolucao = data_atual
                 implementacao = evolucao + relativedelta(day=1, months=1)
@@ -409,7 +382,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     if not evolucao:
         pendencias = True
         motivos += ["obrigatórios"]
-    if st.session_state.apo_especial == 'Sim':
+    if apo_especial:
         mot = "Aposentadoria Especial"
     
     if desempenho_atual < 2.4:
@@ -439,18 +412,17 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     return carreira, resultado_niveis
 
 
-def calcular_planilha(arquivo):
+def calcular_planilha(arquivo, apo_especial_m:bool):
     """Executa o cálculo múltiplo de evolução funcional a partir de planilha Excel."""
     import pandas as pd
     from planilha_utils_ueg import ler_planilha_excel, extrair_dados_basicos, processar_afastamentos, processar_responsabilidades_mensais, processar_responsabilidades_unicas, processar_titulacoes
    
     result_niveis = []
     
-    df= ler_planilha_excel(arquivo)
+    df = ler_planilha_excel(arquivo)
     if df.empty:
         return
     
-    st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
     ids_processados = set()
 
     servidores = extrair_dados_basicos(df)
@@ -571,7 +543,7 @@ def calcular_planilha(arquivo):
             
             desempenho_atual = round(desempenho_atual, 2)
 
-            if dt_atual >= (data_prevista15 if st.session_state.apo_especial_m == 'Sim' else data_prevista18): 
+            if dt_atual >= (data_prevista15 if apo_especial_m else data_prevista18): 
                 if pts_loop >= 48 and desempenho_atual >= 2.4:
                     evolucao = dt_atual
                     implementacao = evolucao + relativedelta(day=1, months=1)
@@ -585,7 +557,7 @@ def calcular_planilha(arquivo):
             pendencias = True
             motivos += ["obrigatórios"]
         
-        if st.session_state.apo_especial_m == 'Sim':
+        if apo_especial_m:
             mot = "Aposentadoria Especial"
         
         if desempenho_atual < 2.4:
@@ -628,22 +600,4 @@ def calcular_planilha(arquivo):
         lambda x: f"{x:>5}" if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else x
     )
 
-    st.dataframe(df_results.style.map(destacar_obs, subset=["Observação"]), hide_index=True)
-
-    if len(ids_processados) == 1:
-        st.markdown("<h3 style='text-align:center;'>Pontuações Mensais</h3>", unsafe_allow_html=True)
-        st.dataframe(df_preview.head(240), hide_index=True)
-
-    import io
-    excel_buffer = io.BytesIO()
-    df_results.to_excel(excel_buffer, index=False, engine="openpyxl")
-    excel_buffer.seek(0)
-
-    c1, c2, c3 = st.columns([2, 2, 1])
-    with c2:
-        st.download_button(
-            label="Exportar Resultados para Excel",
-            data=excel_buffer.getvalue(),
-            file_name="Resultado Evoluções.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+    return df, df_results, df_preview, ids_processados

@@ -3,8 +3,7 @@ import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-from logic import ensure_states
-from layout import build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
+from layout import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
 from data_utils import DATA_CONCLUSAO, destacar_obs
 
 def novo_calculo():
@@ -260,17 +259,18 @@ def main():
     # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
     if "calculando" not in st.session_state:
         st.session_state.calculando = False
-    if "calculando_desde" not in st.session_state:
-        st.session_state.calculando_desde = None
+    if "df_planilha" not in st.session_state:
+        st.session_state.df_planilha = None
+    if "df_results" not in st.session_state:
+        st.session_state.df_results = None
 
 
     # ---------- NAVEGAÇÃO ---------- #
     with st.sidebar:
         tabs = st.radio("Navegar",
             ['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'],
-            index=0,
             key="navigation"
-            )
+        )
 
 
     if tabs == '**Cálculo Individual**':
@@ -378,6 +378,10 @@ def main():
             c1, c2, c3 = st.columns([2.2, 2, 1])
             with c2: st.button("Calcular Resultados", type='secondary', on_click=go_results)
 
+
+
+
+### CÁLCULO MÚLTIPLO ###
     if tabs == '**Cálculo Múltiplo**':
         from logic import calcular_planilha
         st.markdown("<h1 style='text-align:center; color:#000000; '>PROMOVE – Simulador de evoluções funcionais</h1>", unsafe_allow_html=True)
@@ -439,8 +443,7 @@ def main():
         cl00, cl11, cl12 = st.columns([3, 1, 3])
         with cl11:
             st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial_m", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
-    
-        import hashlib, time
+            apo_especial_m = st.session_state.apo_especial_m == "Sim"
 
         with st.form("form_calculo_multiplo", clear_on_submit=False):
             arquivo_up = st.file_uploader(
@@ -452,29 +455,50 @@ def main():
             submitted = st.form_submit_button("Calcular")
 
         if submitted:
-            if arquivo_up is None:
-                st.warning("Carregue a planilha antes de calcular.")
-            else:
-                # trava de reentrância com timeout (evita deadlock se o worker cair no meio)
-                if st.session_state.calculando_desde and (time.time() - st.session_state.calculando_desde) < 120:
-                    st.warning("Cálculo já em andamento. Aguarde.")
-                    st.stop()
+            if not arquivo_up:
+                st.warning("Carregue a planilha.")
+                st.stop()
 
-                st.session_state.calculando = True
-                st.session_state.calculando_desde = time.time()
-                try:
-                    file_bytes = arquivo_up.getvalue()
-                    st.session_state.multi_file_hash = hashlib.md5(file_bytes).hexdigest()
-                    st.session_state.multi_file_name = arquivo_up.name
+            if st.session_state.calculando:
+                st.warning("Cálculo em andamento.")
+                st.stop()
 
-                    with st.spinner("Calculando..."):
-                        calcular_planilha(file_bytes)
-                except Exception as e:
-                    st.error(f"❌ Erro no cálculo: Verifique se todos os dados na planilha estão corretos. {e}")
-                finally:
-                    st.session_state.calculando = False
-                    st.session_state.calculando_desde = None
+            st.session_state.calculando = True
+            try:
+                with st.spinner("Calculando..."):
+                    df = calcular_planilha(arquivo_up.getvalue(), apo_especial_m)
+                    st.session_state.df_planilha, st.session_state.df_results, df_pview, ids_processados = df[0], df[1], df[2], df[3]
+            except Exception as e:
+                st.error(str(e))
+                st.stop()
+            finally:
+                st.session_state.calculando = False
+        
+        from layout import renderizar_planilha
+        if st.session_state.df_planilha is not None and not st.session_state.df_planilha.empty:
+            renderizar_planilha(st.session_state.df_planilha)
 
+        if st.session_state.df_results is not None and not st.session_state.df_results.empty:
+            st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
+            st.dataframe(st.session_state.df_results.style.map(destacar_obs, subset=["Observação"]), hide_index=True)
+
+            import io
+            excel_buffer = io.BytesIO()
+            st.session_state.df_results.to_excel(excel_buffer, index=False, engine="openpyxl")
+            excel_buffer.seek(0)
+
+            c1, c2, c3 = st.columns([2, 2, 1])
+            with c2:
+                st.download_button(
+                    label="Exportar Resultados para Excel",
+                    data=excel_buffer.getvalue(),
+                    file_name="Resultado Evoluções.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
+
+
+
+### RESULTADOS ###
     if tabs == '**Resultados**':
         from logic import calcular_evolucao
 
@@ -483,7 +507,8 @@ def main():
         cl00, cl11, cl12 = st.columns([3, 1, 3])
         with cl11:
             st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
-            
+            apo_especial = st.session_state.apo_especial == "Sim"
+
         st.markdown(
             """
             <div style='
@@ -527,7 +552,8 @@ def main():
                     st.session_state.aperfeicoamentos,
                     st.session_state.titulacoes,
                     st.session_state.resp_unicas,
-                    st.session_state.resp_mensais
+                    st.session_state.resp_mensais,
+                    apo_especial
                 )
                 
                 if carreira_calculada and resultados_carreira:
@@ -591,6 +617,7 @@ def main():
                     file_name="Resultado Evoluções.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+
 
 if __name__ == "__main__":
     main()

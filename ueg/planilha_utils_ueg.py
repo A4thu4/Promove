@@ -1,17 +1,16 @@
-import streamlit as st
 import numpy as np
 import pandas as pd
 import openpyxl as px
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-@st.cache_data(show_spinner=False, max_entries=5)
+
 def _ler_planilha_excel_cached(file_bytes: bytes):
     import io
     return _ler_planilha_excel(io.BytesIO(file_bytes))
 
 
-def ler_planilha_excel(arquivo):
+def ler_planilha_excel(arquivo) -> pd.DataFrame:
     """
     Lê e valida a planilha Excel e devolve DataFrame.
     Aceita:
@@ -36,8 +35,7 @@ def _ler_planilha_excel(arquivo):
         aba = wb.active
         dados = list(aba.values)
         if len(dados) < 3:
-            st.error("Planilha incompleta: faltam cabeçalhos ou linhas de dados.")
-            return pd.DataFrame()
+            raise ValueError("Planilha incompleta")
 
         raw_cols = dados[2]
 
@@ -71,8 +69,7 @@ def _ler_planilha_excel(arquivo):
         ]
         ausentes = [c for c in colunas_obrigatorias if c not in df.columns]
         if ausentes:
-            st.error(f"Colunas obrigatórias ausentes: {ausentes}")
-            return pd.DataFrame()
+            raise ValueError(f"Colunas obrigatórias ausentes: {ausentes}")
 
         # Remove linhas vazias e normaliza tipos
         df = df[
@@ -101,22 +98,10 @@ def _ler_planilha_excel(arquivo):
             df["Data do Enquadramento"], format="%d/%m/%Y", errors="coerce"
         )
 
-        st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
-        st.dataframe(
-            df,
-            hide_index=True,
-            column_config={
-                "Vínculo": st.column_config.NumberColumn(format="%d") if df["Vínculo"].str.strip().ne("").all() else st.column_config.TextColumn(),
-                "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY"),
-                "Data do Enquadramento": st.column_config.DateColumn(format="DD/MM/YYYY")
-            }
-        )
-
         return df
 
     except Exception as e:
-        st.error(f"Erro ao ler planilha: {e}")
-        return pd.DataFrame()
+        raise ValueError(f"Erro ao ler planilha: {e}")
 
 
 def extrair_dados_basicos(df):
@@ -162,8 +147,7 @@ def extrair_dados_basicos(df):
         })
 
     if not servidores:
-        st.warning("Nenhum servidor válido encontrado na planilha.")
-        return []
+        raise ValueError("Nenhum servidor válido encontrado na planilha.")
 
     return servidores
 

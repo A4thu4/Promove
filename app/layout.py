@@ -1,14 +1,38 @@
 import streamlit as st
+import pandas as pd
+
 from data_utils import  MIN_DATE, MAX_DATE, NIVEIS
-from logic import ensure_states, clear_states
 from dateutil.relativedelta import relativedelta
 from datetime import date
+
+
+def ensure_states():
+    """Inicializa todos os session_states necessários"""
+    from data_utils import val_states
+    import copy
+    for key, val in val_states.items():
+        st.session_state.setdefault(key, copy.deepcopy(val))
+        
+
+def clear_states():
+    """Limpa todos os valores nos session_states"""
+    from data_utils import val_states
+    for key, default_val in val_states.items():
+        if isinstance(default_val, list):
+            st.session_state[key] = []
+        elif isinstance(default_val, (int, float)):
+            st.session_state[key] = 0.0 if isinstance(default_val, float) else 0
+        elif isinstance(default_val, bool):
+            st.session_state[key] = False
+        else:
+            # deepcopy garante que nenhum valor mutável seja reaproveitado
+            st.session_state[key] = default_val
+
 
 def build_obrigatorios(key_prefix="obg"):
     """
     Renderiza inputs para 'Requisitos Obrigatórios' e atualiza st.session_state.obrigatorios.
     """
-    ensure_states()
     st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Obrigatórios</h1>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:left; color:#000000; '>Dados do Servidor</h2>", unsafe_allow_html=True)
 
@@ -108,7 +132,6 @@ def build_afastamentos(key_prefix="afast"):
     """
     Renderiza inputs para 'Afastamentos' e atualiza st.session_state.afastamentos.
     """
-    ensure_states()
     st.markdown("<h2 style='text-align:left; color:#000000; '>Afastamentos Não Considerados como Efetivo Exercício</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
@@ -162,7 +185,6 @@ def build_afastamentos(key_prefix="afast"):
     if cleared:
         st.session_state.afastamentos.clear()
         st.session_state[f"{key_prefix}_reset_fields"] = True
-        ensure_states()
         st.rerun()
 
     if st.session_state.afastamentos:
@@ -188,7 +210,6 @@ def build_desempenho(key_prefix="des"):
     """
     Renderiza inputs para 'Desempenhos' e atualiza st.session_state.afastamentos.
     """
-    ensure_states()
     st.markdown("<h2 style='text-align:left; color:#000000; '>Desempenho no Exercício das Atribuições</h2>", unsafe_allow_html=True)
 
     st.markdown("""
@@ -259,7 +280,6 @@ def build_aperfeicoamentos(key_prefix="aperf"):
     Renderiza inputs para 'Aperfeiçoamentos' (data de conclusão + horas) e atualiza st.session_state.aperfeicoamentos.
     Aproveitamento das horas (limite 100h, pontos = horas * 0.09) fica em logic.
     """
-    ensure_states()
     st.markdown("<h2 style='text-align:left; color:#000000'>Aperfeiçoamentos</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
@@ -341,7 +361,6 @@ def build_titulacoes(key_prefix="tit"):
     """
     Renderiza inputs para 'Titulações' (data de conclusão + tipo da titulação) e atualiza st.session_state.titulacoes.
     """
-    ensure_states()
     st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Aceleradores</h1>", unsafe_allow_html=True)
     st.markdown("<h2 style='text-align:left; color:#000000; '>Titulações Acadêmicas</h2>", unsafe_allow_html=True)
 
@@ -431,7 +450,6 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     """
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referencia_responsabilidade}.
     """
-    ensure_states()
     st.markdown("<h1 style='text-align:left; color:#000000; '>Assunção de Responsabilidades</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Mensal</h3>", unsafe_allow_html=True)
     
@@ -919,7 +937,6 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
     """
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
     """
-    ensure_states()
     st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Única</h3>", unsafe_allow_html=True)
 
     from data_utils import dados_artigo, dados_livro, dados_pesquisas, dados_registros, dados_cursos, DECRETO_DATE
@@ -1256,3 +1273,15 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
             st.session_state[f"{key_prefix}_reset_fields"] = True
             st.rerun()
 
+
+def renderizar_planilha(df:pd.DataFrame):
+    st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
+    st.dataframe(
+        df,
+        hide_index=True,
+        column_config={
+            "Vínculo": st.column_config.NumberColumn(format="%d") if df["Vínculo"].str.strip().ne("").all() else st.column_config.TextColumn(),
+            "Data de Início dos Pontos": st.column_config.DateColumn(format="DD/MM/YYYY"),
+            "Data do Enquadramento": st.column_config.DateColumn(format="DD/MM/YYYY")
+        }
+    )

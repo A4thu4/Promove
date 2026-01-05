@@ -1,43 +1,17 @@
-import streamlit as st
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
 from data_utils import DATA_CONCLUSAO, NIVEIS, destacar_obs
 
-def ensure_states():
-    """Inicializa todos os session_states necessários"""
-    from data_utils import val_states
-    import copy
-    for key, val in val_states.items():
-        st.session_state.setdefault(key, copy.deepcopy(val))
-        
-
-def clear_states():
-    """Limpa todos os valores nos session_states"""
-    from data_utils import val_states
-    for key, default_val in val_states.items():
-        if isinstance(default_val, list):
-            st.session_state[key] = []
-        elif isinstance(default_val, (int, float)):
-            st.session_state[key] = 0.0 if isinstance(default_val, float) else 0
-        elif isinstance(default_val, bool):
-            st.session_state[key] = False
-        else:
-            # deepcopy garante que nenhum valor mutável seja reaproveitado
-            st.session_state[key] = default_val
-
-        
+      
 def zerar_carreira(carreira):
-    from layout import ensure_states
-    ensure_states()
-
     # ZERA todos os campos de cálculo antes de começar
     for i in range(len(carreira)):
         for j in range(1, 8):  # Zera das colunas 1 a 9
             carreira[i][j] = 0
 
 
-def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, aperfeicoamentos, titulacoes, resp_unicas, resp_mensais):
+def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, aperfeicoamentos, titulacoes, resp_unicas, resp_mensais, apo_especial:bool):
     """
     Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
     aplicando os dados na matriz Carreira
@@ -439,7 +413,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             e12meses = True
             break
 
-        if data_atual >= (data_prevista15 if st.session_state.apo_especial == 'Sim' else data_prevista18) and pontos >= 48 :
+        if data_atual >= (data_prevista15 if apo_especial else data_prevista18) and pontos >= 48 :
             atingiu_18 = True
         
         if atingiu_18 and aperfeicoamento_atual >= 5.4:
@@ -452,7 +426,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     
     pendencias, motivos, mot = False, [], ""
     
-    if st.session_state.apo_especial == 'Sim':
+    if apo_especial:
         mot = "Aposentadoria Especial"
     
     if not evolucao:
@@ -495,7 +469,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     return carreira, resultado_niveis
 
 
-def calcular_planilha(arquivo):
+def calcular_planilha(arquivo, apo_especial_m:bool):
     """Executa o cálculo múltiplo de evolução funcional a partir de planilha Excel."""
     import pandas as pd
     from planilha_utils import ler_planilha_excel, extrair_dados_basicos, processar_afastamentos, processar_aperfeicoamentos, processar_responsabilidades_mensais, processar_responsabilidades_unicas, processar_titulacoes
@@ -505,8 +479,7 @@ def calcular_planilha(arquivo):
     df= ler_planilha_excel(arquivo)
     if df.empty:
         return
-    
-    st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
+
     ids_processados = set()
 
     servidores = extrair_dados_basicos(df)
@@ -648,7 +621,7 @@ def calcular_planilha(arquivo):
                 e12meses = True
                 break
 
-            if dt_atual >= (data_prevista15 if st.session_state.apo_especial_m == 'Sim' else data_prevista18) and pts_loop >= 48: 
+            if dt_atual >= (data_prevista15 if apo_especial_m else data_prevista18) and pts_loop >= 48: 
                 atingiu_18 = True
             
             if atingiu_18 and aperfeicoamento_atual >= 5.4:
@@ -661,7 +634,7 @@ def calcular_planilha(arquivo):
         
         pendencias, motivos, mot = False, [], ""
 
-        if st.session_state.apo_especial_m == 'Sim':
+        if apo_especial_m:
             mot = "Aposentadoria Especial"
         
         if not evolucao:
@@ -717,6 +690,7 @@ def calcular_planilha(arquivo):
         lambda x: f"{x:>5}" if isinstance(x, int) or (isinstance(x, str) and x.isdigit()) else x
     )
 
+    return df, df_results, df_preview, ids_processados
     st.dataframe(df_results.style.map(destacar_obs, subset=["Observação"]), hide_index=True)
 
     if len(ids_processados) == 1:
