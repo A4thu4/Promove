@@ -5,10 +5,11 @@ import openpyxl as px
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, max_entries=5)
 def _ler_planilha_excel_cached(file_bytes: bytes):
     import io
     return _ler_planilha_excel(io.BytesIO(file_bytes))
+
 
 def ler_planilha_excel(arquivo):
     """
@@ -26,6 +27,7 @@ def ler_planilha_excel(arquivo):
         return _ler_planilha_excel_cached(bytes(arquivo))
 
     return _ler_planilha_excel(arquivo)
+
 
 def _ler_planilha_excel(arquivo):
     """Lê e valida a planilha Excel, retornando um DataFrame limpo."""

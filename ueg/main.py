@@ -262,7 +262,7 @@ st.markdown(
 def main():
     ensure_states()
 
-     # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
+    # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
     if "calculando" not in st.session_state:
         st.session_state.calculando = False
     if "calculando_desde" not in st.session_state:
@@ -469,7 +469,7 @@ def main():
                     st.session_state.multi_file_name = arquivo_up.name
 
                     with st.spinner("Calculando..."):
-                        calcular_planilha(file_bytes)  # planilha_utils_ueg.py deve aceitar bytes
+                        calcular_planilha(file_bytes)
                 except Exception as e:
                     st.error(f"❌ Erro no cálculo: Verifique se todos os dados na planilha estão corretos. {e}")
                 finally:
@@ -512,8 +512,12 @@ def main():
             st.button("🔄 Novo Cálculo", type="tertiary", on_click=novo_calculo)
 
         if not st.session_state.calculo_executado:
-            try:
+            if st.session_state.calculando:
+                st.stop()
 
+            st.session_state.calculando = True
+            
+            try:
                 carreira_calculada, resultados_carreira = calcular_evolucao(
                     st.session_state.enquadramento,
                     st.session_state.data_inicial,
@@ -550,6 +554,8 @@ def main():
 
             except Exception as e:
                 st.error(f"❌ Erro no cálculo: {str(e)}")
+            finally:
+                st.session_state.calculando = False
 
         if st.session_state.calculo_executado and st.session_state.carreira:
             df_view = pd.DataFrame(st.session_state.resultados_carreira)
