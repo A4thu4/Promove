@@ -23,4 +23,4 @@ EXPOSE 8501
 ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Define o comando para iniciar a aplicação quando o container for executado
-CMD ["streamlit", "run", "app/master.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "ueg/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
