@@ -2,8 +2,8 @@
 
 - Foram feitos 2 Sistemas em Python + Streamlit para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação
 e carreira.
-- O 1º (app/master.py) é um simulador geral que, baseado em uma **pontuação média irá, *fazer uma previsão*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução. Além de possui um módulo múltiplo criado para facilitar o trabalho da GGDP para fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito.
-- O 2º (ueg/main.py) é o mesmo simulador mantendo a mesma lógica , porém com ajustes de critérios e requisitos que estejam de acordo com normas da **UEG**.
+- O 1º (sistema_geral/master.py) é um simulador geral que, baseado em uma **pontuação média irá, *fazer uma previsão*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução. Além de possui um módulo múltiplo criado para facilitar o trabalho da GGDP para fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito.
+- O 2º (sistema_ueg/main.py) é o mesmo simulador mantendo a mesma lógica , porém com ajustes de critérios e requisitos que estejam de acordo com normas da **UEG**.
 
 ---
 
