@@ -276,6 +276,8 @@ def main():
         tabs = st.radio("Navegar",
             ['**Cálculo Individual**', '**Cálculo Múltiplo**', '**Resultados**'],
             key="navigation"
+
+            
         )
 
 
