@@ -4,5 +4,4 @@ pandas==2.3.3
 numpy==2.3.4
 openpyxl==3.1.5
 python-dateutil==2.9.0.post0
-streamlit-option-menu
 natsort==8.4.0
