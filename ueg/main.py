@@ -1,20 +1,26 @@
-from json import load
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 import streamlit as st
 import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+try:
+    from layout_ueg import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
+    from data_utils_ueg import DATA_CONCLUSAO, destacar_obs
+except ImportError as e:
+    st.error(f"Erro ao importar módulos: {str(e)}")
+    st.stop()
 
 def load_image(img_path):
     if os.path.exists(img_path):
         return img_path
     return None
 
-from layout_ueg import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-from data_utils_ueg import DATA_CONCLUSAO, destacar_obs
 
 def novo_calculo():
     from layout_ueg import clear_states
