@@ -454,7 +454,9 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Mensal</h3>", unsafe_allow_html=True)
     
     from data_utils import dados_cargos, dados_func_c, dados_unicos, dados_agente, DECRETO_DATE
-    from natsort import natsorted
+    def natural_key(s):
+        import re
+        return [int(t) if t.isdigit() else t for t in re.findall(r'\d+|\D+', s)]
 
     suffixes = ["cc", "fc", "fd", "at_a", "at_c", "at_p" ]
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
@@ -468,7 +470,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- CARGO DE COMISSÃO ---------- #
         st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
-        cargos_ordenados = natsorted(dados_cargos.keys())
+        cargos_ordenados = sorted(dados_cargos.keys(), key=natural_key)
         cargos_ordenados = ['Nenhum'] + [x for x in cargos_ordenados if x != 'Nenhum']
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:

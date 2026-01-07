@@ -1,7 +1,6 @@
-pip==25.3
-streamlit==1.50.0
-pandas==2.3.3
-numpy==2.3.4
+pip>=25.3
+streamlit>=1.40.0
+pandas>=2.1.0
+numpy>=1.26.0
 openpyxl
 python-dateutil
-natsort==8.4.0
