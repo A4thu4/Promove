@@ -275,6 +275,8 @@ def main():
     # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
     if "calculando" not in st.session_state:
         st.session_state.calculando = False
+    if "calculo_executado" not in st.session_state:
+        st.session_state.calculo_executado = False
     if "df_planilha" not in st.session_state:
         st.session_state.df_planilha = None
     if "df_results" not in st.session_state:
