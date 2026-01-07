@@ -3,6 +3,10 @@ import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from layout_ueg import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
 from data_utils_ueg import DATA_CONCLUSAO, destacar_obs
 
