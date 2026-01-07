@@ -8,7 +8,18 @@ from data_utils_ueg import DATA_CONCLUSAO, destacar_obs
 
 def novo_calculo():
     from layout_ueg import clear_states
+    import streamlit as st
+    import gc # Importe o Garbage Collector
+    
+    # Limpa o cache de dados do Streamlit
+    st.cache_data.clear()
+    
+    # Limpa os estados da sessão
     clear_states()
+    
+    # Força o Python a liberar a RAM imediatamente
+    gc.collect()
+    
     st.session_state.navigation = '**Cálculo Individual**'
 
 
@@ -445,6 +456,8 @@ def main():
             st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial_m", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
             apo_especial_m = st.session_state.apo_especial_m == "Sim"
 
+        import gc
+
         with st.form("form_calculo_multiplo", clear_on_submit=False):
             arquivo_up = st.file_uploader(
                 "Selecione o arquivo",
@@ -459,21 +472,67 @@ def main():
                 st.warning("Carregue a planilha.")
                 st.stop()
 
-            if st.session_state.calculando:
+            if st.session_state.get('calculando', False):
                 st.warning("Cálculo em andamento.")
                 st.stop()
 
+            # Limpa o cache de dados anterior e força a coleta de lixo
+            st.cache_data.clear()
+            if "df_planilha" in st.session_state:
+                del st.session_state.df_planilha
+            if "df_results" in st.session_state:
+                del st.session_state.df_results
+            gc.collect() 
+
             st.session_state.calculando = True
+            
             try:
                 with st.spinner("Calculando..."):
-                    df = calcular_planilha(arquivo_up.getvalue(), apo_especial_m)
-                    st.session_state.df_planilha, st.session_state.df_results, df_pview, ids_processados = df[0], df[1], df[2], df[3]
+                    # Pegamos o valor, processamos e logo em seguida tentamos liberar
+                    dados_planilha = arquivo_up.getvalue()
+                    
+                    df = calcular_planilha(dados_planilha, apo_especial_m)
+                    
+                    # Atribuí os novos resultados
+                    st.session_state.df_planilha = df[0]
+                    st.session_state.df_results = df[1]
+                    df_pview = df[2]
+                    ids_processados = df[3]
+                    
+                    # Ajuda o Python a entender que 'dados_planilha' pode ser descartado
+                    del dados_planilha 
+                    
             except Exception as e:
-                st.error(str(e))
+                st.error(f"Erro no processamento: {str(e)}")
                 st.stop()
             finally:
                 st.session_state.calculando = False
-        
+                gc.collect() # Limpeza final após o cálculo
+
+        # Verifica se existem resultados para mostrar o botão de limpar
+        if "df_results" in st.session_state and st.session_state.df_results is not None:
+            _, col_limpar, _ = st.columns([2.5, 0.7, 2.5])
+            
+            with col_limpar:
+                if st.button("Limpar", type="tertiary", use_container_width=True):
+                    # Limpa o cache do Streamlit
+                    st.cache_data.clear()
+                    
+                    # Remove as variáveis pesadas do session_state
+                    chaves_para_limpar = ['df_planilha', 'df_results', 'carreira']
+                    for chave in chaves_para_limpar:
+                        if chave in st.session_state:
+                            del st.session_state[chave]
+                    
+                    # Reseta o uploader (usando a sua lógica de file_reset)
+                    st.session_state.file_reset += 1 
+                    
+                    # Força a coleta de lixo da RAM
+                    gc.collect()
+                    
+                    # Recarrega o app para limpar a interface
+                    st.rerun()
+
         from layout_ueg import renderizar_planilha
         if st.session_state.df_planilha is not None and not st.session_state.df_planilha.empty:
             renderizar_planilha(st.session_state.df_planilha)

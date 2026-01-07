@@ -98,6 +98,7 @@ def _ler_planilha_excel(arquivo):
             df["Data do Enquadramento"], format="%d/%m/%Y", errors="coerce"
         )
 
+        wb.close()
         return df
 
     except Exception as e:
