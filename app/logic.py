@@ -232,6 +232,9 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if not g:
             continue
 
+        if inicio.day != 1:
+            inicio = date(inicio.year, inicio.month, 1) + relativedelta(months=1)
+
         # --- Retroativo: até 5 anos antes da data do enquadramento---
         if inicio < enquadramento:
             if g == "G1" and inicio >= enquadramento - relativedelta(years=5):
@@ -248,7 +251,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
                 else:
                     limite_retro = date(data_inicial.year, data_inicial.month + 1, 1)
 
-                while date(ano_aplic, mes_aplic, 1) < limite_retro:
+                while date(ano_aplic, mes_aplic, 1) < limite_retro - relativedelta(months=1):
                     data_retro = date(ano_aplic, mes_aplic, 1)
 
                     faltas = afastamentos_dict_resp.get(data_retro, 0)
@@ -377,9 +380,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         data_atual = carreira[i][0]
         pontos = carreira[i][7]
 
-        ano = data_atual.year - data_inicio.year
-        mes = data_atual.month - data_inicio.month
-        meses_passados = ano * 12 + mes
+        meses_passados = (data_atual.year - data_inicio.year) * 12 + (data_atual.month - data_inicio.month)
 
         data_prevista18 = data_inicio + relativedelta(months=18)
         data_prevista15 = data_inicio + relativedelta(months=15)
@@ -571,7 +572,7 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
 
 ### ---------- CÁLCULO DE EVOLUÇÃO ---------- ###
         # Dados iniciais
-        dt_inicial = carreira[0][0]  # primeira data 
+        dt_inicial = data_inicio  # primeira data 
         evolucao = None
         implementacao = None
         meses_ate_evo = None
@@ -585,9 +586,7 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
             pts_loop = carreira[i][7]
 
             # Calcula meses passados desde o início corretamente
-            ano = dt_atual.year - data_inicio.year
-            mes = dt_atual.month - data_inicio.month
-            meses_passados = ano * 12 + mes
+            meses_passados = (dt_atual.year - data_inicio.year) * 12 + (dt_atual.month - data_inicio.month)
 
             data_prevista12 = dt_inicial + relativedelta(months=12)
             data_prevista15 = data_inicio + relativedelta(months=15)

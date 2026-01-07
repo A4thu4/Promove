@@ -444,11 +444,8 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
 
         # Começa a contar a partir do mês seguinte ao início
         ano = inicio.year
-        mes = inicio.month + 1
-        if mes > 12:
-            mes = 1
-            ano += 1
-
+        mes = inicio.month
+        
         while date(ano, mes, 1) <= fim:
             data_ap = date(ano, mes, 1)
 

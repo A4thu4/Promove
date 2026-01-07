@@ -489,6 +489,9 @@ def main():
                 label_visibility="hidden"
             )
             submitted = st.form_submit_button("Calcular")
+            
+        ids_processados = []
+        df_pview = pd.DataFrame()
 
         if submitted:
             if not arquivo_up:
@@ -564,9 +567,9 @@ def main():
             st.markdown("<h2 style='text-align:center; color:#000000; '>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
             st.dataframe(st.session_state.df_results.style.map(destacar_obs, subset=["Observação"]), hide_index=True)
 
-        # if len(ids_processados) == 1:
-        #     st.markdown("<h3 style='text-align:center;'>Pontuações Mensais</h3>", unsafe_allow_html=True)
-        #     st.dataframe(df_pview.head(240), hide_index=True)
+            if len(ids_processados) == 1:
+                st.markdown("<h3 style='text-align:center;'>Pontuações Mensais</h3>", unsafe_allow_html=True)
+                st.dataframe(df_pview.head(240), hide_index=True)
 
             import io
             excel_buffer = io.BytesIO()
