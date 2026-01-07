@@ -1,12 +1,9 @@
-<<<<<<< HEAD
 import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-=======
->>>>>>> parent of 207eabb (ajuste de tratamento de imagem)
 import streamlit as st
 import pandas as pd
 from datetime import timedelta
@@ -19,16 +16,11 @@ except ImportError as e:
     st.error(f"Erro ao importar módulos: {str(e)}")
     st.stop()
 
-<<<<<<< HEAD
 def load_image(img_path):
     if os.path.exists(img_path):
         return img_path
     return None
 
-=======
-from layout_ueg import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-from data_utils_ueg import DATA_CONCLUSAO, destacar_obs
->>>>>>> parent of 207eabb (ajuste de tratamento de imagem)
 
 def novo_calculo():
     from layout_ueg import clear_states
@@ -77,10 +69,15 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
-st.set_page_config(page_title="PROMOVE - Simulador UEG", page_icon="assets/Brasão.png", layout="wide")
+icon_path = load_image("assets/Brasão.png")
+st.set_page_config(page_title="PROMOVE - Simulador UEG", page_icon="icon_path" if icon_path else "📊", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/Logomarca_GNCP_transparente.png", width=800)
+    logo_path = load_image("assets/Logomarca_GNCP_transparente.png")
+    if logo_path:
+        st.image(logo_path, width=800)
+    else:
+        st.warning("Logomarca não encontrada na pasta assets.")
 
 st.markdown(
     """
