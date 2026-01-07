@@ -42,10 +42,10 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
-st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/Brasão.png", layout="wide")
+st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/brasao.png", layout="wide")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/Logomarca_GNCP_transparente.png", width=800)
+    st.image("assets/logomarca.png", width=800)
 
 st.markdown(
     """

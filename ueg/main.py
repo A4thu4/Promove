@@ -1,10 +1,13 @@
+import streamlit as st
 import sys
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
 
-import streamlit as st
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
@@ -64,10 +67,17 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
-st.set_page_config(page_title="PROMOVE - Simulador UEG", page_icon="ssets/Brasão.png", layout="wide")
+path_brasao = os.path.join(ROOT_DIR, "assets", "brasao.png")
+path_logo = os.path.join(ROOT_DIR, "assets", "logomarca.png")
+
+st.set_page_config(page_title="PROMOVE - Simulador UEG", page_icon=path_brasao if os.path.exists(path_brasao) else "📊", layout="wide")
+
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/Logomarca_GNCP_transparente.png", width=800)
+    if os.path.exists(path_logo):
+        st.image(path_logo, width=800)
+    else:
+        st.error(f"Erro: Imagem não encontrada em {path_logo}")
 
 st.markdown(
     """
