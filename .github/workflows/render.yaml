@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: promove-ueg
+    runtime: python
+    plan: free
+    buildCommand: pip install -r ueg/requirements.txt
+    startCommand: python -m streamlit run ueg/main.py --server.port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
