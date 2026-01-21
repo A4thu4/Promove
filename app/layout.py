@@ -916,7 +916,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             col = cols[i % 4]
             with col:
                 st.write(f"Início: {data_i_cg.strftime('%d/%m/%Y')}")
-                st.write(f"{tipo} por {tempo} mese(s)")
+                st.write(f"{tipo} por {tempo} mês(es)")
 
         if cleared:
             for nome in all_lists:

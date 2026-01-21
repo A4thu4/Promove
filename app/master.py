@@ -535,7 +535,7 @@ def main():
 
         col0, col1, col2, col3 = st.columns([3, 2, 3, 1])
         with col1:
-            if st.button("🔁 Cálcular|Recalcular", type="primary"):
+            if st.button("🔁 Calcular|Recalcular", type="primary"):
                 from logic import zerar_carreira
                 zerar_carreira(st.session_state.carreira)
                 st.session_state.calculo_executado = False
