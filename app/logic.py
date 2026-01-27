@@ -391,7 +391,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
         # Verifica condições para evolução
-        if data_prevista12 >= data_atual <= data_prevista18 and pontos >= 96:
+        if data_prevista12 >= data_atual < data_prevista18 and pontos >= 96:
             atingiu_12 = True
         
         if atingiu_12 and aperfeicoamento_atual >= 3.6:
