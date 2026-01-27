@@ -391,27 +391,29 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
         # Verifica condições para evolução
-        if data_prevista12 >= data_atual <= data_prevista18 and pontos >= 96:
+        if data_atual >= data_prevista12:
             atingiu_12 = True
         
-        if atingiu_12 and aperfeicoamento_atual >= 3.6:
-            evolucao = data_atual
-            implementacao = evolucao + relativedelta(day=1, months=1)
-            meses_ate_evolucao = meses_passados
-            pts_resto = pontos - 48
-            e12meses = True
-            break
-
-        if data_atual >= (data_prevista15 if apo_especial else data_prevista18) and pontos >= 48 :
+        if data_atual >= (data_prevista15 if apo_especial else data_prevista18):
             atingiu_18 = True
+
+        if pontos >= 96:
+            if atingiu_12 and aperfeicoamento_atual >= 3.6:
+                evolucao = data_atual
+                implementacao = evolucao + relativedelta(day=1, months=1)
+                meses_ate_evolucao = meses_passados
+                pts_resto = pontos - 48
+                e12meses = True
+                break
         
-        if atingiu_18 and aperfeicoamento_atual >= 5.4:
-            evolucao = data_atual
-            implementacao = evolucao + relativedelta(day=1, months=1)
-            meses_ate_evolucao = meses_passados
-            pts_resto = pontos - 48
-            e18meses = True
-            break
+        elif pontos >= 48:
+            if atingiu_18 and aperfeicoamento_atual >= 5.4:
+                evolucao = data_atual
+                implementacao = evolucao + relativedelta(day=1, months=1)
+                meses_ate_evolucao = meses_passados
+                pts_resto = pontos - 48
+                e18meses = True
+                break
     
     pendencias, motivos, mot = False, [], ""
     
