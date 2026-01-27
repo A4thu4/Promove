@@ -1,10 +1,24 @@
 import streamlit as st
+import sys
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 import pandas as pd
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
-from layout import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
-from data_utils import DATA_CONCLUSAO, destacar_obs
+try:
+    from layout import ensure_states, build_obrigatorios, build_afastamentos, build_desempenho, build_aperfeicoamentos, build_titulacoes, build_responsabilidades_unicas, build_responsabilidades_mensais
+    from data_utils import DATA_CONCLUSAO, destacar_obs
+except ImportError as e:
+    st.error(f"Erro ao importar módulos: {str(e)}")
+    st.stop()
+
 
 def novo_calculo():
     from layout import clear_states
