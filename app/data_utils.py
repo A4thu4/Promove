@@ -1,7 +1,6 @@
 from datetime import datetime
 
 DATA_CONCLUSAO = 241 # em meses 20 anos
-#[3654 - 10 anos] [7306 - 20 anos] [14614 - 40 anos] [18268 - 50 anos]
 MIN_DATE = datetime(2000, 1, 1).date()
 MAX_DATE = datetime(2050, 12, 31).date()
 DECRETO_DATE = datetime(2025, 10, 22).date()
@@ -24,9 +23,7 @@ val_states = {
     
     "resp_unicas":[], 
     "artigos_lista": [], "livros_lista": [], "pesquisas_lista": [], 
-    "registros_lista": [], "cursos_lista": [],
-    
-    "calculo_executado": False
+    "registros_lista": [], "cursos_lista": []
 }
 
 # ---- TITULAÇÕES ---- #

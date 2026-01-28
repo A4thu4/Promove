@@ -68,23 +68,19 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         data_atual = carreira[i][0]
         data_atual = data_atual.date() if isinstance(data_atual, datetime) else data_atual
         
-        # Verifica se há afastamento para aplicar nesta data
         falta = afastamentos_dict.get(data_atual, 0)
 
         desconto = 0.0067 * falta
         desconto_des = 0.06 * falta
 
-        # Aplica pontuação padrão ou com desconto no dia 1
         if data_atual.day == 1 and data_atual != data_inicial:
             carreira[i][1] = 0.2
             carreira[i][2] = 1.8
             
             if falta > 0:
-                # Aplica desconto se houver afastamento
                 carreira[i][1] = max(min(0.2 - desconto, 0.2), 0)
                 carreira[i][2] = max(min(1.8 - desconto_des, 1.8), 0)
             else:
-                # Pontuação padrão sem desconto
                 carreira[i][1] = 0.2
                 carreira[i][2] = 1.8
 
@@ -102,7 +98,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if ultima_titulacao and data_concl < (ultima_titulacao + relativedelta(months=12)):
             continue # Ignora esta titulação
 
-        # Achar dia 1
         if data_concl.month == 12:
             data_aplicacao = date(data_concl.year + 1, 1, 1)
         else:
@@ -131,7 +126,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     for data, pontos in sorted(resp_unicas, key=lambda data: data[0]):
         data = data.date() if isinstance(data, datetime) else data
 
-        # Achar dia 1
         if data.month == 12:
             data_aplicacao = date(data.year + 1, 1, 1)
         else:
@@ -145,7 +139,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     for data_aplicacao in sorted(ru_dict.keys()):
         pts = ru_dict[data_aplicacao]
 
-        # Não ultrapassar limite
         if total_pontos_resp + pts > LIMITE_RESP:
             pontos_aj = max(0, LIMITE_RESP - total_pontos_resp)
         else:
@@ -154,7 +147,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if pontos_aj <= 0:
             continue
 
-        # Encontra a linha correspondente na carreira
         for i, linha in enumerate(carreira):
             d = linha[0]
             d = d.date() if isinstance(d, datetime) else d
@@ -447,7 +439,6 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
         data_aplicacao_inicial = None
 
         if faltas_inicial > 0:
-            # Aplica faltas do mês de enquadramento no mês seguinte
             mes_aplicacao = 1 if data_inicio.month == 12 else data_inicio.month + 1
             ano_aplicacao = data_inicio.year + 1 if data_inicio.month == 12 else data_inicio.year
             data_aplicacao_inicial = date(ano_aplicacao, mes_aplicacao, 1)

@@ -22,16 +22,12 @@ except ImportError as e:
 
 def novo_calculo():
     from layout_ueg import clear_states
-    import streamlit as st
-    import gc # Importe o Garbage Collector
+    import gc
     
-    # Limpa o cache de dados do Streamlit
     st.cache_data.clear()
     
-    # Limpa os estados da sessão
     clear_states()
     
-    # Força o Python a liberar a RAM imediatamente
     gc.collect()
     
     st.session_state.navigation = '**Cálculo Individual**'
@@ -502,7 +498,6 @@ def main():
                 st.warning("Cálculo em andamento.")
                 st.stop()
 
-            # Limpa o cache de dados anterior e força a coleta de lixo
             st.cache_data.clear()
             if "df_planilha" in st.session_state:
                 del st.session_state.df_planilha
@@ -514,7 +509,6 @@ def main():
             
             try:
                 with st.spinner("Calculando..."):
-                    # Pegamos o valor, processamos e logo em seguida tentamos liberar
                     dados_planilha = arquivo_up.getvalue()
                     
                     df = calcular_planilha(dados_planilha, apo_especial_m)
@@ -525,7 +519,6 @@ def main():
                     df_pview = df[2]
                     ids_processados = df[3]
                     
-                    # Ajuda o Python a entender que 'dados_planilha' pode ser descartado
                     del dados_planilha 
                     
             except Exception as e:
@@ -533,30 +526,24 @@ def main():
                 st.stop()
             finally:
                 st.session_state.calculando = False
-                gc.collect() # Limpeza final após o cálculo
+                gc.collect() 
 
-        # Verifica se existem resultados para mostrar o botão de limpar
         if "df_results" in st.session_state and st.session_state.df_results is not None:
             _, col_limpar, _ = st.columns([2.5, 0.7, 2.5])
             
             with col_limpar:
                 if st.button("Limpar", type="tertiary", use_container_width=True):
-                    # Limpa o cache do Streamlit
                     st.cache_data.clear()
                     
-                    # Remove as variáveis pesadas do session_state
                     chaves_para_limpar = ['df_planilha', 'df_results', 'carreira']
                     for chave in chaves_para_limpar:
                         if chave in st.session_state:
                             del st.session_state[chave]
                     
-                    # Reseta o uploader (usando a sua lógica de file_reset)
                     st.session_state.file_reset += 1 
                     
-                    # Força a coleta de lixo da RAM
                     gc.collect()
                     
-                    # Recarrega o app para limpar a interface
                     st.rerun()
 
         from layout_ueg import renderizar_planilha

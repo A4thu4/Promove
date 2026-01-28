@@ -97,6 +97,7 @@ def _ler_planilha_excel(arquivo):
             df["Data do Enquadramento"], format="%d/%m/%Y", errors="coerce"
         )
 
+        wb.close()
         return df
 
     except Exception as e:
@@ -173,7 +174,6 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         except ValueError:
             falta_int = 0
 
-        # aplica no 1º dia do mês seguinte
         if data_mes.month == 12:
             data_aplicacao = date(data_mes.year + 1, 1, 1)
         else:
@@ -189,7 +189,6 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         desconto = 0.0067 * falta
         desconto_des = 0.05 * falta
 
-        # Aplica no dia 1 (exceto na data inicial)
         if data_atual.day == 1:
             linha[1] = max(0.2 - desconto, 0)  # Efetivo Exercício
             linha[2] = max(1.5 - desconto_des, 0)  # Desempenho
@@ -220,7 +219,6 @@ def processar_aperfeicoamentos(df, i, carreira):
         except ValueError:
             continue
 
-        # Calcula data de aplicação (1º dia do mês seguinte)
         if data_conclusao.month == 12:
             data_aplicacao = date(data_conclusao.year + 1, 1, 1)
         else:
@@ -272,7 +270,6 @@ def processar_titulacoes(df, i, carreira):
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
             continue
 
-        # Data de aplicação = 1º dia do mês seguinte
         if data_conclusao.month == 12:
             data_aplicacao = date(data_conclusao.year + 1, 1, 1)
         else:

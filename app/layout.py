@@ -46,7 +46,6 @@ def build_obrigatorios(key_prefix="obg"):
         st.session_state[f"{key_prefix}_pts_rem"] = None
         st.session_state[f"{key_prefix}_reset_fields"] = False
 
-    # Usar st.form para evitar re-execução a cada input
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
         col0, col1, col2, col3 = st.columns([2, 2, 2, 2])
         with col0:
@@ -112,7 +111,7 @@ def build_obrigatorios(key_prefix="obg"):
             st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, st.session_state.enquadramento, float(pts_remanescentes))]
             st.session_state.carreira = []
 
-    # Mostrar pontos cadastrados 
+    # Mostrar dados cadastrados 
     if st.session_state.obrigatorios:
         cols = st.columns(2)
         for i, (nivel, data1, data2, pts) in enumerate(st.session_state.obrigatorios):
@@ -794,8 +793,6 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_at_c and data_i_at_c and data_f_at_c > data_i_at_c and atuacao_conselho != 'Nenhum':
-                ano = data_f_at_c.year - data_i_at_c.year
-                mes = data_f_at_c.month - data_i_at_c.month
                 tempo = (data_f_at_c.year - data_i_at_c.year) * 12 + (data_f_at_c.month - data_i_at_c.month) + 1
                 st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True

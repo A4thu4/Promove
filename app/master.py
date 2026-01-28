@@ -22,7 +22,14 @@ except ImportError as e:
 
 def novo_calculo():
     from layout import clear_states
+    import gc 
+    
+    st.cache_data.clear()
+    
     clear_states()
+    
+    gc.collect()
+    
     st.session_state.navigation = '**Cálculo Individual**'
 
 
@@ -56,10 +63,17 @@ def bloco_vertical(titulo, tamanho, cor):
     """
 
 
-st.set_page_config(page_title="PROMOVE - Simulador", page_icon="assets/brasao.png", layout="wide")
+path_brasao = os.path.join(ROOT_DIR, "assets", "brasao.png")
+path_logo = os.path.join(ROOT_DIR, "assets", "logomarca.png")
+
+st.set_page_config(page_title="PROMOVE - Simulador", page_icon=path_brasao if os.path.exists(path_brasao) else "📊", layout="wide")
+
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("assets/logomarca.png", width=800)
+    if os.path.exists(path_logo):
+        st.image(path_logo, width=800)
+    else:
+        st.error(f"Erro: Imagem não encontrada em {path_logo}")
 
 st.markdown(
     """
@@ -273,6 +287,8 @@ def main():
     # trava de reentrância (evita cálculo duplicado em rerun/clique duplo)
     if "calculando" not in st.session_state:
         st.session_state.calculando = False
+    if "calculo_executado" not in st.session_state:
+        st.session_state.calculo_executado = False
     if "df_planilha" not in st.session_state:
         st.session_state.df_planilha = None
     if "df_results" not in st.session_state:
@@ -459,6 +475,8 @@ def main():
             st.radio("**Aposentadoria Especial**", ['Não', 'Sim'], key="apo_especial_m", help="Marque esta opção SOMENTE se o servidor possuir direito à aposentadoria especial.", horizontal=True)
             apo_especial_m = st.session_state.apo_especial_m == "Sim"
 
+        import gc
+
         with st.form("form_calculo_multiplo", clear_on_submit=False):
             arquivo_up = st.file_uploader(
                 "Selecione o arquivo",
@@ -476,21 +494,58 @@ def main():
                 st.warning("Carregue a planilha.")
                 st.stop()
 
-            if st.session_state.calculando:
+            if st.session_state.get('calculando', False):
                 st.warning("Cálculo em andamento.")
                 st.stop()
 
+            st.cache_data.clear()
+            if "df_planilha" in st.session_state:
+                del st.session_state.df_planilha
+            if "df_results" in st.session_state:
+                del st.session_state.df_results
+            gc.collect() 
+
             st.session_state.calculando = True
+
             try:
                 with st.spinner("Calculando..."):
-                    df = calcular_planilha(arquivo_up.getvalue(), apo_especial_m)
-                    st.session_state.df_planilha, st.session_state.df_results, df_pview, ids_processados = df[0], df[1], df[2], df[3]
+                    dados_planilha = arquivo_up.getvalue()
+                    
+                    df = calcular_planilha(dados_planilha, apo_especial_m)
+                    
+                    # Atribuí os novos resultados
+                    st.session_state.df_planilha = df[0]
+                    st.session_state.df_results = df[1]
+                    df_pview = df[2]
+                    ids_processados = df[3]
+                    
+                    del dados_planilha 
+                    
             except Exception as e:
-                st.error(str(e))
+                st.error(f"Erro no processamento: {str(e)}")
                 st.stop()
             finally:
                 st.session_state.calculando = False
+                gc.collect() 
         
+        if "df_results" in st.session_state and st.session_state.df_results is not None:
+            _, col_limpar, _ = st.columns([2.5, 0.7, 2.5])
+            
+            with col_limpar:
+                if st.button("Limpar", type="tertiary", use_container_width=True):
+                    st.cache_data.clear()
+                    
+                    chaves_para_limpar = ['df_planilha', 'df_results', 'carreira']
+                    for chave in chaves_para_limpar:
+                        if chave in st.session_state:
+                            del st.session_state[chave]
+                    
+                    st.session_state.file_reset += 1 
+                    
+                    gc.collect()
+                    
+                    st.rerun()
+
         from layout import renderizar_planilha
         if st.session_state.df_planilha is not None and not st.session_state.df_planilha.empty:
             renderizar_planilha(st.session_state.df_planilha)

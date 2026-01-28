@@ -175,7 +175,6 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         except ValueError:
             falta_int = 0
 
-        # aplica no 1º dia do mês seguinte
         if data_mes.month == 12:
             data_aplicacao = date(data_mes.year + 1, 1, 1)
         else:
@@ -191,7 +190,6 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         desconto = 0.0067 * falta
         desconto_des = 0.06 * falta
 
-        # Aplica no dia 1 (exceto na data inicial)
         if data_atual.day == 1:
             linha[1] = max(0.2 - desconto, 0)  # Efetivo Exercício
             linha[2] = max(1.8 - desconto_des, 0)  # Desempenho
@@ -231,7 +229,6 @@ def processar_titulacoes(df, i, carreira):
         if ultima_titulacao and data_conclusao < (ultima_titulacao + relativedelta(months=12)):
             continue
 
-        # Data de aplicação = 1º dia do mês seguinte
         if data_conclusao.month == 12:
             data_aplicacao = date(data_conclusao.year + 1, 1, 1)
         else:
@@ -381,7 +378,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     # retro_bruto: mesma coisa, só para meses anteriores ao início da carreira
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
-    enquadramento = data_enquad  # na planilha é "Data do Enquadramento ou da Última Evolução"
+    enquadramento = data_enquad  
     from data_utils_ueg import DECRETO_DATE
     data_inicial = carreira[0][0]
     if isinstance(data_inicial, datetime):
