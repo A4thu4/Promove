@@ -484,7 +484,13 @@ def main():
                 key=f"wb_{st.session_state.file_reset}",
                 label_visibility="hidden"
             )
-            submitted = st.form_submit_button("Calcular")
+
+            col_enviar, col_limpar = st.columns([0.1, 1.2])
+        
+            with col_enviar:
+                submitted = st.form_submit_button("Calcular")
+            with col_limpar:
+                clear = st.form_submit_button("Limpar")
             
         ids_processados = []
         df_pview = pd.DataFrame()
@@ -528,23 +534,19 @@ def main():
                 st.session_state.calculando = False
                 gc.collect() 
 
-        if "df_results" in st.session_state and st.session_state.df_results is not None:
-            _, col_limpar, _ = st.columns([2.5, 0.7, 2.5])
+        if clear:
+            st.cache_data.clear()
             
-            with col_limpar:
-                if st.button("Limpar", type="tertiary", use_container_width=True):
-                    st.cache_data.clear()
-                    
-                    chaves_para_limpar = ['df_planilha', 'df_results', 'carreira']
-                    for chave in chaves_para_limpar:
-                        if chave in st.session_state:
-                            del st.session_state[chave]
-                    
-                    st.session_state.file_reset += 1 
-                    
-                    gc.collect()
-                    
-                    st.rerun()
+            chaves_para_limpar = ['df_planilha', 'df_results', 'carreira']
+            for chave in chaves_para_limpar:
+                if chave in st.session_state:
+                    del st.session_state[chave]
+            
+            st.session_state.file_reset += 1 
+            
+            gc.collect()
+            
+            st.rerun()
 
         from layout_ueg import renderizar_planilha
         if st.session_state.df_planilha is not None and not st.session_state.df_planilha.empty:
