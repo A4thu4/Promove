@@ -443,7 +443,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_cc and data_i_cc and data_f_cc > data_i_cc and cargo_comissao != 'Nenhum':
-                tempo = (data_f_cc.year - data_i_cc.year) * 12 + (data_f_cc.month - data_i_cc.month) + 1
+                tempo = (data_f_cc.year - data_i_cc.year) * 12 + (data_f_cc.month - data_i_cc.month)
                 st.session_state.comissao_lista.append((f"C. Comissão: {cargo_comissao}", data_i_cc, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -510,7 +510,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_fc and data_i_fc and data_f_fc > data_i_fc and funcao_comissionada != 'Nenhum':
-                tempo = (data_f_fc.year - data_i_fc.year) * 12 + (data_f_fc.month - data_i_fc.month) + 1
+                tempo = (data_f_fc.year - data_i_fc.year) * 12 + (data_f_fc.month - data_i_fc.month)
                 st.session_state.func_c_lista.append((f"F. Comissionada: {funcao_comissionada}", data_i_fc, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -577,7 +577,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_fd and data_i_fd and data_f_fd > data_i_fd and funcao_designada != 'Nenhum':
-                tempo = (data_f_fd.year - data_i_fd.year) * 12 + (data_f_fd.month - data_i_fd.month) + 1
+                tempo = (data_f_fd.year - data_i_fd.year) * 12 + (data_f_fd.month - data_i_fd.month)
                 st.session_state.func_d_lista.append((f"F. Designada: {funcao_designada}", data_i_fd, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -644,7 +644,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_at_a and data_i_at_a and data_f_at_a > data_i_at_a  and atuacao_agente != 'Nenhum':
-                tempo = (data_f_at_a.year - data_i_at_a.year) * 12 + (data_f_at_a.month - data_i_at_a.month) + 1
+                tempo = (data_f_at_a.year - data_i_at_a.year) * 12 + (data_f_at_a.month - data_i_at_a.month)
                 st.session_state.agente_lista.append((f"At. Agente: {atuacao_agente}", data_i_at_a, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -713,7 +713,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
             if st.session_state.obrigatorios and data_f_at_c and data_i_at_c and data_f_at_c > data_i_at_c and atuacao_conselho != 'Nenhum':
                 ano = data_f_at_c.year - data_i_at_c.year
                 mes = data_f_at_c.month - data_i_at_c.month
-                tempo = (data_f_at_c.year - data_i_at_c.year) * 12 + (data_f_at_c.month - data_i_at_c.month) + 1
+                tempo = (data_f_at_c.year - data_i_at_c.year) * 12 + (data_f_at_c.month - data_i_at_c.month)
                 st.session_state.conselho_lista.append((f"At. Conselho: {atuacao_conselho}", data_i_at_c, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -780,7 +780,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_at_p and data_i_at_p and data_f_at_p > data_i_at_p and atuacao_prioritaria != 'Nenhum':
-                tempo = (data_f_at_p.year - data_i_at_p.year) * 12 + (data_f_at_p.month - data_i_at_p.month) + 1
+                tempo = (data_f_at_p.year - data_i_at_p.year) * 12 + (data_f_at_p.month - data_i_at_p.month)
                 st.session_state.prioritaria_lista.append((f"At. Prioritária: {atuacao_prioritaria}", data_i_at_p, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
@@ -847,7 +847,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                     st.error("A data de fim não pode ser anterior à data de início ou menor que 1 mês.")
             
             if st.session_state.obrigatorios and data_f_ex_p and data_i_ex_p and data_f_ex_p > data_i_ex_p and exec_projeto != 'Nenhum':
-                tempo = (data_f_ex_p.year - data_i_ex_p.year) * 12 + (data_f_ex_p.month - data_i_ex_p.month) + 1
+                tempo = (data_f_ex_p.year - data_i_ex_p.year) * 12 + (data_f_ex_p.month - data_i_ex_p.month)
                 st.session_state.projeto_lista.append((f"Ex. Projeto: {exec_projeto}", data_i_ex_p, tempo))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()

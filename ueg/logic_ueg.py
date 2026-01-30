@@ -286,7 +286,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     
     # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
     if acumulado_pre_pontos > 0:
-        carreira[0][6] += min(acumulado_pre_pontos, LIMITE_RESP)
+        carreira[0][5] += min(acumulado_pre_pontos, LIMITE_RESP)
 
     # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
     for data_aplicacao, pts in sorted(rm_dict.items()):
