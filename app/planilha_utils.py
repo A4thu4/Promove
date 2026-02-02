@@ -341,7 +341,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
         ),
     }
 
-    # ---------- 1) LER A LINHA DA PLANILHA E GERAR UMA LISTA DE RESPONSABILIDADES ----------
+    # ---------- LER A LINHA DA PLANILHA E GERAR UMA LISTA DE RESPONSABILIDADES ----------
     # Formato interno: (tipo_base, data_início, data_fim, pontos_base)
     resp_mensais = []
 
@@ -388,7 +388,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     if not resp_mensais:
         return carreira
 
-    # ---------- 2) DEFINIÇÃO DE GRUPOS E ESTRUTURAS DE ACÚMULO ----------
+    # ---------- DEFINIÇÃO DE GRUPOS E ESTRUTURAS DE ACÚMULO ----------
     # Grupos reais 
     GRUPO_REAL = {
         "C. Comissão": "G1",        # I → só 1 no mês
@@ -419,7 +419,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     if isinstance(data_inicial, datetime):
         data_inicial = data_inicial.date()
 
-    # ---------- 3) DISTRIBUIR RESPONSABILIDADES MÊS A MÊS (RETRO + NORMAL) ----------
+    # ---------- DISTRIBUIR RESPONSABILIDADES MÊS A MÊS (RETRO + NORMAL) ----------
     for tipo_base, inicio, fim, pontos in sorted(resp_mensais, key=lambda x: x[1]):
         g = GRUPO_REAL.get(tipo_base)
         if not g:
@@ -440,33 +440,43 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
             inicio = DECRETO_DATE
 
         # Começa a contar a partir do mês seguinte ao início
-        ano = inicio.year
-        mes = inicio.month
+        mes_cursor = date(inicio.year, inicio.month, 1)
         
-        while date(ano, mes, 1) <= fim:
-            data_ap = date(ano, mes, 1)
+        while mes_cursor <= fim:
+            # A data de aplicação é o mês seguinte (M+1)
+            data_ap = mes_cursor + relativedelta(months=1)
+            
+            # Definir o intervalo trabalhado dentro do mês de competência
+            inicio_mes = max(inicio, mes_cursor)
+            ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
+            fim_mes = min(fim, ultimo_dia_mes)
 
-            # faltas já estão em afastamentos_dict_resp na própria data de aplicação (mês seguinte)
-            faltas = afastamentos_dict_resp.get(data_ap, 0)
-            desconto = (pontos / 30.0) * faltas
-            pts_aj = max(0.0, pontos - desconto)
+            if inicio_mes <= fim_mes:
+                # Cálculo Proporcional Exato
+                dias_no_mes = (ultimo_dia_mes - mes_cursor).days + 1
+                dias_trabalhados = (fim_mes - inicio_mes).days + 1
+                
+                proporcao = dias_trabalhados / dias_no_mes
+                pts_base = pontos * proporcao
 
-            if pts_aj > 0:
-                if data_ap < data_inicial:
-                    # período RETROATIVO → soma em retro_bruto (só G1 e se elegível)
-                    if retro_elegivel and g == "G1":
-                        retro_bruto[data_ap][g].append(pts_aj)
-                else:
-                    # período NORMAL → soma em rm_bruto
-                    rm_bruto[data_ap][g].append(pts_aj)
+                # Desconto de faltas (na data de aplicação M+1)
+                faltas = afastamentos_dict_resp.get(data_ap, 0)
+                desconto = (pontos / 30.0) * faltas
+                pts_aj = max(0.0, pts_base - desconto)
 
-            # próximo mês
-            mes += 1
-            if mes > 12:
-                mes = 1
-                ano += 1
+                if pts_aj > 0:
+                    if data_ap < data_inicial:
+                        # período retroativo (G1)
+                        if retro_elegivel and g == "G1":
+                            retro_bruto[data_ap][g].append(pts_aj)
+                    else:
+                        # período normal (aplicado na carreira)
+                        rm_bruto[data_ap][g].append(pts_aj)
 
-    # ---------- 4) CONSOLIDAR PONTOS POR MÊS, RESPEITANDO LIMITES POR GRUPO ----------
+            # Próximo mês de competência
+            mes_cursor += relativedelta(months=1)
+
+    # ---------- CONSOLIDAR PONTOS POR MÊS, RESPEITANDO LIMITES POR GRUPO ----------
     rm_dict = {}  # data -> soma já consolidada do mês (após limites por grupo)
 
     for data_ap, grupos in rm_bruto.items():
@@ -489,15 +499,17 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
                 continue
             valores_ordenados = sorted(valores, reverse=True)
             total_mes += sum(valores_ordenados[:limite])
+        if retro_total + total_mes > LIMITE_RESP:
+            total_mes = max(0, LIMITE_RESP - retro_total)
         retro_total += total_mes
 
-    # ---------- 5) APLICAR RETROATIVO NA PRIMEIRA LINHA (RESPEITANDO LIMITE 144) ----------
+    # ---------- APLICAR RETROATIVO NA PRIMEIRA LINHA (RESPEITANDO LIMITE 144) ----------
     if retro_total > 0 and total_rm < LIMITE_RESP:
         usar = min(retro_total, LIMITE_RESP - total_rm)
         carreira[0][6] += usar  # coluna 6 = R.Mensais
         total_rm += usar
 
-    # ---------- 6) APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
+    # ---------- APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
     for data_ap, pts in sorted(rm_dict.items()):
         if total_rm >= LIMITE_RESP:
             break

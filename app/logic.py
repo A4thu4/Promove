@@ -185,9 +185,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 # ---------- APLICA RESPONSABILIDADES MENSAIS ---------- #
     from collections import defaultdict
 
-    def contar_meses(inicio, fim):
-        return (fim.year - inicio.year) * 12 + (fim.month - inicio.month) + 1
-
     # Mapeamento dos tipos para grupos reais
     GRUPO_REAL = {
         "C. Comissão": "G1",        # I → só 1 no mês
@@ -210,16 +207,16 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
     # rm_bruto guarda: data -> grupo -> lista de pontos já descontados
     rm_bruto = defaultdict(lambda: defaultdict(list))
-
-    retro_total = 0.0 
-    acumulado_pre_pontos = 0.0
+    retro_bruto = defaultdict(lambda: defaultdict(list))
+    retro_total = 0.0
 
     # Ordena pela data de início 
-    for tipo, inicio, meses, pontos in sorted(resp_mensais, key=lambda data: data[1]):
-        inicio = inicio.date() if isinstance(inicio, datetime) else inicio
-        inicio = date(inicio.year, inicio.month, 1)
-
-        data_fim_calc = inicio + relativedelta(months=meses - 1)
+    for tipo, inicio_resp, fim_resp, tempo, pontos in sorted(resp_mensais, key=lambda data: data[1]):
+        inicio_resp = inicio_resp.date() if isinstance(inicio_resp, datetime) else inicio_resp
+        inicio_resp = date(inicio_resp.year, inicio_resp.month, inicio_resp.day)
+       
+        fim_resp = fim_resp.date() if isinstance(fim_resp, datetime) else fim_resp
+        fim_resp = date(fim_resp.year, fim_resp.month, fim_resp.day)
 
         # extrai o tipo-base ("C. Comissão: DAS-1" → "C. Comissão")
         tipo_base = tipo.split(":", 1)[0].strip()
@@ -227,78 +224,90 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         if not g:
             continue
 
-        if inicio.day != 1:
-            inicio = date(inicio.year, inicio.month, 1)
-
         # --- Retroativo: até 5 anos antes da data do enquadramento---
-        if g == "G1" and inicio < enquadramento:
-            inicio_real = max(inicio, enquadramento - relativedelta(years=5))
-            fim_real = min(data_fim_calc, enquadramento - relativedelta(days=1))
+        if g == "G1" and inicio_resp < enquadramento:
+            inicio_limite = max(inicio_resp, enquadramento - relativedelta(years=5))
+            fim_limite = min(fim_resp, enquadramento - relativedelta(days=1))
 
-            if inicio_real <= fim_real:
-                meses_retro = contar_meses(inicio_real, fim_real)
+            mes_cursor = date(inicio_limite.year, inicio_limite.month, 1)
 
-                for i in range(meses_retro):
-                    mes_ref = inicio_real + relativedelta(months=i)
-                    data_mes = date(mes_ref.year, mes_ref.month, 1)
+            while mes_cursor <= fim_limite:
+                # limites reais dentro do mês
+                inicio_mes = max(inicio_limite, mes_cursor)
+                ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
+                fim_mes = min(fim_limite, ultimo_dia_mes)
 
-                    faltas = afastamentos_dict_resp.get(data_mes, 0)
+                if inicio_mes <= fim_mes:
+                    dias_mes = (ultimo_dia_mes - mes_cursor).days + 1
+                    dias_trabalhados = (fim_mes - inicio_mes).days + 1
+
+                    proporcao = dias_trabalhados / dias_mes
+                    pts_base = pontos * proporcao
+
+                    faltas = afastamentos_dict_resp.get(mes_cursor, 0)
                     desconto = (pontos / 30.0) * faltas
-                    pts_mes = max(0.0, pontos - desconto)
+                    pts_final = max(0.0, pts_base - desconto)
 
-                    retro_total += pts_mes
+                    # GUARDA SÓ A MAIOR G1 DO MÊS
+                    retro_bruto[mes_cursor][g].append(pts_final)
 
-            # --- período entre enquadramento e data_inicial (início dos pontos) ---
-            if inicio < data_inicial and data_fim_calc >= inicio:
-                fim_oculto = min(data_fim_calc, data_inicial - relativedelta(days=1))
-
-                meses_ocultos = contar_meses(inicio, fim_oculto)
-                acumulado_pre_pontos += meses_ocultos * pontos
-
-                # avança o início para o início real dos pontos
-                inicio = data_inicial
+                mes_cursor += relativedelta(months=1)
 
         # se toda a responsabilidade foi consumida no retroativo, vai pra proxima resp
-        if data_fim_calc < enquadramento:
+        if fim_resp < enquadramento:
             continue
         
+        if inicio_resp < enquadramento:
+            inicio_resp = enquadramento
+
         # mês seguinte ao início
-        mes_aplicacao = inicio.month + 1
-        ano_aplicacao = inicio.year
-        if mes_aplicacao > 12:
-            mes_aplicacao = 1
-            ano_aplicacao += 1
+        mes_cursor = date(inicio_resp.year, inicio_resp.month, 1)
         
-        meses_restantes = contar_meses(inicio, data_fim_calc)
+        while mes_cursor <= fim_resp:
+            # A data de aplicação é sempre o mês seguinte (M+1)
+            data_aplicacao = mes_cursor + relativedelta(months=1)
+            
+            # 1. Definir o intervalo trabalhado dentro do mês de competência
+            inicio_efetivo = max(inicio_resp, mes_cursor)
+            ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
+            fim_efetivo = min(fim_resp, ultimo_dia_mes)
 
-        # Aplica pelos meses declarados
-        for _ in range(meses_restantes):
-            data_aplicacao = date(ano_aplicacao, mes_aplicacao, 1)
+            if inicio_efetivo <= fim_efetivo:
+                # 2. Cálculo Proporcional (Caso 2)
+                dias_mes = (ultimo_dia_mes - mes_cursor).days + 1
+                dias_trabalhados = (fim_efetivo - inicio_efetivo).days + 1
+                
+                proporcao = dias_trabalhados / dias_mes
+                pts_base = pontos * proporcao
 
-            # Desconto de faltas (mês anterior ao da aplicação)
-            mes_ant, ano_ant = mes_aplicacao - 1, ano_aplicacao
-            if mes_ant < 1:
-                mes_ant, ano_ant = 12, ano_aplicacao - 1
+                # 3. Desconto de faltas (na data de aplicação M+1)
+                faltas = afastamentos_dict_resp.get(data_aplicacao, 0)
+                desconto = (pontos / 30.0) * faltas
+                pts_aj = max(0.0, pts_base - desconto)
 
-            faltas = afastamentos_dict_resp.get(data_aplicacao, 0)
-            desconto = (pontos / 30.0) * faltas
-            pts_aj = max(0.0, pontos - desconto)
+                # 4. Adiciona no grupo para consolidação
+                rm_bruto[data_aplicacao][g].append(pts_aj)
+            
+            # Avança para o próximo mês de competência
+            mes_cursor += relativedelta(months=1)
 
-            # adiciona dentro do grupo real
-            rm_bruto[data_aplicacao][g].append(pts_aj)
-
-            # próximo mês
-            mes_aplicacao += 1
-            if mes_aplicacao > 12:
-                mes_aplicacao = 1
-                ano_aplicacao += 1
+    # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
+    for data_mes, grupos in retro_bruto.items():
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO[g]
+            valores_ordenados = sorted(valores, reverse=True)
+            retro_total  += sum(valores_ordenados[:limite])
+    
+    # ---------- APLICA RETRO SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
+    if retro_total > 0:
+        retro_aj = min(retro_total, LIMITE_RESP - total_pontos_resp)
+        carreira[0][6] += retro_aj
+        total_pontos_resp += retro_aj
 
     # ---------- CONSOLIDAÇÃO COM LIMITES POR GRUPO ---------- #
     rm_dict = {}
-
     for data_aplicacao, grupos in rm_bruto.items():
-        total_mes = 0
-
+        total_mes = 0.0
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
 
@@ -308,10 +317,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
         rm_dict[data_aplicacao] = total_mes
     
-    # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
-    if acumulado_pre_pontos > 0:
-        carreira[0][6] += min(acumulado_pre_pontos, LIMITE_RESP)
-
     # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
     for data_aplicacao, pts in sorted(rm_dict.items()):
         if total_pontos_resp >= LIMITE_RESP:
