@@ -304,7 +304,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
         ),
     }
 
-    # ---------- 1) LER A LINHA DA PLANILHA E GERAR UMA LISTA DE RESPONSABILIDADES ----------
+    # ---------- LER A LINHA DA PLANILHA E GERAR UMA LISTA DE RESPONSABILIDADES ----------
     # Formato interno: (tipo_base, data_início, data_fim, pontos_base)
     resp_mensais = []
 
@@ -351,7 +351,12 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     if not resp_mensais:
         return carreira
 
-    # ---------- 2) DEFINIÇÃO DE GRUPOS E ESTRUTURAS DE ACÚMULO ----------
+    # ---------- DEFINIÇÃO DE GRUPOS E ESTRUTURAS DE ACÚMULO ----------
+    from collections import defaultdict
+
+    def contar_meses(inicio, fim):
+        return (fim.year - inicio.year) * 12 + (fim.month - inicio.month) + 1
+    
     # Grupos reais 
     GRUPO_REAL = {
         "C. Comissão": "G1",        # I → só 1 no mês
@@ -375,8 +380,8 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
 
     # rm_bruto: data_aplicação -> grupo -> lista de pontos (já com desconto de faltas)
     rm_bruto = defaultdict(lambda: defaultdict(list))
-    # retro_bruto: mesma coisa, só para meses anteriores ao início da carreira
-    retro_bruto = defaultdict(lambda: defaultdict(list))
+    retro_legal = 0.0
+    acumulado_pre_pontos = 0.0
 
     enquadramento = data_enquad  
     from data_utils_ueg import DECRETO_DATE
@@ -384,101 +389,86 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     if isinstance(data_inicial, datetime):
         data_inicial = data_inicial.date()
 
-    # ---------- 3) DISTRIBUIR RESPONSABILIDADES MÊS A MÊS (RETRO + NORMAL) ----------
+    # ---------- DISTRIBUIR RESPONSABILIDADES MÊS A MÊS (RETRO + NORMAL) ----------
     for tipo_base, inicio, fim, pontos in sorted(resp_mensais, key=lambda x: x[1]):
+        inicio = inicio if isinstance(inicio, date) else inicio.date()
+        fim = fim if isinstance(fim, date) else fim.date()
+
+        inicio = date(inicio.year, inicio.month, 1)
+        fim = date(fim.year, fim.month, 1)
+
         g = GRUPO_REAL.get(tipo_base)
         if not g:
             continue
 
         # Retroativo só para G1 e até 5 anos antes do enquadramento (mesma lógica do individual)
-        retro_elegivel = False
         if g == "G1" and inicio < enquadramento:
-            limite_5anos = enquadramento - relativedelta(years=5)
-            if inicio < limite_5anos:
-                # corta o período: ignora tudo antes do limite de 5 anos
-                inicio = limite_5anos
-            retro_elegivel = True
+            ini = max(inicio, enquadramento - relativedelta(years=5))
+            fim_retro = min(fim, enquadramento - relativedelta(days=1))
 
-        # G2, G3, G4: NUNCA têm retroativo.
-        # Só contam pontos a partir da data do decreto.
-        if g != "G1" and inicio < DECRETO_DATE:
-            inicio = DECRETO_DATE
+            if ini <= fim_retro:
+                meses = contar_meses(ini, fim_retro)
+                retro_legal += meses * pontos
 
-        # Começa a contar a partir do mês seguinte ao início
-        ano = inicio.year
-        mes = inicio.month
+        # -------- PERÍODO 2: ENTRE ENQUADRAMENTO E DATA_INICIAL --------
+        ini = max(inicio, enquadramento)
+        fim_pre = min(fim, data_inicial - relativedelta(days=1))
 
-        while date(ano, mes, 1) <= fim:
-            data_ap = date(ano, mes, 1)
+        if ini <= fim_pre:
+            meses = contar_meses(ini, fim_pre)
+            acumulado_pre_pontos += meses * pontos
 
-            # Faltas já estão em afastamentos_dict na própria data de aplicação (mês seguinte)
-            faltas = afastamentos_dict_resp.get(data_ap, 0)
-            desconto = (pontos / 30.0) * faltas
-            pts_aj = max(0.0, pontos - desconto)
+        # -------- PERÍODO 3: MENSAL NORMAL (APÓS DATA_INICIAL) --------
+        ini = max(inicio, data_inicial)
+        fim_pos = fim
 
-            if pts_aj > 0:
-                if data_ap < data_inicial:
-                    # período retroativo
-                    if retro_elegivel and g == "G1":
-                        retro_bruto[data_ap][g].append(pts_aj)
-                else:
-                    # período normal
-                    rm_bruto[data_ap][g].append(pts_aj)
+        if ini <= fim_pos:
+            meses_restantes = contar_meses(ini, fim_pos)
 
-            # próximo mês
-            mes += 1
-            if mes > 12:
-                mes = 1
-                ano += 1
+            mes_aplic = ini + relativedelta(months=1)
 
-    # ---------- 4) CONSOLIDAR PONTOS POR MÊS, RESPEITANDO LIMITES POR GRUPO ----------
-    rm_dict = {}  # data -> soma já consolidada do mês (após limites por grupo)
+            for _ in range(meses_restantes):
+                data_aplic = date(mes_aplic.year, mes_aplic.month, 1)
+                rm_bruto[data_aplic][g].append(pontos)
+                mes_aplic += relativedelta(months=1)
 
-    for data_ap, grupos in rm_bruto.items():
+
+    # ---------------- CONSOLIDAÇÃO MENSAL ---------------- #
+
+    rm_dict = {}
+
+    for data_aplic, grupos in rm_bruto.items():
         total_mes = 0.0
         for g, valores in grupos.items():
-            limite = LIMITES_GRUPO.get(g, 0)
-            if not limite:
-                continue
-            valores_ordenados = sorted(valores, reverse=True)
-            total_mes += sum(valores_ordenados[:limite])
-        rm_dict[data_ap] = total_mes
+            limite = LIMITES_GRUPO[g]
+            total_mes += sum(sorted(valores, reverse=True)[:limite])
+        rm_dict[data_aplic] = total_mes
 
-    # Retroativo: consolida mês a mês com os mesmos limites por grupo
-    retro_total = 0.0
-    for data_ap, grupos in retro_bruto.items():
-        total_mes = 0.0
-        for g, valores in grupos.items():
-            limite = LIMITES_GRUPO.get(g, 0)
-            if not limite:
-                continue
-            valores_ordenados = sorted(valores, reverse=True)
-            total_mes += sum(valores_ordenados[:limite])
-        retro_total += total_mes
 
-    # ---------- 5) APLICAR RETROATIVO NA PRIMEIRA LINHA (RESPEITANDO LIMITE 144) ----------
-    if retro_total > 0 and total_rm < LIMITE_RESP:
-        usar = min(retro_total, LIMITE_RESP - total_rm)
-        carreira[0][5] += usar  # coluna 6 = R.Mensais
-        total_rm += usar
+    # ---------------- APLICAÇÃO NA CARREIRA ---------------- #
 
-    # ---------- 6) APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
-    for data_ap, pts in sorted(rm_dict.items()):
-        if total_rm >= LIMITE_RESP:
+    # Tudo anterior à data_inicial entra UMA VEZ
+    total_inicial_resp = retro_legal + acumulado_pre_pontos
+
+    if total_inicial_resp > 0:
+        carreira[0][5] += min(total_inicial_resp, LIMITE_RESP)
+
+    total_pontos_resp = carreira[0][6]
+
+    # Mensal visível
+    for data_aplic, pts in sorted(rm_dict.items()):
+        if total_pontos_resp >= LIMITE_RESP:
             break
 
-        pts_aj = min(pts, LIMITE_RESP - total_rm)
-        if pts_aj <= 0:
-            continue
+        pts = min(pts, LIMITE_RESP - total_pontos_resp)
 
-        for idx, linha in enumerate(carreira):
-            data_linha = linha[0]
-            if isinstance(data_linha, datetime):
-                data_linha = data_linha.date()
+        for i, linha in enumerate(carreira):
+            d = linha[0]
+            d = d if isinstance(d, date) else d.date()
 
-            if data_linha == data_ap:
-                carreira[idx][5] += pts_aj
-                total_rm += pts_aj
+            if d == data_aplic:
+                carreira[i][5] += pts
+                total_pontos_resp += pts
                 break
 
     return carreira
