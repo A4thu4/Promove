@@ -375,7 +375,6 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
 
     # rm_bruto: data_aplicação -> grupo -> lista de pontos (já com desconto de faltas)
     rm_bruto = defaultdict(lambda: defaultdict(list))
-    # retro_bruto: mesma coisa, só para meses anteriores ao início da carreira
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
     enquadramento = data_enquad  
@@ -441,38 +440,29 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
             # Próximo mês de competência
             mes_cursor += relativedelta(months=1)
 
+    # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
+    retro_total = 0.0
+    for data_ap, grupos in retro_bruto.items():
+        for g, valores in grupos.items():
+            limite = LIMITES_GRUPO[g]
+            valores_ordenados = sorted(valores, reverse=True)
+            retro_total += sum(valores_ordenados[:limite])
+        
+    # ---------- APLICAR RETROATIVO NA PRIMEIRA LINHA ----------
+    if retro_total > 0:
+        usar = min(retro_total, LIMITE_RESP - total_rm)
+        carreira[0][5] += usar 
+        total_rm += usar
+
     # ---------- CONSOLIDAR PONTOS POR MÊS, RESPEITANDO LIMITES POR GRUPO ----------
     rm_dict = {}  # data -> soma já consolidada do mês (após limites por grupo)
-
     for data_ap, grupos in rm_bruto.items():
         total_mes = 0.0
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO.get(g, 0)
-            if not limite:
-                continue
             valores_ordenados = sorted(valores, reverse=True)
             total_mes += sum(valores_ordenados[:limite])
         rm_dict[data_ap] = total_mes
-
-    # Retroativo: consolida mês a mês com os mesmos limites por grupo
-    retro_total = 0.0
-    for data_ap, grupos in retro_bruto.items():
-        total_mes = 0.0
-        for g, valores in grupos.items():
-            limite = LIMITES_GRUPO.get(g, 0)
-            if not limite:
-                continue
-            valores_ordenados = sorted(valores, reverse=True)
-            total_mes += sum(valores_ordenados[:limite])
-        if retro_total + total_mes > LIMITE_RESP:
-            total_mes = max(0, LIMITE_RESP - retro_total)
-        retro_total += total_mes
-
-    # ---------- APLICAR RETROATIVO NA PRIMEIRA LINHA (RESPEITANDO LIMITE 144) ----------
-    if retro_total > 0 and total_rm < LIMITE_RESP:
-        usar = min(retro_total, LIMITE_RESP - total_rm)
-        carreira[0][5] += usar  # coluna 6 = R.Mensais
-        total_rm += usar
 
     # ---------- APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
     for data_ap, pts in sorted(rm_dict.items()):

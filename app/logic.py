@@ -208,7 +208,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     # rm_bruto guarda: data -> grupo -> lista de pontos já descontados
     rm_bruto = defaultdict(lambda: defaultdict(list))
     retro_bruto = defaultdict(lambda: defaultdict(list))
-    retro_total = 0.0
 
     # Ordena pela data de início 
     for tipo, inicio_resp, fim_resp, tempo, pontos in sorted(resp_mensais, key=lambda data: data[1]):
@@ -292,6 +291,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             mes_cursor += relativedelta(months=1)
 
     # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
+    retro_total = 0.0
     for data_mes, grupos in retro_bruto.items():
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
@@ -310,11 +310,8 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         total_mes = 0.0
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
-
-            # pega só as maiores dentro do grupo
             valores_ordenados = sorted(valores, reverse=True)
             total_mes += sum(valores_ordenados[:limite])
-
         rm_dict[data_aplicacao] = total_mes
     
     # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
