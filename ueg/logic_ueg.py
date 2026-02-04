@@ -9,6 +9,18 @@ def zerar_carreira(carreira):
         for j in range(1, 7):  # Zera das colunas 1 a 8
             carreira[i][j] = 0
 
+def consolidar_grupo(valores, limite):
+    proporcionais = [v["pts"] for v in valores if v["proporcional"]]
+    integrais = [v["pts"] for v in valores if not v["proporcional"]]
+
+    resultados = []
+
+    if proporcionais:
+        resultados.append(sum(proporcionais))
+
+    resultados.extend(integrais)
+
+    return sum(sorted(resultados, reverse=True)[:limite])
 
 def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais, apo_especial:bool):
     """
@@ -207,24 +219,29 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             mes_cursor = date(inicio_limite.year, inicio_limite.month, 1)
 
             while mes_cursor <= fim_limite:
-                # limites reais dentro do mês
                 inicio_mes = max(inicio_limite, mes_cursor)
                 ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
                 fim_mes = min(fim_limite, ultimo_dia_mes)
 
                 if inicio_mes <= fim_mes:
-                    dias_mes = (ultimo_dia_mes - mes_cursor).days + 1
+                    dias_no_mes = ultimo_dia_mes.day
                     dias_trabalhados = (fim_mes - inicio_mes).days + 1
 
-                    proporcao = dias_trabalhados / dias_mes
+                    # GAMBIARRA: trata meses como 30 dias
+                    mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
+                    dias_trabalhados = 30 if mes_completo else min(dias_trabalhados, 30) 
+
+                    proporcao = dias_trabalhados / 30.0
                     pts_base = pontos * proporcao
 
                     faltas = afastamentos_dict_resp.get(mes_cursor, 0)
                     desconto = (pontos / 30.0) * faltas
                     pts_final = max(0.0, pts_base - desconto)
 
-                    # GUARDA SÓ A MAIOR G1 DO MÊS
-                    retro_bruto[mes_cursor][g].append(pts_final)
+                    retro_bruto[mes_cursor][g].append({
+                        "pts": pts_final,
+                        "proporcional": proporcao < 1.0
+                    })
 
                 mes_cursor += relativedelta(months=1)
 
@@ -239,31 +256,32 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         mes_cursor = date(inicio_resp.year, inicio_resp.month, 1)
         
         while mes_cursor <= fim_resp:
-            # A data de aplicação é sempre o mês seguinte (M+1)
             data_aplicacao = mes_cursor + relativedelta(months=1)
             
-            # 1. Definir o intervalo trabalhado dentro do mês de competência
             inicio_efetivo = max(inicio_resp, mes_cursor)
             ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
             fim_efetivo = min(fim_resp, ultimo_dia_mes)
 
             if inicio_efetivo <= fim_efetivo:
-                # 2. Cálculo Proporcional (Caso 2)
-                dias_mes = (ultimo_dia_mes - mes_cursor).days + 1
+                dias_no_mes = ultimo_dia_mes.day
                 dias_trabalhados = (fim_efetivo - inicio_efetivo).days + 1
                 
-                proporcao = dias_trabalhados / dias_mes
+                # GAMBIARRA: trata meses como 30 dias
+                mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
+                dias_trabalhados = 30 if mes_completo else min(dias_trabalhados, 30) 
+
+                proporcao = dias_trabalhados / 30.0
                 pts_base = pontos * proporcao
 
-                # 3. Desconto de faltas (na data de aplicação M+1)
                 faltas = afastamentos_dict_resp.get(data_aplicacao, 0)
                 desconto = (pontos / 30.0) * faltas
                 pts_aj = max(0.0, pts_base - desconto)
 
-                # 4. Adiciona no grupo para consolidação
-                rm_bruto[data_aplicacao][g].append(pts_aj)
+                rm_bruto[data_aplicacao][g].append({
+                    "pts": pts_aj,
+                    "proporcional": proporcao < 1.0
+                })
             
-            # Avança para o próximo mês de competência
             mes_cursor += relativedelta(months=1)
 
     # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
@@ -271,8 +289,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     for data_mes, grupos in retro_bruto.items():
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
-            valores_ordenados = sorted(valores, reverse=True)
-            retro_total  += sum(valores_ordenados[:limite])
+            retro_total += consolidar_grupo(valores, limite)
     
     # ---------- APLICA RETRO SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #
     if retro_total > 0:
@@ -286,8 +303,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         total_mes = 0.0
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
-            valores_ordenados = sorted(valores, reverse=True)
-            total_mes += sum(valores_ordenados[:limite])
+            total_mes += consolidar_grupo(valores, limite)
         rm_dict[data_aplicacao] = total_mes
 
     # ---------- APLICA SOBRE A CARREIRA (RESPEITA LIMITE_RESP) ---------- #

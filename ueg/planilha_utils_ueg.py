@@ -258,6 +258,19 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     LIMITE_RESP = 144
     total_rm = 0.0
 
+    def consolidar_grupo(valores, limite):
+        proporcionais = [v["pts"] for v in valores if v["proporcional"]]
+        integrais = [v["pts"] for v in valores if not v["proporcional"]]
+
+        resultados = []
+
+        if proporcionais:
+            resultados.append(sum(proporcionais))
+
+        resultados.extend(integrais)
+
+        return sum(sorted(resultados, reverse=True)[:limite])
+    
     # Mapas de pontos
     pt_cargos = {
         "DAS1": 1.000, "DAS2": 1.000,
@@ -403,9 +416,8 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
         if g != "G1" and inicio < DECRETO_DATE:
             inicio = DECRETO_DATE
 
-        # Começa a contar a partir do mês seguinte ao início
         mes_cursor = date(inicio.year, inicio.month, 1)
-        
+
         while mes_cursor <= fim:
             # A data de aplicação é o mês seguinte (M+1)
             data_ap = mes_cursor + relativedelta(months=1)
@@ -417,10 +429,14 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
 
             if inicio_mes <= fim_mes:
                 # Cálculo Proporcional Exato
-                dias_no_mes = (ultimo_dia_mes - mes_cursor).days + 1
-                dias_trabalhados = (fim_mes - inicio_mes).days + 1
+                dias_no_mes = ultimo_dia_mes.day
+                dias_trabalhados = (fim_mes - inicio_mes).days + 1 # inclui o último dia 
                 
-                proporcao = dias_trabalhados / dias_no_mes
+                # GAMBIARRA: trata meses como 30 dias
+                mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
+                dias_trabalhados = 30 if mes_completo else min(dias_trabalhados, 30) 
+
+                proporcao = dias_trabalhados / 30.0
                 pts_base = pontos * proporcao
 
                 # Desconto de faltas (na data de aplicação M+1)
@@ -432,10 +448,16 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
                     if data_ap < data_inicial:
                         # período retroativo (G1)
                         if retro_elegivel and g == "G1":
-                            retro_bruto[data_ap][g].append(pts_aj)
+                            retro_bruto[data_ap][g].append({
+                                "pts": pts_aj,
+                                "proporcional": proporcao < 1.0
+                            })
                     else:
                         # período normal (aplicado na carreira)
-                        rm_bruto[data_ap][g].append(pts_aj)
+                        rm_bruto[data_ap][g].append({
+                            "pts": pts_aj,
+                            "proporcional": proporcao < 1.0
+                        })
 
             # Próximo mês de competência
             mes_cursor += relativedelta(months=1)
@@ -445,9 +467,8 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     for data_ap, grupos in retro_bruto.items():
         for g, valores in grupos.items():
             limite = LIMITES_GRUPO[g]
-            valores_ordenados = sorted(valores, reverse=True)
-            retro_total += sum(valores_ordenados[:limite])
-        
+            retro_total += consolidar_grupo(valores, limite)
+
     # ---------- APLICAR RETROATIVO NA PRIMEIRA LINHA ----------
     if retro_total > 0:
         usar = min(retro_total, LIMITE_RESP - total_rm)
@@ -459,9 +480,8 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     for data_ap, grupos in rm_bruto.items():
         total_mes = 0.0
         for g, valores in grupos.items():
-            limite = LIMITES_GRUPO.get(g, 0)
-            valores_ordenados = sorted(valores, reverse=True)
-            total_mes += sum(valores_ordenados[:limite])
+            limite = LIMITES_GRUPO[g]
+            total_mes += consolidar_grupo(valores, limite)
         rm_dict[data_ap] = total_mes
 
     # ---------- APLICAR MESES NORMAIS NA CARREIRA (RESPEITANDO LIMITE 144) ----------
