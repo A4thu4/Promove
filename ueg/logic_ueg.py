@@ -222,10 +222,18 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
                 inicio_mes = max(inicio_limite, mes_cursor)
                 ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
                 fim_mes = min(fim_limite, ultimo_dia_mes)
+                
+                # Se a data_fim representa exoneração, o último dia NÃO é trabalhado
+                fim_calculo = min(fim_mes, fim_resp - timedelta(days=1))
+                
+                if inicio_mes > fim_calculo:
+                    mes_cursor += relativedelta(months=1)
+                    continue
 
-                if inicio_mes <= fim_mes:
+                if inicio_mes <= fim_calculo:
                     dias_no_mes = ultimo_dia_mes.day
-                    dias_trabalhados = (fim_mes - inicio_mes).days + 1
+
+                    dias_trabalhados = (fim_calculo - inicio_mes).days + 1 # não considerar o dia de exoneração
 
                     # GAMBIARRA: trata meses como 30 dias
                     mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
@@ -262,12 +270,19 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
             fim_efetivo = min(fim_resp, ultimo_dia_mes)
 
+            # Se a data_fim representa exoneração, o último dia NÃO é trabalhado
+            fim_calculo = min(fim_efetivo, fim_resp - timedelta(days=1))
+
+            if inicio_efetivo > fim_calculo:
+                mes_cursor += relativedelta(months=1)
+                continue
+
             if inicio_efetivo <= fim_efetivo:
                 dias_no_mes = ultimo_dia_mes.day
-                dias_trabalhados = (fim_efetivo - inicio_efetivo).days + 1
+                dias_trabalhados = (fim_calculo - inicio_efetivo).days + 1 # não considerar o dia de exoneração
                 
                 # GAMBIARRA: trata meses como 30 dias
-                mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
+                mes_completo = (inicio_efetivo == mes_cursor and fim_efetivo == ultimo_dia_mes)
                 dias_trabalhados = 30 if mes_completo else min(dias_trabalhados, 30) 
 
                 proporcao = dias_trabalhados / 30.0

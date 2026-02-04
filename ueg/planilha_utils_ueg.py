@@ -426,11 +426,17 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
             inicio_mes = max(inicio, mes_cursor)
             ultimo_dia_mes = (mes_cursor + relativedelta(months=1)) - timedelta(days=1)
             fim_mes = min(fim, ultimo_dia_mes)
+            # Se a data_fim representa exoneração, o último dia NÃO é trabalhado
+            fim_calculo = min(fim_mes, fim - timedelta(days=1))
 
-            if inicio_mes <= fim_mes:
-                # Cálculo Proporcional Exato
+            if inicio_mes > fim_calculo:
+                mes_cursor += relativedelta(months=1)
+                continue
+
+            if inicio_mes <= fim_calculo:
                 dias_no_mes = ultimo_dia_mes.day
-                dias_trabalhados = (fim_mes - inicio_mes).days + 1 # inclui o último dia 
+
+                dias_trabalhados = (fim_calculo - inicio_mes).days + 1 # não considerar o dia de exoneração
                 
                 # GAMBIARRA: trata meses como 30 dias
                 mes_completo = (inicio_mes == mes_cursor and fim_mes == ultimo_dia_mes)
@@ -439,27 +445,23 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
                 proporcao = dias_trabalhados / 30.0
                 pts_base = pontos * proporcao
 
-                # Desconto de faltas (na data de aplicação M+1)
                 faltas = afastamentos_dict_resp.get(data_ap, 0)
                 desconto = (pontos / 30.0) * faltas
                 pts_aj = max(0.0, pts_base - desconto)
 
                 if pts_aj > 0:
                     if data_ap < data_inicial:
-                        # período retroativo (G1)
                         if retro_elegivel and g == "G1":
                             retro_bruto[data_ap][g].append({
                                 "pts": pts_aj,
                                 "proporcional": proporcao < 1.0
                             })
                     else:
-                        # período normal (aplicado na carreira)
                         rm_bruto[data_ap][g].append({
                             "pts": pts_aj,
                             "proporcional": proporcao < 1.0
                         })
 
-            # Próximo mês de competência
             mes_cursor += relativedelta(months=1)
 
     # ---------- CONSOLIDAÇÃO RETROATIVA  ---------- #
