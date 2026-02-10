@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from data_utils_ueg import  MIN_DATE, MAX_DATE, NIVEIS
+from data_utils_ueg import DECRETO_DATE, MIN_DATE, MAX_DATE, NIVEIS
 from dateutil.relativedelta import relativedelta
 from datetime import date
 
@@ -295,7 +295,7 @@ def build_titulacoes(key_prefix="tit"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=MIN_DATE,
+                min_value=DECRETO_DATE,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data"
             )
