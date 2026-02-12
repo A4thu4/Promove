@@ -7,3 +7,4 @@ main_antigo.py
 *.o
 *.obj
 *.ini
+*.ipynb
