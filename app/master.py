@@ -494,11 +494,14 @@ def main():
 
         ids_processados = []
         df_pview = pd.DataFrame()
-
+        nome_base = ""
         if submitted:
             if not arquivo_up:
                 st.warning("Carregue a planilha.")
                 st.stop()
+
+            nome_arquivo = arquivo_up.name
+            nome_base = os.path.splitext(nome_arquivo)[0]
 
             if st.session_state.get('calculando', False):
                 st.warning("Cálculo em andamento.")
@@ -570,7 +573,7 @@ def main():
                 st.download_button(
                     label="Exportar Resultados para Excel",
                     data=excel_buffer.getvalue(),
-                    file_name="Resultado Evoluções.xlsx",
+                    file_name=f"Resultado(s) {nome_base}.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 )
 
