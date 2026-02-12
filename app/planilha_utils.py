@@ -555,7 +555,7 @@ def processar_responsabilidades_unicas(df, i, carreira):
     dados_livro = {"PLO": 1, "PLC": 3, "PLL": 6}
     dados_pesq = {"PUBE": 1, "PUBR": 2, "PUBN": 3, "PUBI": 4}
     dados_reg = {"PAT": 6, "CULT": 6}
-    dados_curso = {"PD5": 6, "PD4": 8, "PD3": 12, "PD2": 24, "PD1": 48}
+    dados_curso = {"PDOC1": 6, "PDOC2": 8, "PDOC3": 12, "PDOC4": 24, "PDOC5": 48}
 
     def _aplicar(dicionario, texto_coluna):
         """Divide campo, extrai (quantidade, tipo, data) e acumula pontos."""
