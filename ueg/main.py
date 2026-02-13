@@ -2,7 +2,7 @@ import streamlit as st
 import sys
 import os
 
-from ueg.logic_ueg import tratar_datas
+from logic_ueg import tratar_datas
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -704,4 +704,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
