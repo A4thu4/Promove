@@ -426,6 +426,137 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     return carreira, resultado_niveis
 
 
+def tratar_datas(arquivo):
+    import pandas as pd
+    import io
+
+    data_inicio = '2010-08-01'
+    data_fim = '2099-12-31'
+
+    calendario = pd.date_range(start=data_inicio, end=data_fim)
+
+    linhas_ignoradas = pd.read_excel(arquivo, sheet_name='Dados', nrows=2, dtype=str)
+    df_arquivo = pd.read_excel(arquivo, sheet_name='Dados', skiprows=2, dtype=str)
+
+    cargo_em_comissao = {
+    "DAS1": 1.000, "DAS2": 1.000,
+    "DAS3": 0.889, "DAS4": 0.889,
+    "DAS5": 0.800, "DAS6": 0.800, "DAS7": 0.800, "DAID1A": 0.800, "AEG": 0.800,
+    "DAI1": 0.667, "DAID1": 0.667, "DAID1B": 0.667, "DAID2": 0.667, "AE1": 0.667, "AE2": 0.667,
+    "DAI2": 0.500, "DAI3": 0.500, "DAID3": 0.500, "DAID4": 0.500, "DAID5": 0.500, "DAID6": 0.500, "DAID7": 0.500, "DAID8": 0.500, "DAID9": 0.500, "DAID10": 0.500, "DAID11": 0.500, "DAID12": 0.500, "DAID13": 0.500, "DAID14": 0.500 }
+
+    funcao_comissionada = {"FCG5": 0.333, "FCG4": 0.364, "FCG3": 0.400, "FCG2": 0.444, "FCG1": 0.500}
+
+    atuacao_como_agente = {"GCV": 0.333, "GCIV": 0.364, "GCIII": 0.400, "GCII": 0.444, "GCI": 0.500}
+
+    unica = {"FD": 0.333, "AP": 0.333, "GT": 0.333, "EP": 0.333}
+
+    df_pontos = pd.DataFrame({
+        "cargo": list(cargo_em_comissao.keys()) + list(funcao_comissionada.keys()) + list(atuacao_como_agente.keys()) + list(unica.keys()),
+        "pontos": list(cargo_em_comissao.values()) + list(funcao_comissionada.values()) + list(atuacao_como_agente.values()) + list(unica.values())
+    })
+
+    def explodir_periodos(df, col):
+        df = df.copy()
+        df.loc[:, 'periodo'] = df[col].fillna("").astype(str).str.split(";")
+        df_expandido = df.explode('periodo')
+        df_expandido = df_expandido[df_expandido['periodo'] != ""].copy()
+
+        df_expandido[['cargo', 'data_inicio', 'data_fim']] = df_expandido['periodo'].str.split("-", expand=True)
+
+        df_expandido['data_inicio'] = pd.to_datetime(df_expandido['data_inicio'], format='%d/%m/%Y', dayfirst=True, errors='coerce')
+        df_expandido['data_fim'] = pd.to_datetime(df_expandido['data_fim'].replace('SF', '31/12/2099'),  format='%d/%m/%Y', dayfirst=True, errors='coerce')
+
+        # Substituir valores NaT por uma data padrão
+        df_expandido['data_fim'] = df_expandido['data_fim'].fillna(pd.Timestamp('2099-12-31'))
+
+        if df_expandido['data_inicio'].isna().any() or df_expandido['data_fim'].isna().any():
+            datas_invalidas = df_expandido[df_expandido['data_inicio'].isna() | df_expandido['data_fim'].isna()]
+            raise ValueError(f"Existem datas inválidas no arquivo: {datas_invalidas[['data_inicio', 'data_fim']].drop_duplicates().to_dict(orient='records')}. Verifique o formato das datas e tente novamente.")
+
+        df_expandido["coluna_origem"] = col
+        df_expandido = df_expandido[["CPF", "Servidor", "coluna_origem", 'cargo', 'data_inicio', 'data_fim']]
+
+        return df_expandido
+
+    df_explodido1 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Cargo em Comissão"]], "Exercício de Cargo em Comissão")
+    df_explodido2 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Função Comissionada/Gratificada"]], "Exercício de Função Comissionada/Gratificada")
+    df_explodido3 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Função Designada"]], "Exercício de Função Designada")
+
+    df_final = pd.concat([df_explodido1, df_explodido2, df_explodido3], ignore_index=True).sort_values(by=["CPF", "data_inicio"])
+
+    df_historico = df_final.merge(calendario.to_frame(name="data"), how="cross")
+    df_historico = df_historico[(df_historico["data"] >= df_historico["data_inicio"]) & (df_historico["data"] <= df_historico["data_fim"])].copy()
+
+    df_historico = df_historico.merge(df_pontos, how="left", left_on="cargo", right_on="cargo")
+
+
+    df_historico["manter"] = df_historico.groupby(["CPF", "data"])["pontos"].rank(
+        method='first', 
+        ascending=False
+    ).astype(int)
+
+    df_coincidente = df_historico[df_historico["manter"] == 1].drop(columns=["data_inicio", "data_fim", "pontos", "manter"]).copy()
+
+    colunas_atributos = [c for c in df_coincidente.columns if c != 'data']
+
+    df = df_coincidente.sort_values(by=colunas_atributos + ['data'])
+
+    mudou_atributo = (df[colunas_atributos] != df[colunas_atributos].shift()).any(axis=1)
+
+    diferenca_dias = df.groupby(colunas_atributos)['data'].diff()
+    houve_lacuna = diferenca_dias > pd.Timedelta(days=1)
+
+    novo_periodo = mudou_atributo | houve_lacuna
+    df['periodo_id'] = novo_periodo.cumsum()
+
+    df_scd = df.groupby(colunas_atributos + ['periodo_id']).agg(
+        data_inicio=('data', 'min'),
+        data_fim=('data', 'max')
+    ).sort_values(by=["CPF", "coluna_origem", "data_inicio"]).reset_index()
+
+    df_scd = df_scd.drop(columns=['periodo_id'])
+
+    df_scd['periodo_str'] = (
+        df_scd['data_inicio'].dt.strftime('%d/%m/%Y') + "-" + 
+        df_scd['data_fim'].dt.strftime('%d/%m/%Y')
+    )
+
+    df_scd['registro'] = df_scd['cargo'] + "-" + df_scd['periodo_str']
+
+    df_agrupado = df_scd.groupby(['CPF', 'Servidor', 'coluna_origem'])['registro'].apply(';'.join).reset_index()
+
+    df_final = df_agrupado.pivot(index=['CPF', 'Servidor'], columns='coluna_origem', values='registro').reset_index()
+
+    colunas_desejadas = [
+        "Exercício de Cargo em Comissão", 
+        "Exercício de Função Comissionada/Gratificada", 
+        "Exercício de Função Designada"
+    ]
+
+    for col in colunas_desejadas:
+        if col not in df_final.columns:
+            df_final[col] = None
+
+    df_final = df_final[["CPF", "Servidor"] + colunas_desejadas]
+    df_final.columns.name = None
+
+    df_linhas_ignoradas = pd.DataFrame(linhas_ignoradas)
+    df_final = pd.concat([df_linhas_ignoradas, df_final], ignore_index=True)
+    
+    df_final = df_final.merge(df_arquivo.drop(columns=["Exercício de Cargo em Comissão", "Exercício de Função Comissionada/Gratificada", "Exercício de Função Designada"]), on=["CPF", "Servidor"], how="outer").drop_duplicates(subset=["CPF", "Servidor"], keep="first")
+
+    df_final = df_final[df_arquivo.columns].fillna("").sort_values(by=["CPF", "Servidor"]).reset_index(drop=True)
+
+    df_final[colunas_desejadas] = df_final[colunas_desejadas].replace("31/12/2099", "SF", regex=True)
+
+    arquivo_tratado = io.BytesIO()
+    df_final.to_excel(arquivo_tratado, index=False, engine='openpyxl')
+    arquivo_tratado.seek(0)
+
+    return arquivo_tratado
+
+
 def calcular_planilha(arquivo, apo_especial_m:bool):
     """Executa o cálculo múltiplo de evolução funcional a partir de planilha Excel."""
     import pandas as pd

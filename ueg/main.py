@@ -2,6 +2,8 @@ import streamlit as st
 import sys
 import os
 
+from ueg.logic_ueg import tratar_datas
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
@@ -518,8 +520,9 @@ def main():
             
             try:
                 with st.spinner("Calculando..."):
-                    dados_planilha = arquivo_up.getvalue()
-                    
+                    arquivo_tratado = tratar_datas(arquivo_up)
+
+                    dados_planilha = arquivo_tratado.getvalue()
                     df = calcular_planilha(dados_planilha, apo_especial_m)
                     
                     # Atribuí os novos resultados
@@ -528,7 +531,7 @@ def main():
                     df_pview = df[2]
                     ids_processados = df[3]
                     
-                    del dados_planilha 
+                    del arquivo_tratado, dados_planilha 
                     
             except Exception as e:
                 st.error(f"Erro no processamento: {str(e)}")

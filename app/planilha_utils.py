@@ -34,10 +34,8 @@ def _ler_planilha_excel(arquivo):
         wb = px.load_workbook(arquivo, data_only=True)
         aba = wb.active
         dados = list(aba.values)
-        if len(dados) < 3:
-            raise ValueError("Planilha incompleta")
 
-        raw_cols = dados[2]
+        raw_cols = dados[0]
 
         colunas = []
         contador = {}
