@@ -35,7 +35,16 @@ def _ler_planilha_excel(arquivo):
         aba = wb.active
         dados = list(aba.values)
 
-        raw_cols = dados[0]
+        linha_header = None
+        for idx, linha in enumerate(dados[:5]):  # olha só as 5 primeiras
+            if linha and "Servidor" in [str(c).strip() for c in linha]:
+                linha_header = idx
+                break
+
+        if linha_header is None:
+            raise ValueError("Cabeçalho não encontrado na planilha.")
+
+        raw_cols = dados[linha_header]
 
         colunas = []
         contador = {}
@@ -54,7 +63,7 @@ def _ler_planilha_excel(arquivo):
 
             colunas.append(nome)
 
-        valores = dados[3:]
+        valores = dados[linha_header + 1:]
         df = pd.DataFrame(valores, columns=colunas)
 
         # Limpeza básica

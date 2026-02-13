@@ -401,15 +401,18 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             continue
         
         # Calcula desempenho e aperfeicoamento acumulados até a data atual
+        exercicio_atual = 0
         desempenho_atual = 0
         aperfeicoamento_atual = 0
         
         for j in range(min(len(carreira), 1000)):
             data = carreira[j][0]
             if data.day == 1 and data <= data_atual:
+                exercicio_atual += carreira[j][1]
                 desempenho_atual += carreira[j][2]
                 aperfeicoamento_atual += carreira[j][3]
         
+        exercicio_atual = round(exercicio_atual, 2)
         desempenho_atual = round(desempenho_atual, 2)
         aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
         
@@ -456,7 +459,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
             if aperfeicoamento_atual < 5.4:
                 motivos += ["aperfeiçoamento mínimo de 60 horas"]
 
-    if desempenho_atual < 2.4:
+    if exercicio_atual < 2.4:
         pendencias = True 
         motivos += ["desempenho mínimo de 2.4 pontos"]
 
@@ -487,13 +490,31 @@ def tratar_datas(arquivo):
     import pandas as pd
     import io
 
+    df_arquivo = pd.read_excel(arquivo, sheet_name='Dados', skiprows=2, dtype=str)
+
+    colunas_resp = [
+        "Exercício de Cargo em Comissão",
+        "Exercício de Função Comissionada/Gratificada",
+        "Exercício de Função Designada",
+    ]
+    
+    tem_responsabilidade = any(
+        df_arquivo[col].notna().any() and
+        (df_arquivo[col].str.strip() != "").any()
+        for col in colunas_resp
+    )
+    
+    if not tem_responsabilidade:
+        arquivo_tratado = io.BytesIO()
+        df_arquivo.to_excel(arquivo_tratado, index=False)
+        arquivo_tratado.seek(0)
+        # não há responsabilidades → não processa nada
+        return arquivo_tratado
+    
     data_inicio = '2010-08-01'
     data_fim = '2099-12-31'
 
     calendario = pd.date_range(start=data_inicio, end=data_fim)
-
-    linhas_ignoradas = pd.read_excel(arquivo, sheet_name='Dados', nrows=2, dtype=str)
-    df_arquivo = pd.read_excel(arquivo, sheet_name='Dados', skiprows=2, dtype=str)
 
     cargo_em_comissao = {
     "DAS1": 1.000, "DAS2": 1.000,
@@ -536,11 +557,19 @@ def tratar_datas(arquivo):
 
         return df_expandido
 
-    df_explodido1 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Cargo em Comissão"]], "Exercício de Cargo em Comissão")
-    df_explodido2 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Função Comissionada/Gratificada"]], "Exercício de Função Comissionada/Gratificada")
-    df_explodido3 = explodir_periodos(df_arquivo[["CPF", "Servidor", "Exercício de Função Designada"]], "Exercício de Função Designada")
+    dfs_explodidos = []
 
-    df_final = pd.concat([df_explodido1, df_explodido2, df_explodido3], ignore_index=True).sort_values(by=["CPF", "data_inicio"])
+    for col in colunas_resp:
+        if col in df_arquivo.columns:
+            if df_arquivo[col].notna().any() and (df_arquivo[col].str.strip() != "").any():
+                dfs_explodidos.append(
+                    explodir_periodos(
+                        df_arquivo[["CPF", "Servidor", col]],
+                        col
+                    )
+                )
+            
+    df_final = pd.concat(dfs_explodidos, ignore_index=True).sort_values(by=["CPF", "data_inicio"])
 
     df_historico = df_final.merge(calendario.to_frame(name="data"), how="cross")
     df_historico = df_historico[(df_historico["data"] >= df_historico["data_inicio"]) & (df_historico["data"] <= df_historico["data_fim"])].copy()
@@ -598,9 +627,6 @@ def tratar_datas(arquivo):
     df_final = df_final[["CPF", "Servidor"] + colunas_desejadas]
     df_final.columns.name = None
 
-    df_linhas_ignoradas = pd.DataFrame(linhas_ignoradas)
-    df_final = pd.concat([df_linhas_ignoradas, df_final], ignore_index=True)
-    
     df_final = df_final.merge(df_arquivo.drop(columns=["Exercício de Cargo em Comissão", "Exercício de Função Comissionada/Gratificada", "Exercício de Função Designada"]), on=["CPF", "Servidor"], how="outer").drop_duplicates(subset=["CPF", "Servidor"], keep="first")
 
     df_final = df_final[df_arquivo.columns].fillna("").sort_values(by=["CPF", "Servidor"]).reset_index(drop=True)
@@ -739,15 +765,18 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
                 continue
             
             # Calcula desempenho e aperfeicoamento acumulados até a data atual
+            exercicio_atual = 0
             desempenho_atual = 0
             aperfeicoamento_atual = 0
             
             for j in range(min(len(carreira), 1000)):
                 data = carreira[j][0]
                 if data.day == 1 and data <= dt_atual:
+                    exercicio_atual += carreira[j][1]
                     desempenho_atual += carreira[j][2]
                     aperfeicoamento_atual += carreira[j][3]
             
+            exercicio_atual = round(exercicio_atual, 2)
             desempenho_atual = round(desempenho_atual, 2)
             aperfeicoamento_atual = round(aperfeicoamento_atual, 2)
 
@@ -794,7 +823,7 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
                 if aperfeicoamento_atual < 5.4:
                     motivos += ["aperfeiçoamento mínimo de 60 horas"]
         
-        if desempenho_atual < 2.4:
+        if exercicio_atual < 2.4:
             pendencias = True 
             motivos += ["desempenho mínimo de 2.4 pontos"]
 
