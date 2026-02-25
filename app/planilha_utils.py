@@ -89,6 +89,11 @@ def _ler_planilha_excel(arquivo):
             df["Vínculo"] = df["Vínculo"].astype(str).str.strip()
         else:
             df["Vínculo"] = ""
+        
+        if "Processo SEI" in df.columns:
+            df["Processo SEI"] = df["Processo SEI"].astype(str).str.strip()
+        else:
+            df["Processo SEI"] = ""
 
         # remove duplicados APENAS quando Vínculo está preenchido
         v = df["Vínculo"].astype(str).str.strip()
@@ -116,7 +121,7 @@ def extrair_dados_basicos(df):
     servidores = []
 
     for i, row in df.iterrows():
-        processo = row.get("Processo SEI")
+        processo = str(row.get("Processo SEI", "")).strip()
         nome = str(row.get("Servidor", "")).strip()
         cpf = str(row.get("CPF", "")).strip()
         vinculo = str(row.get("Vínculo", "")).strip()
