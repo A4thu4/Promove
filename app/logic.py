@@ -658,6 +658,7 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
         return
     
     for i, servidor in enumerate(servidores):
+        processo_sei = servidor["Processo"]
         nome_servidor = servidor["Servidor"]
         cpf_servidor = servidor["CPF"]
         vinculo = servidor["Vinculo"]
@@ -844,6 +845,7 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
         result_niveis.append({
             "Status": "Não apto a evolução" if pendencias else "Apto a evolução",
             "Observação": motivo,
+            "Processo SEI": processo_sei,
             "Servidor": nome_servidor,
             "CPF": cpf_servidor,
             "Vínculo": vinculo,

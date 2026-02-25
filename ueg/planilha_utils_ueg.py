@@ -117,6 +117,7 @@ def extrair_dados_basicos(df):
     servidores = []
 
     for i, row in df.iterrows():
+        processo = row.get("Processo SEI")
         nome = str(row.get("Servidor", "")).strip()
         cpf = str(row.get("CPF", "")).strip()
         vinculo = str(row.get("Vínculo", "")).strip()
@@ -144,6 +145,7 @@ def extrair_dados_basicos(df):
         data_fim = data_inicio + relativedelta(years=20)
 
         servidores.append({
+            "Processo": processo,
             "Servidor": nome,
             "CPF": cpf,
             "Vinculo": vinculo,
