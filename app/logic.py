@@ -1,14 +1,15 @@
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+import pandas as pd
 
 from data_utils import DATA_CONCLUSAO, NIVEIS, destacar_obs
-
       
 def zerar_carreira(carreira):
     # ZERA todos os campos de cálculo antes de começar
     for i in range(len(carreira)):
         for j in range(1, 8):  # Zera das colunas 1 a 9
             carreira[i][j] = 0
+
 
 def consolidar_grupo(valores, limite):
     proporcionais = [v["pts"] for v in valores if v["proporcional"]]
@@ -23,10 +24,10 @@ def consolidar_grupo(valores, limite):
 
     return sum(sorted(resultados, reverse=True)[:limite])
 
+
 def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, aperfeicoamentos, titulacoes, resp_unicas, resp_mensais, apo_especial:bool):
     """
-    Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
-    aplicando os dados na matriz Carreira
+    Calcula a proxima evolução da carreira aplicando os dados na matriz Carreira
     TODAS as pontuações são aplicadas no dia 1 do mês seguinte
     """
     if not carreira:
@@ -217,7 +218,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         "G4": 1    # VI → só uma
     }
 
-    # rm_bruto guarda: data -> grupo -> lista de pontos já descontados
+    # guarda: data -> grupo -> lista de pontos já descontados
     rm_bruto = defaultdict(lambda: defaultdict(list))
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
@@ -487,7 +488,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
 
 def tratar_datas(arquivo):
-    import pandas as pd
     import io
 
     df_arquivo = pd.read_excel(arquivo, sheet_name='Dados', skiprows=2, dtype=str)
@@ -642,7 +642,7 @@ def tratar_datas(arquivo):
 
 def calcular_planilha(arquivo, apo_especial_m:bool):
     """Executa o cálculo múltiplo de evolução funcional a partir de planilha Excel."""
-    import pandas as pd
+    
     from planilha_utils import ler_planilha_excel, extrair_dados_basicos, processar_afastamentos, processar_aperfeicoamentos, processar_responsabilidades_mensais, processar_responsabilidades_unicas, processar_titulacoes
    
     result_niveis = []

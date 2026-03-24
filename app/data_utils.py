@@ -12,6 +12,8 @@ def destacar_obs(val):
     return ""
 
 val_states = {
+    "calculando": False, "calculo_executado": False, "df_planilha": None, "df_results": None, "file_reset": 0,
+
     "carreira": [], "resultados_carreira": [],
 
     "data_inicial": None, "data_fim": None, "enquadramento": None, "nivel_atual": None, "pts_ultima_evolucao": None, 
