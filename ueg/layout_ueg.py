@@ -1,14 +1,14 @@
 import streamlit as st
 import pandas as pd
 
-from data_utils_ueg import DECRETO_DATE, MIN_DATE, MAX_DATE, NIVEIS
+from data_utils_ueg import DECRETO_DATE, MIN_DATE, MAX_DATE, NIVEIS, val_states
 from dateutil.relativedelta import relativedelta
 from datetime import date
 
 
-def ensure_states():
+def ensure_states() -> None:
     """Inicializa todos os session_states necessários"""
-    from data_utils_ueg import val_states
+
     import copy
     for key, val in val_states.items():
         st.session_state.setdefault(key, copy.deepcopy(val))
@@ -16,7 +16,7 @@ def ensure_states():
 
 def clear_states():
     """Limpa todos os valores nos session_states"""
-    from data_utils_ueg import val_states
+
     for key, default_val in val_states.items():
         if isinstance(default_val, list):
             st.session_state[key] = []
@@ -30,11 +30,10 @@ def clear_states():
 
 
 def build_obrigatorios(key_prefix="obg"):
-    """
-    Renderiza inputs para 'Requisitos Obrigatórios' e atualiza st.session_state.obrigatorios.
-    """
-    st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Obrigatórios</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Dados do Servidor</h2>", unsafe_allow_html=True)
+    """Renderiza inputs para 'Requisitos Obrigatórios' e atualiza st.session_state.obrigatorios."""
+
+    st.markdown("<h1 class='left'>Requisitos Obrigatórios</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 class='left'>Dados do Servidor</h2>", unsafe_allow_html=True)
 
     existing_data = st.session_state.obrigatorios[0] if st.session_state.obrigatorios else (None, None, None, None)
     existing_nivel, existing_data_inicial, existing_data_enquadramento, existing_pts = existing_data
@@ -131,7 +130,7 @@ def build_afastamentos(key_prefix="afast"):
     """
     Renderiza inputs para 'Afastamentos' e atualiza st.session_state.afastamentos.
     """
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Afastamentos Não Considerados como Efetivo Exercício</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='left'>Afastamentos Não Considerados como Efetivo Exercício</h2>", unsafe_allow_html=True)
 
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         st.session_state[f"{key_prefix}_mes"] = None
@@ -206,39 +205,9 @@ def build_afastamentos(key_prefix="afast"):
 
 
 def build_desempenho(key_prefix="des"):
-    """
-    Renderiza inputs para 'Desempenhos' e atualiza st.session_state.afastamentos.
-    """
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Desempenho no Exercício das Atribuições de Ensino, Pesquisa e Extensão</h2>", unsafe_allow_html=True)
+    """Renderiza inputs para 'Desempenhos' e atualiza st.session_state.afastamentos."""
 
-    st.markdown("""
-        <style>
-        /* Campos desabilitados com melhor visibilidade */
-        input[disabled] {
-            color: #000000 !important;
-            opacity: 1 !important;
-            cursor: default !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            padding: 8px 12px !important;
-        }
-        input[disabled]:focus {
-            outline: none !important;
-            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
-        }
-        
-        /* Label em negrito para melhor visibilidade */
-        .stTextInput label {
-            font-weight: 600 !important;
-            color: #000000 !important;
-        }
-        
-        /* Garantir que o texto fique realmente preto */
-        .stTextInput input[disabled] {
-            -webkit-text-fill-color: #000000 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    st.markdown("<h2 class='left'>Desempenho no Exercício das Atribuições de Ensino, Pesquisa e Extensão</h2>", unsafe_allow_html=True)
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False, enter_to_submit=False):
         col0, col1, col2 = st.columns([1, 1, 1])
@@ -278,8 +247,8 @@ def build_titulacoes(key_prefix="tit"):
     """
     Renderiza inputs para 'Titulações' (data de conclusão + tipo da titulação) e atualiza st.session_state.titulacoes.
     """
-    st.markdown("<h1 style='text-align:left; color:#000000; '>Requisitos Aceleradores</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:left; color:#000000; '>Titulação e Qualificação Acadêmica</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 class='left'>Requisitos Aceleradores</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 class='left'>Titulação e Qualificação Acadêmica</h2>", unsafe_allow_html=True)
 
     from data_utils_ueg import dados_tit
 
@@ -367,8 +336,8 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
     """
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referencia_responsabilidade}.
     """
-    st.markdown("<h1 style='text-align:left; color:#000000; '>Assunção de Responsabilidades</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Mensal</h3>", unsafe_allow_html=True)
+    st.markdown("<h1 class='left'>Assunção de Responsabilidades</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 class='left'>Pontuação Mensal</h3>", unsafe_allow_html=True)
 
     from data_utils_ueg import dados_cargos, dados_func_c, dados_unicos, dados_agente, DECRETO_DATE
     def natural_key(s):
@@ -386,7 +355,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- CARGO DE COMISSÃO ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Exercício de Cargo em Comissão</h5>", unsafe_allow_html=True)
         cargos_ordenados = sorted(dados_cargos.keys(), key=natural_key)
         cargos_ordenados = ['Nenhum'] + [x for x in cargos_ordenados if x != 'Nenhum']
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
@@ -455,7 +424,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- FUNÇÃO COMISSIONADA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Exercício de Função Comissionada/Gratificada</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_comissionada = st.selectbox(
@@ -522,7 +491,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- FUNÇÃO DESIGNADA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Exercício de Função Designada</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             funcao_designada = st.selectbox(
@@ -589,7 +558,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- ATUAÇÃO COMO AGENTE ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Atuação como Agente de Contratação, Gestor/Fiscal de Contratos/Convênios</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_agente = st.selectbox(
@@ -656,7 +625,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- ATUAÇÃO EM CONSELHO ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_conselho = st.selectbox(
@@ -725,7 +694,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- ATUAÇÃO PRIORITÁRIA ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Exercício em Atuação Prioritária</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             atuacao_prioritaria = st.selectbox(
@@ -792,7 +761,7 @@ def build_responsabilidades_mensais(key_prefix="resp_mensal"):
                 st.rerun()
 
 # ---------- EXECUÇÃO/EXTENSÃO ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000; '>Execução de Projeto de Ensino, Pesquisa e/ou Extensão com Captação de Recursos</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Execução de Projeto de Ensino, Pesquisa e/ou Extensão com Captação de Recursos</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3, col4 = st.columns([2, 2, 2, 1, 2])
         with col0:
             exec_projeto = st.selectbox(
@@ -918,11 +887,11 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
     """
     Renderiza inputs para 'Responsabilidades' e atualiza st.session_state.{referente_a_responsabilidade}.
     """
-    st.markdown("<h3 style='text-align:left; color:#000000; '>Pontuação Única</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 class='left'>Pontuação Única</h3>", unsafe_allow_html=True)
 
     from data_utils_ueg import dados_artigo, dados_livro, dados_pesquisas, dados_registros, DECRETO_DATE
 
-    suffixes  = ["art", "liv", "pesq", "reg"]
+    suffixes = ["art", "liv", "pesq", "reg"]
     if st.session_state.get(f"{key_prefix}_reset_fields", False):
         for key_suffix in suffixes:
             st.session_state[f"{key_prefix}_data_{key_suffix}"] = None
@@ -932,7 +901,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
     with st.form(key=f"{key_prefix}_form", clear_on_submit=False):
 # ---------- ARTIGOS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicação de Artigos ou Pesquisas Científicos com ISSN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Publicação de Artigos ou Pesquisas Científicos com ISSN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_art = st.selectbox(
@@ -986,7 +955,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- LIVROS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Publicações de Livros com Corpo Editorial e ISBN</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_liv = st.selectbox(
@@ -1041,7 +1010,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- PESQUISAS CIENTIFICAS ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000; '>Publicações de Artigos ou Pesquisas Científicos Aprovados em Eventos Científicos</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Publicações de Artigos ou Pesquisas Científicos Aprovados em Eventos Científicos</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_pesq = st.selectbox(
@@ -1096,7 +1065,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
                 st.rerun()
 
 # ---------- PATENTES E CULTIVARES ---------- #
-        st.markdown("<h5 style='text-align:left; color:#000000; '>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
+        st.markdown("<h5 class='left'>Registro de Patente ou Cultivar</h5>", unsafe_allow_html=True)
         col0, col1, col2, col3 = st.columns([2, 2, 2, 1])
         with col0:
             tipo_reg = st.selectbox(
@@ -1198,7 +1167,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
 
 def renderizar_planilha(df:pd.DataFrame):
-    st.markdown("<h2 style='text-align:center; color:#000000; '>Detalhamento</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='center'>Detalhamento</h2>", unsafe_allow_html=True)
     st.dataframe(
         df,
         hide_index=True,

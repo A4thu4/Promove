@@ -4,7 +4,6 @@ import openpyxl as px
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-
 def _ler_planilha_excel_cached(file_bytes: bytes):
     import io
     return _ler_planilha_excel(io.BytesIO(file_bytes))
@@ -17,7 +16,6 @@ def ler_planilha_excel(arquivo) -> pd.DataFrame:
       - bytes (conteúdo do xlsx)
       - UploadedFile / file-like
     """
-    import pandas as pd
 
     if arquivo is None:
         return pd.DataFrame()
@@ -297,7 +295,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
     }
     pt_func_c = {"FCG5": 0.333, "FCG4": 0.364, "FCG3": 0.400, "FCG2": 0.444, "FCG1": 0.500}
     pt_agente = {"GCV": 0.333, "GCIV": 0.364, "GCIII": 0.400, "GCII": 0.444, "GCI": 0.500}
-    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333, "EP": 0.333}  # usada para designada, conselho e prioritária e execuçã de projeto
+    pt_fixa = {"FD": 0.333, "AP": 0.333, "GT": 0.333, "EP": 0.333}  # usada para designada, conselho, prioritária e execução de projeto
 
     # Mapeia coluna da planilha -> (rótulo base usado nos grupos, mapa de pontos)
     colunas_resp = {
@@ -400,7 +398,7 @@ def processar_responsabilidades_mensais(df, i, carreira, afastamentos_dict_resp,
         "G5": 1     # VI → só uma
     }
 
-    # rm_bruto: data_aplicação -> grupo -> lista de pontos (já com desconto de faltas)
+    # data_aplicação -> grupo -> lista de pontos (já com desconto de faltas)
     rm_bruto = defaultdict(lambda: defaultdict(list))
     retro_bruto = defaultdict(lambda: defaultdict(list))
 

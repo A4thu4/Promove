@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+import pandas as pd
 
 from data_utils_ueg import DATA_CONCLUSAO, NIVEIS
         
@@ -8,6 +9,7 @@ def zerar_carreira(carreira):
     for i in range(len(carreira)):
         for j in range(1, 7):  # Zera das colunas 1 a 8
             carreira[i][j] = 0
+
 
 def consolidar_grupo(valores, limite):
     proporcionais = [v["pts"] for v in valores if v["proporcional"]]
@@ -22,10 +24,10 @@ def consolidar_grupo(valores, limite):
 
     return sum(sorted(resultados, reverse=True)[:limite])
 
+
 def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_evo, afastamentos, titulacoes, resp_unicas, resp_mensais, apo_especial:bool):
     """
-    Calcula a proxima evolução da carreira e projeta as futuras 18 evoluções possiveis
-    aplicando os dados na matriz Carreira
+    Calcula a proxima evolução da carreira aplicando os dados na matriz Carreira
     TODAS as pontuações são aplicadas no dia 1 do mês seguinte
     """
     if not carreira:
@@ -73,7 +75,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         afastamentos_dict_resp[data_aplic_auto] -= faltas_inicial
         if afastamentos_dict_resp[data_aplic_auto] <= 0:
             del afastamentos_dict_resp[data_aplic_auto]
-
 
     # Aplica os afastamentos nas datas correspondentes
     for i in range(len(carreira)):
@@ -193,7 +194,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
         "G5": 1     # VI → só uma
     }
 
-    # rm_bruto guarda: data -> grupo -> lista de pontos já descontados
+    # guarda: data -> grupo -> lista de pontos já descontados
     rm_bruto = defaultdict(lambda: defaultdict(list))
     retro_bruto = defaultdict(lambda: defaultdict(list))
     
@@ -430,7 +431,6 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
 
 def tratar_datas(arquivo):
-    import pandas as pd
     import io
     
     df_arquivo = pd.read_excel(arquivo, sheet_name='Dados', skiprows=2, dtype=str)
@@ -585,7 +585,7 @@ def tratar_datas(arquivo):
 
 def calcular_planilha(arquivo, apo_especial_m:bool):
     """Executa o cálculo múltiplo de evolução funcional a partir de planilha Excel."""
-    import pandas as pd
+
     from planilha_utils_ueg import ler_planilha_excel, extrair_dados_basicos, processar_afastamentos, processar_responsabilidades_mensais, processar_responsabilidades_unicas, processar_titulacoes
    
     result_niveis = []
@@ -678,7 +678,6 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
         )
 
         df_preview["Data"] = df_preview["Data"].apply(lambda d: d.strftime("%d/%m/%Y"))
-
 
 ### ---------- CÁLCULO DE EVOLUÇÃO ---------- ###
         # Dados iniciais
