@@ -1,10 +1,13 @@
+.vscode/
+.idea/
+.venv
+.env/
 __pycache__/
 forms.txt
-.vscode/
 .exe
-main_antigo.py
 *.log
 *.o
 *.obj
 *.ini
 *.ipynb
+main_antigo.py
