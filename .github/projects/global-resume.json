@@ -1,0 +1,107 @@
+{
+  "name": "The Global Resume",
+  "description": "Lista de contribuições Open Source para o portfólio de imigração qualificada. Cada contribuição merged reforça o pilar 'Portfólio de Alta Qualificação'.",
+  "type": "list",
+  "organization": "ArthemizLabs",
+  "readme": "Monitora todas as contribuições open-source externas do time ArthemizLabs. O objetivo é acumular PRs merged em projetos reconhecidos internacionalmente, fortalecendo o portfólio para candidaturas de visto tech no Japão e Express Entry no Canadá.",
+  "custom_fields": [
+    {
+      "name": "Link do PR",
+      "data_type": "TEXT",
+      "description": "URL completa do Pull Request no repositório externo"
+    },
+    {
+      "name": "Repositório Pai",
+      "data_type": "TEXT",
+      "description": "Formato: owner/repo (ex: fastapi/fastapi)"
+    },
+    {
+      "name": "Status da Contribuição",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Draft 📝",    "color": "GRAY",   "description": "PR criada mas ainda em rascunho" },
+        { "name": "Open 🔄",     "color": "BLUE",   "description": "PR aberta aguardando review" },
+        { "name": "Merged ✅",   "color": "GREEN",  "description": "PR aceita e merged — conta para o portfólio" },
+        { "name": "Rejected ❌", "color": "RED",    "description": "PR fechada sem merge" },
+        { "name": "Stale ⏳",    "color": "YELLOW", "description": "PR sem atividade por mais de 30 dias" }
+      ]
+    },
+    {
+      "name": "Linguagem Principal",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Java",       "color": "ORANGE" },
+        { "name": "Python",     "color": "BLUE" },
+        { "name": "Go",         "color": "BLUE" },
+        { "name": "C/C++",      "color": "GRAY" },
+        { "name": "TypeScript", "color": "BLUE" },
+        { "name": "Rust",       "color": "RED" },
+        { "name": "Other",      "color": "GRAY" }
+      ]
+    },
+    {
+      "name": "Stars do Repo",
+      "data_type": "NUMBER",
+      "description": "Número de estrelas do repositório pai (indicador de relevância)"
+    },
+    {
+      "name": "Pilar",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Diploma 🎓",      "color": "BLUE" },
+        { "name": "Idioma C1/N2 🗣️", "color": "GREEN" },
+        { "name": "Portfólio 💼",    "color": "PURPLE" }
+      ]
+    },
+    {
+      "name": "Data de Submissão",
+      "data_type": "DATE"
+    },
+    {
+      "name": "Data de Merge",
+      "data_type": "DATE"
+    },
+    {
+      "name": "Impacto",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "🟣 Top Project (>10k ⭐)", "color": "PURPLE", "description": "Projeto muito relevante" },
+        { "name": "🔵 Mid Project (1k-10k ⭐)", "color": "BLUE", "description": "Projeto bem estabelecido" },
+        { "name": "🟢 Growing (100-1k ⭐)",    "color": "GREEN", "description": "Projeto em crescimento" },
+        { "name": "⚪ Small (<100 ⭐)",         "color": "GRAY",  "description": "Projeto pequeno" }
+      ]
+    }
+  ],
+  "views": [
+    {
+      "name": "All Contributions",
+      "layout": "TABLE_LAYOUT",
+      "sort_by": "Data de Submissão DESC",
+      "description": "Todas as contribuições em ordem cronológica reversa"
+    },
+    {
+      "name": "Merged Only",
+      "layout": "TABLE_LAYOUT",
+      "filter": "Status da Contribuição = 'Merged ✅'",
+      "description": "Apenas contribuições aceitas — portfólio real"
+    },
+    {
+      "name": "By Language",
+      "layout": "TABLE_LAYOUT",
+      "group_by": "Linguagem Principal",
+      "description": "Agrupado por linguagem de programação"
+    },
+    {
+      "name": "High Impact",
+      "layout": "TABLE_LAYOUT",
+      "filter": "Impacto = '🟣 Top Project (>10k ⭐)' OR Impacto = '🔵 Mid Project (1k-10k ⭐)'",
+      "description": "Contribuições de alto impacto para o portfólio"
+    }
+  ],
+  "goals": {
+    "phase_2026": { "target_merged_prs": 3,  "min_stars": 100  },
+    "phase_2027": { "target_merged_prs": 10, "min_stars": 500  },
+    "phase_2028": { "target_merged_prs": 20, "min_stars": 1000 },
+    "phase_2029": { "target_merged_prs": 30, "min_stars": 1000 }
+  }
+}

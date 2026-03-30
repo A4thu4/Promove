@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentação do Roadmap
+    url: https://github.com/A4thu4/Promove/blob/main/PROJECT_DOCUMENTATION.md
+    about: Leia a documentação completa do IMIGRATION_2030 antes de abrir uma issue.
+  - name: 🗺️ Master Roadmap 2030
+    url: https://github.com/orgs/ArthemizLabs/projects/1
+    about: Veja o projeto principal com a visão macro do roadmap.
+  - name: 🌐 The Global Resume
+    url: https://github.com/orgs/ArthemizLabs/projects/7
+    about: Registre contribuições open-source no projeto de networking.

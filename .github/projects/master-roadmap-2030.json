@@ -1,0 +1,107 @@
+{
+  "name": "Master Roadmap 2030",
+  "description": "Visão macro do roadmap IMIGRATION_2030 — Fases, Países Alvo e Tipos de ação para qualificação internacional.",
+  "type": "table",
+  "organization": "ArthemizLabs",
+  "readme": "Projeto central do roadmap IMIGRATION_2030. Agrega todas as iniciativas técnicas, acadêmicas e de idiomas organizadas por fase (2026-2029), com rastreabilidade dos três pilares de imigração: Diploma, Idioma C1/N2 e Portfólio de Alta Qualificação.",
+  "custom_fields": [
+    {
+      "name": "Fase",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "PHASE_2026", "color": "BLUE",   "description": "Fundação Técnica" },
+        { "name": "PHASE_2027", "color": "GREEN",  "description": "Especialização e Portfólio" },
+        { "name": "PHASE_2028", "color": "YELLOW", "description": "Reconhecimento Internacional" },
+        { "name": "PHASE_2029", "color": "RED",    "description": "Transição e Aplicações" }
+      ]
+    },
+    {
+      "name": "País Alvo",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Japão 🇯🇵",  "color": "RED",   "description": "Visto Engenharia / JLPT" },
+        { "name": "Canadá 🇨🇦", "color": "RED",   "description": "Express Entry" },
+        { "name": "Global 🌍",  "color": "BLUE",  "description": "Reconhecimento Internacional" }
+      ]
+    },
+    {
+      "name": "Tipo",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Certificação 📜", "color": "PURPLE", "description": "Certificações técnicas e profissionais" },
+        { "name": "Idioma 🗣️",       "color": "GREEN",  "description": "Cursos e exames de idioma" },
+        { "name": "Acadêmico 🎓",    "color": "BLUE",   "description": "Graduação, pós-graduação, MBA" },
+        { "name": "Tech 💻",         "color": "GRAY",   "description": "Desenvolvimento de software e projetos" }
+      ]
+    },
+    {
+      "name": "Pilar",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "Diploma 🎓",        "color": "BLUE",   "description": "Formação acadêmica reconhecida" },
+        { "name": "Idioma C1/N2 🗣️",   "color": "GREEN",  "description": "Proficiência comprovada em inglês/japonês" },
+        { "name": "Portfólio 💼",      "color": "PURPLE", "description": "Contribuições OSS, projetos deployed" }
+      ]
+    },
+    {
+      "name": "Prioridade",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        { "name": "🔴 Alta",  "color": "RED",    "description": "Bloqueador ou crítico para o visto" },
+        { "name": "🟡 Média", "color": "YELLOW", "description": "Importante, mas não bloqueador imediato" },
+        { "name": "🟢 Baixa", "color": "GREEN",  "description": "Nice to have" }
+      ]
+    },
+    {
+      "name": "Estimativa",
+      "data_type": "NUMBER",
+      "description": "Story Points: 1, 2, 3, 5, 8, 13"
+    },
+    {
+      "name": "Data Início",
+      "data_type": "DATE"
+    },
+    {
+      "name": "Data Fim",
+      "data_type": "DATE"
+    }
+  ],
+  "views": [
+    {
+      "name": "Timeline",
+      "layout": "BOARD_LAYOUT",
+      "group_by": "Fase",
+      "sort_by": "Data Início",
+      "description": "Visão cronológica agrupada por fase do roadmap"
+    },
+    {
+      "name": "Priority",
+      "layout": "TABLE_LAYOUT",
+      "filter": "Tipo = 'Certificação 📜' OR Tipo = 'Idioma 🗣️'",
+      "sort_by": "Fase",
+      "description": "Certificações e idiomas filtrados por prioridade"
+    },
+    {
+      "name": "By Country",
+      "layout": "TABLE_LAYOUT",
+      "group_by": "País Alvo",
+      "description": "Agrupado por país destino de imigração"
+    },
+    {
+      "name": "Kanban",
+      "layout": "BOARD_LAYOUT",
+      "group_by": "Status",
+      "description": "Fluxo Backlog → In Progress → Done"
+    }
+  ],
+  "status_field": {
+    "name": "Status",
+    "options": [
+      { "name": "🗄️ Backlog",      "color": "GRAY" },
+      { "name": "✅ Ready to Dev", "color": "BLUE" },
+      { "name": "🔧 In Progress",  "color": "YELLOW" },
+      { "name": "🔍 In Review",    "color": "PURPLE" },
+      { "name": "🚀 Done",         "color": "GREEN" }
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "description": "Configuração dos Boards Kanban para os projetos técnicos do roadmap IMIGRATION_2030.",
+  "organization": "ArthemizLabs",
+  "type": "board",
+  "workflow": {
+    "columns": [
+      {
+        "name": "🗄️ Backlog",
+        "description": "Ideias brutas e requisitos sem DoD definido. Issues recém-abertas entram aqui automaticamente.",
+        "automation": {
+          "triggers": ["issue_opened", "issue_reopened"]
+        }
+      },
+      {
+        "name": "✅ Ready to Dev",
+        "description": "Issues com Definition of Done claro, critérios de aceite definidos e estimativa atribuída.",
+        "automation": {
+          "triggers": ["label_added:ready-to-dev"]
+        }
+      },
+      {
+        "name": "🔧 In Progress",
+        "description": "Trabalho ativo. Máximo de 2 issues simultâneas por membro. Issue deve ter assignee.",
+        "wip_limit": 2,
+        "automation": {
+          "triggers": ["issue_assigned", "label_added:in-progress"]
+        }
+      },
+      {
+        "name": "🔍 In Review",
+        "description": "Código pronto aguardando Pull Request aberta ou revisão de pares.",
+        "automation": {
+          "triggers": ["pull_request_opened", "label_added:in-review"]
+        }
+      },
+      {
+        "name": "🚀 Done",
+        "description": "Finalizado, testado, PR merged e deployed em ambiente de produção/staging.",
+        "automation": {
+          "triggers": ["pull_request_merged", "issue_closed"]
+        }
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": "opsledger",
+      "name": "OpsLedger — Backend & API",
+      "repository": "ArthemizLabs/OpsLedger",
+      "description": "Gestão de tarefas do backend Java (Spring Boot) do OpsLedger — APIs, serviços e integrações.",
+      "stack": ["Java", "Spring Boot", "PostgreSQL", "REST API"],
+      "phase": "PHASE_2026",
+      "immigration_pillar": "Portfólio 💼",
+      "labels": ["backend", "java", "api", "database", "bug", "enhancement", "ready-to-dev", "in-progress", "in-review"],
+      "milestones": [
+        { "title": "v0.1 — MVP",     "description": "CRUD básico e autenticação JWT" },
+        { "title": "v0.2 — Reports", "description": "Módulo de relatórios e exportação" },
+        { "title": "v1.0 — Stable",  "description": "Versão estável com testes e CI/CD" }
+      ]
+    },
+    {
+      "id": "sentinel-agent",
+      "name": "Sentinel Agent — Telemetria",
+      "repository": "ArthemizLabs/SentinelAgent",
+      "description": "Board para o agente de telemetria em C — coleta de métricas de sistema e alertas.",
+      "stack": ["C", "POSIX", "syslog", "Prometheus Exporter"],
+      "phase": "PHASE_2026",
+      "immigration_pillar": "Portfólio 💼",
+      "labels": ["c-lang", "telemetria", "daemon", "metrics", "bug", "enhancement", "ready-to-dev", "in-progress", "in-review"],
+      "milestones": [
+        { "title": "v0.1 — Core Daemon", "description": "Daemon básico com coleta de CPU/RAM" },
+        { "title": "v0.2 — Exporters",   "description": "Exportação para Prometheus" },
+        { "title": "v1.0 — Stable",      "description": "Versão estável com alertas" }
+      ]
+    },
+    {
+      "id": "vendas3d",
+      "name": "Vendas3D — E-commerce",
+      "repository": "ArthemizLabs/Vendas3D",
+      "description": "Board do e-commerce 3D — backend Python/FastAPI e frontend React.",
+      "stack": ["Python", "FastAPI", "React", "PostgreSQL", "Redis"],
+      "phase": "PHASE_2027",
+      "immigration_pillar": "Portfólio 💼",
+      "labels": ["backend", "frontend", "python", "fastapi", "ecommerce", "react", "bug", "enhancement", "ready-to-dev", "in-progress", "in-review"],
+      "milestones": [
+        { "title": "v0.1 — Catálogo",  "description": "Listagem e detalhes de produtos" },
+        { "title": "v0.2 — Checkout",  "description": "Carrinho e fluxo de pagamento" },
+        { "title": "v1.0 — Launched",  "description": "Deploy completo com CI/CD" }
+      ]
+    },
+    {
+      "id": "arthemiz",
+      "name": "Arthemiz — Infraestrutura",
+      "repository": "ArthemizLabs/Arthemiz",
+      "description": "Board de infra e plataforma — Go, Kubernetes e arquitetura de microsserviços.",
+      "stack": ["Go", "Kubernetes", "Helm", "Terraform"],
+      "phase": "PHASE_2028",
+      "immigration_pillar": "Portfólio 💼",
+      "labels": ["infra", "go", "k8s", "helm", "terraform", "bug", "enhancement", "ready-to-dev", "in-progress", "in-review"],
+      "milestones": [
+        { "title": "v0.1 — K8s Cluster", "description": "Cluster local com minikube/k3s" },
+        { "title": "v0.2 — Helm Charts",  "description": "Charts para todos os serviços" },
+        { "title": "v1.0 — Production",   "description": "Deploy em cloud provider" }
+      ]
+    },
+    {
+      "id": "systemhealth",
+      "name": "SystemHealth — Monitoramento",
+      "repository": "ArthemizLabs/SystemHealth",
+      "description": "Board de observabilidade — Docker, Prometheus, Grafana e alertas.",
+      "stack": ["Docker", "Prometheus", "Grafana", "Alertmanager", "Go"],
+      "phase": "PHASE_2028",
+      "immigration_pillar": "Portfólio 💼",
+      "labels": ["docker", "monitoring", "prometheus", "grafana", "go", "bug", "enhancement", "ready-to-dev", "in-progress", "in-review"],
+      "milestones": [
+        { "title": "v0.1 — Stack Base",  "description": "Prometheus + Grafana rodando" },
+        { "title": "v0.2 — Dashboards",  "description": "Dashboards padrão configurados" },
+        { "title": "v1.0 — Full Alerts", "description": "Alertas e runbooks completos" }
+      ]
+    }
+  ]
+}
