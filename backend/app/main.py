@@ -1,3 +1,8 @@
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api import auth, evolution
@@ -12,6 +17,7 @@ app = FastAPI(title="PROMOVE API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "*",
         "https://promove.arthemiz.com.br"
     ], # Em produção, use o domínio real
     allow_credentials=True,

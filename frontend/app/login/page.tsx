@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 
-export default function Login() {
+export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/auth-context";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "PROMOVE - Sistema de Evolução Funcional",

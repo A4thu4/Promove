@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 
-export default function Register() {
+export default function Page() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 
-export default function Dashboard() {
+export default function Page() {
   const { token, isLoading } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

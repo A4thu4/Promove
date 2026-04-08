@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
+import { useAuth } from "@/context/auth-context";
+import Navbar from "@/components/navbar";
 
 export default function Home() {
   const { token, user } = useAuth();
