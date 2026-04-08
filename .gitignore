@@ -1,3 +1,7 @@
+# Ide's
+.idea/
+.vscode/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -22,3 +26,22 @@ Thumbs.db
 *.csv
 *.xlsx
 audit_script.py
+
+# Env variants
+.env.local
+.env.development
+.env.production
+
+# Secrets / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs and caches
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/

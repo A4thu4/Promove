@@ -11,10 +11,12 @@ app = FastAPI(title="PROMOVE API", version="1.0.0")
 # Configurar CORS para o frontend Next.js
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Em produção, use o domínio real
+    allow_origins=[
+        "https://promove.arthemiz.com.br"
+    ], # Em produção, use o domínio real
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Incluir Rotas
