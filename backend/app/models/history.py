@@ -1,0 +1,17 @@
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from backend.app.db.session import Base
+
+class History(Base):
+    __tablename__ = "histories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    
+    # Store the input and result of simulation
+    input_data = Column(JSON)
+    result_data = Column(JSON)
+    
+    owner = relationship("User", back_populates="histories")
