@@ -1,68 +1,68 @@
-# 📈 Simulador PROMOVE - Cálculo de Progressão Funcional
+# 📈 Simulador PROMOVE - Sistema de Evolução Funcional (Nova Stack)
 
-- Foram feitos 2 Sistemas em Python + Streamlit para simular e calcular progressões funcionais com base em critérios de tempo, pontuação, titulação
-e carreira.
-- O 1º (app/master.py) é um simulador geral que, baseado em uma **pontuação média irá, *fazer uma previsão*** de quanto tempo levaria para atingir o nível máximo da carreira e o tempo necessário entre cada evolução. Além de possui um módulo múltiplo criado para facilitar o trabalho da GGDP para fazer o cálculo da **possível próxima evolução** de um ou mais servidores, através de uma planilha do excel montada exclusivamente com esse propósito.
-- O 2º (ueg/main.py) é o mesmo simulador mantendo a mesma lógica , porém com ajustes de critérios e requisitos que estejam de acordo com normas da **UEG**.
+O sistema PROMOVE foi refatorado para uma arquitetura moderna e escalável, separando as preocupações entre Backend e Frontend.
 
 ---
 
-## 🧠 Objetivo
+## 🏗️ Arquitetura Atual (Refatorada)
 
-Facilitar a análise de **progressão de servidores públicos**, simulando automaticamente o avanço entre níveis/ciclos, com base nas **tabelas de pontuação** e **regras de produtividade** de acordo com regras pré-estabelecidas pelo Governo em seu respectivo Decreto.
+- **Backend**: [FastAPI](https://api.tiangolo.com/) (Python)
+  - Lógica de cálculo unificada (Promove + UEG).
+  - Autenticação e Autorização com JWT.
+  - Persistência de dados com SQLAlchemy e SQLite.
+- **Frontend**: [Next.js](https://nextjs.org/) (React + Tailwind CSS)
+  - Interface moderna e responsiva.
+  - Gerenciamento de estado de autenticação.
+  - Dashboard para histórico de simulações.
+- **Antigo (Legado)**: O sistema anterior em Streamlit ainda está disponível nas pastas `app/` e `ueg/`.
 
 ---
 
 ## 🚀 Funcionalidades
 
-- 📊 Cálculo automático da progressão de nível.
-- 📅 Detecção de **tempo necessário** entre interstício.
-- ⚖️ Verificação de atingimento de requisitos mínimos.
-- 📈 Exibição em tabela dos resultados com pontuações e datas.
-- ✅ Ajuste dinâmico de critérios (nível, meta, início, etc).
-- 🎯 Ideal para simulações individuais ou em lote.
+- 📊 **Cálculo Unificado**: Uma única lógica para Promove e UEG, parametrizada.
+- 📅 **Projeção Futura**: Detecta a data exata em que o servidor atingirá os requisitos.
+- 🧪 **Testes Automatizados**: Suite de testes para garantir paridade de cálculo.
+- ⚡ **Performance**: Backend leve e frontend otimizado com Next.js App Router.
 
 ---
 
-## 🛠 Tecnologias Usadas
+## ⚙️ Como rodar (Nova Stack)
 
-- [Python 3.9+](https://www.python.org/)
-- [Streamlit](https://streamlit.io/)
-- Numpy
-- Pandas
-- Openpyxl
+Recomendamos o uso dos scripts automatizados para facilitar a execução no Windows:
+
+1. **Setup Inicial**: 
+   - Abra o PowerShell na raiz do projeto.
+   - Execute: `.\setup.ps1` (Isso criará o ambiente virtual e instalará as dependências do Backend e Frontend).
+
+2. **Execução**:
+   - Execute: `.\run.ps1` (Isso iniciará o Backend na porta 8000 e o Frontend na porta 3000 automaticamente).
+
+### Alternativa Manual:
+
+#### 1. Backend (FastAPI)
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate 
+$env:PYTHONPATH=".."
+uvicorn backend.app.main:app --reload
+```
+
+#### 2. Frontend (Next.js)
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ---
 
-## ⚙️ Como rodar localmente
+## 🔐 Segurança e Dados
 
-1. Clone o repositório:
-
-```bash
-git clone https://github.com/A4thu4/Promove.git
-cd Promove
-cd ueg ou cd app
-```
-
-2.Crie o ambiente virtual:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate   # Windows
-```
-
-3.Instale as dependências:
-
-```bash
-pip install -r requirements.txt
-```
-
-4.Rode o app:
-
-```bash
-streamlit run main.py # ou (master.py)
-```
+- **Autenticação**: Sistema completo de Registro e Login usando **JWT**.
+- **Histórico**: Usuários logados podem salvar e visualizar suas simulações anteriores no Dashboard.
+- **Banco de Dados**: Utiliza SQLite por padrão (`sql_app.db`), facilmente migrável para PostgreSQL/MySQL alterando a `DATABASE_URL` no `.env`.
 
 ---
 
@@ -70,19 +70,22 @@ streamlit run main.py # ou (master.py)
 
 ```bash
 📦 Promove/
-├── app
-    └── data_utils.py       # Referências de dados para os Cálculos 
-    └── layout.py           # Renderização dos Inputs
-    └── logic.py            # 'Cérebro' do sistema
-    └── master.py           # Código principal
-    └── planilha_utils.py   # Leitura e tratamento de dados do módulo múltiplo
-├── assets/                 # Arquivos extras, imagens e licença
-├── ueg/                    # Mesma estrutura do "app"
-├── Dockerfile              # Arquivo para hospedagem em nuvem com Docker
-├── LICENSE.md               # Licença
-├── README.md               # Este arquivo
-├── main.py                 # Código antigo (Simulador)
-├── requirements.txt        # Dependências
+├── backend/                # API FastAPI
+│   ├── app/
+│   │   ├── api/            # Endpoints (Auth, Evolution)
+│   │   ├── core/           # Lógica, Configurações e Segurança
+│   │   ├── crud/           # Operações de Banco de Dados
+│   │   ├── db/             # Sessão e Base SQLAlchemy
+│   │   ├── models/         # Modelos de Tabela (User, History)
+│   │   └── schemas/        # Schemas Pydantic (Validação)
+│   └── tests_logic.py      # Testes unitários da lógica
+├── frontend/               # Frontend Next.js
+│   ├── app/                # Páginas (Login, Register, Dashboard)
+│   ├── components/         # Componentes Reutilizáveis
+│   └── context/            # AuthContext (Estado Global)
+├── requirements.txt        # Dependências do Backend
+├── setup.ps1               # Script de Instalação Automática
+└── run.ps1                 # Script de Execução Automática
 ```
 
 ---
@@ -95,7 +98,7 @@ streamlit run main.py # ou (master.py)
   - Próximo Nível.
   - Quando atinge o próximo nível.
   - Quantos meses levou.
-- Mostra o resultado final com total de pontos e tempo acumulado.
+- Mostra o resultado com total de pontos e tempo acumulado.
 
 ---
 
@@ -109,4 +112,4 @@ streamlit run main.py # ou (master.py)
 
 ## 📄 Licença
 
-Este projeto está sob a licença [MIT](LICENSE.md).
+Este projeto está sob a licença [MIT](LICENSE).
