@@ -64,16 +64,16 @@ def calcular_carreira(
 
     # Faltas automáticas (dias anteriores ao início)
     faltas_inicial = data_inicial.day - 1
-    data_aplic_auto = None
+    data_aplica_auto = None
     if faltas_inicial > 0:
-        data_aplic_auto = _proximo_mes_1(data_inicial)
-        afastamentos_dict[data_aplic_auto] = afastamentos_dict.get(data_aplic_auto, 0) + faltas_inicial
+        data_aplica_auto = _proximo_mes_1(data_inicial)
+        afastamentos_dict[data_aplica_auto] = afastamentos_dict.get(data_aplica_auto, 0) + faltas_inicial
 
     # Dicionário SEM dias automáticas para responsabilidades
     afastamentos_dict_resp = dict(afastamentos_dict)
-    if data_aplic_auto and data_aplic_auto in afastamentos_dict_resp:
-        afastamentos_dict_resp[data_aplic_auto] -= faltas_inicial
-        if afastamentos_dict_resp[data_aplic_auto] <= 0: del afastamentos_dict_resp[data_aplic_auto]
+    if data_aplica_auto and data_aplica_auto in afastamentos_dict_resp:
+        afastamentos_dict_resp[data_aplica_auto] -= faltas_inicial
+        if afastamentos_dict_resp[data_aplica_auto] <= 0: del afastamentos_dict_resp[data_aplica_auto]
 
     # Aplica Efetivo e Desempenho
     pontos_des = settings.pontos_desempenho_mes_ueg if is_ueg else settings.pontos_desempenho_mes
@@ -91,13 +91,13 @@ def calcular_carreira(
         total_h = 0
         for data_c, horas in sorted(aperfeicoamentos, key=lambda x: x[0]):
             data_c = data_c.date() if hasattr(data_c, 'date') else data_c
-            aprov = min(horas, max(0, 100 - total_h))
-            total_h += aprov
-            if aprov > 0:
-                data_aplic = _proximo_mes_1(data_c)
-                pts = aprov * DEFAULT_REQUIREMENTS.points_per_hour
+            validado = min(horas, max(0, 100 - total_h))
+            total_h += validado
+            if validado > 0:
+                data_aplica = _proximo_mes_1(data_c)
+                pts = validado * DEFAULT_REQUIREMENTS.points_per_hour
                 for linha in carreira:
-                    if linha[0] == data_aplic:
+                    if linha[0] == data_aplica:
                         linha[3] += pts
                         break
 
@@ -108,14 +108,14 @@ def calcular_carreira(
         data_c = data_c.date() if hasattr(data_c, 'date') else data_c
         if ultima_tit and data_c < (ultima_tit + relativedelta(months=12)): continue
         pts_t = dados_tit.get(tipo, 0)
-        aprov = min(pts_t, max(0, settings.limite_tit - total_pts_tit))
-        total_pts_tit += aprov
+        validado = min(pts_t, max(0, settings.limite_tit - total_pts_tit))
+        total_pts_tit += validado
         ultima_tit = data_c
-        if aprov > 0:
-            data_aplic = _proximo_mes_1(data_c)
+        if validado > 0:
+            data_aplica = _proximo_mes_1(data_c)
             for linha in carreira:
-                if linha[0] == data_aplic:
-                    linha[4] += aprov
+                if linha[0] == data_aplica:
+                    linha[4] += validado
                     break
 
     # 4. Responsabilidades Únicas
@@ -123,16 +123,16 @@ def calcular_carreira(
     ru_map: Dict[date, float] = {}
     for d, pts in sorted(resp_unicas, key=lambda x: x[0]):
         d = d.date() if hasattr(d, 'date') else d
-        data_aplic = _proximo_mes_1(d)
-        ru_map[data_aplic] = ru_map.get(data_aplic, 0) + pts
+        data_aplica = _proximo_mes_1(d)
+        ru_map[data_aplica] = ru_map.get(data_aplica, 0) + pts
     
-    for d_aplic in sorted(ru_map.keys()):
-        aprov = min(ru_map[d_aplic], max(0, settings.limite_resp - total_pts_resp))
-        if aprov > 0:
+    for d_aplica in sorted(ru_map.keys()):
+        validado = min(ru_map[d_aplica], max(0, settings.limite_resp - total_pts_resp))
+        if validado > 0:
             for linha in carreira:
-                if linha[0] == d_aplic:
-                    linha[5] += aprov
-                    total_pts_resp += aprov
+                if linha[0] == d_aplica:
+                    linha[5] += validado
+                    total_pts_resp += validado
                     break
 
     # 5. Responsabilidades Mensais
@@ -193,20 +193,20 @@ def calcular_carreira(
     )
 
     if retro_total > 0:
-        aprov = min(retro_total, max(0.0, settings.limite_resp - total_pts_resp))
-        carreira[0][6] += aprov
-        total_pts_resp += aprov
+        validado = min(retro_total, max(0.0, settings.limite_resp - total_pts_resp))
+        carreira[0][6] += validado
+        total_pts_resp += validado
 
     # Consolida RM Futuro
-    for d_aplic, g_map in sorted(rm_bruto.items()):
+    for d_aplica, g_map in sorted(rm_bruto.items()):
         if total_pts_resp >= settings.limite_resp: break
         pts_mes = sum(consolidar_grupo(vals, LIMITES_GRUPO[g]) for g, vals in g_map.items())
-        aprov = min(pts_mes, settings.limite_resp - total_pts_resp)
-        if aprov > 0:
+        validado = min(pts_mes, settings.limite_resp - total_pts_resp)
+        if validado > 0:
             for linha in carreira:
-                if linha[0] == d_aplic:
-                    linha[6] += aprov
-                    total_pts_resp += aprov
+                if linha[0] == d_aplica:
+                    linha[6] += validado
+                    total_pts_resp += validado
                     break
 
     # 6. Acumulado
@@ -214,11 +214,11 @@ def calcular_carreira(
       # UEG não tem coluna de aperfeiçoamento
 
     # Índice da coluna de acumulado
-    idx_acum = 6 if is_ueg else 7
+    idx_acumulado = 6 if is_ueg else 7
 
     for i in range(len(carreira)):
-        pts_mes_total = sum(carreira[i][1:idx_acum])
-        carreira[i][idx_acum] = (carreira[i - 1][idx_acum] + pts_mes_total) if i > 0 else (pts_mes_total + ult_evo)
+        pts_mes_total = sum(carreira[i][1:idx_acumulado])
+        carreira[i][idx_acumulado] = (carreira[i - 1][idx_acumulado] + pts_mes_total) if i > 0 else (pts_mes_total + ult_evo)
 
     return carreira
 
@@ -239,10 +239,10 @@ def validar_evolucao(
     pts_alcancado = 0
     pts_excedente = 0
 
-    idx_acum = 6 if is_ueg else 7
+    idx_acumulado = 6 if is_ueg else 7
     for i in range(len(carreira)):
         d_atual = carreira[i][0]
-        pontos = carreira[i][idx_acum]
+        pontos = carreira[i][idx_acumulado]
         meses = (d_atual.year - data_inicial.year) * 12 + (d_atual.month - data_inicial.month)
         
         # Interstícios
@@ -253,7 +253,7 @@ def validar_evolucao(
         if d_atual < min_12: continue
 
         # Acumulados de Desempenho e Aperfeiçoamento
-        # exercicio_final = round(sum(r[1] for r in carreira if r[0] <= d_atual), 2)
+        # exercício_final = round(sum(r[1] for r in carreira if r[0] <= d_atual), 2)
         desempenho_final = round(sum(r[2] for r in carreira if r[0] <= d_atual), 2)
         aperf_final = round(sum(r[3] for r in carreira if r[0] <= d_atual), 2) if not is_ueg else 0.0
 
@@ -289,7 +289,7 @@ def validar_evolucao(
     if not evolucao:
         # Pega dados da última linha da carreira para checar por que não evoluiu
         last_row = carreira[-1]
-        pts_f = last_row[idx_acum]
+        pts_f = last_row[idx_acumulado]
         des_f = round(sum(r[2] for r in carreira), 2)
         aperf_f = round(sum(r[3] for r in carreira), 2) if not is_ueg else 0.0
         
