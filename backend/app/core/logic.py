@@ -230,8 +230,9 @@ def validar_evolucao(
     apo_especial: bool = False
 ) -> Dict:
 
-    idx_nivel = settings.niveis.index(nivel_atual) if not is_ueg else settings.niveis_ueg.index(nivel_atual)
-    novo_nivel = settings.niveis[idx_nivel + 1] if nivel_atual != settings.niveis[-1] else settings.niveis[-1]
+    niveis = settings.niveis_ueg if is_ueg else settings.niveis
+    idx_nivel = niveis.index(nivel_atual)
+    novo_nivel = niveis[idx_nivel + 1] if nivel_atual != niveis[-1] else niveis[-1]
 
     evolucao = None
     implement = None
@@ -266,7 +267,7 @@ def validar_evolucao(
         # 1. Rápida (apenas não-UEG): 96pts + 12m + 40h aperf
         apto_rapida = (not is_ueg and atingiu_12 and pontos >= reqs.min_points_level_2 and 
                        aperf_final >= reqs.min_hours_level_2 * reqs.points_per_hour and 
-                       desempenho_final >= reqs.min_desempenho_points_ueg)
+                       desempenho_final >= reqs.min_desempenho_points)
 
         # 2. Padrão: 48pts + 18m + 60h aperf
         apto_padrao = (atingiu_18 and pontos >= reqs.min_points_level_1 and 
