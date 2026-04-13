@@ -12,8 +12,7 @@ def _build_carreira(data_inicio: date, is_ueg: bool) -> list:
         if data_inicio.month == 12 \
         else date(data_inicio.year, data_inicio.month + 1, 1)
 
-    cols = 7 if is_ueg else 8  # UEG = 7 colunas, Geral = 8
-    # Simplificado: sempre 8 (coluna aperf zerada para UEG)
+    cols = 7 if is_ueg else 8  # UEG = 7 colunas (sem aperf), Geral = 8
     return [[data_base + relativedelta(months=i)] + [0.0] * cols
             for i in range(settings.data_conclusao)]
 
@@ -53,6 +52,12 @@ def calcular_carreira(
     dados_tit: Dict[str, float],
     pts_ultima_evolucao: float = 0.0,
 ):
+
+    # Índices das colunas (data está no índice 0)
+    idx_tit         = 3 if is_ueg else 4
+    idx_resp_unica  = 4 if is_ueg else 5
+    idx_resp_mensal = 5 if is_ueg else 6
+    idx_acumulado   = 6 if is_ueg else 7
 
     carreira = _build_carreira(data_inicial, is_ueg)
 
@@ -115,7 +120,7 @@ def calcular_carreira(
             data_aplica = _proximo_mes_1(data_c)
             for linha in carreira:
                 if linha[0] == data_aplica:
-                    linha[4] += validado
+                    linha[idx_tit] += validado
                     break
 
     # 4. Responsabilidades Únicas
@@ -131,7 +136,7 @@ def calcular_carreira(
         if validado > 0:
             for linha in carreira:
                 if linha[0] == d_aplica:
-                    linha[5] += validado
+                    linha[idx_resp_unica] += validado
                     total_pts_resp += validado
                     break
 
@@ -194,7 +199,7 @@ def calcular_carreira(
 
     if retro_total > 0:
         validado = min(retro_total, max(0.0, settings.limite_resp - total_pts_resp))
-        carreira[0][6] += validado
+        carreira[0][idx_resp_mensal] += validado
         total_pts_resp += validado
 
     # Consolida RM Futuro
@@ -205,16 +210,12 @@ def calcular_carreira(
         if validado > 0:
             for linha in carreira:
                 if linha[0] == d_aplica:
-                    linha[6] += validado
+                    linha[idx_resp_mensal] += validado
                     total_pts_resp += validado
                     break
 
     # 6. Acumulado
     ult_evo = pts_ultima_evolucao or 0.0
-      # UEG não tem coluna de aperfeiçoamento
-
-    # Índice da coluna de acumulado
-    idx_acumulado = 6 if is_ueg else 7
 
     for i in range(len(carreira)):
         pts_mes_total = sum(carreira[i][1:idx_acumulado])

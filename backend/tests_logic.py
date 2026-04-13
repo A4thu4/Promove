@@ -1,6 +1,11 @@
+import logging
 import unittest
 from datetime import date
 from backend.app.core.logic import calcular_carreira, validar_evolucao
+
+# Configuração básica do logging para exibir mensagens se necessário
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
 
 class TestLogic(unittest.TestCase):
     def test_basic_evolution_promove(self):
@@ -18,7 +23,7 @@ class TestLogic(unittest.TestCase):
         # Total: 31.5 (Não atinge 48)
         
         result = validar_evolucao(False, "A", carreira, data_inicial)
-        print(f"\nResultado test_basic_evolution_promove: {result}")
+        logger.info(f"Resultado test_basic_evolution_promove: {result}")
         self.assertEqual(result["Status"], "Não apto a evolução")
         self.assertIn("aperfeiçoamento insuficiente", result["Observação"])
 
@@ -40,7 +45,7 @@ class TestLogic(unittest.TestCase):
         # Total: 51.6 (Atinge 48)
         
         result = validar_evolucao(False, "A", carreira, data_inicial, True)
-        print(f"\nResultado test_evolution_with_resp_mensal: {result}")
+        logger.info(f"Resultado test_evolution_with_resp_mensal: {result}")
         self.assertEqual(result["Status"], "Apto a evolução")
         self.assertEqual(result["Próximo Nível"], "B")
 
@@ -56,7 +61,7 @@ class TestLogic(unittest.TestCase):
                                      pts_ultima_evolucao=0.0, afastamentos=[], aperfeicoamentos=[], titulacoes=[],
                                      resp_unicas=[], resp_mensais=[], dados_tit={})
         result = validar_evolucao(True, "A", carreira, data_inicial)
-        print(f"\nResultado test_evolution_ueg (Sem DAS): {result}")
+        logger.info(f"Resultado test_evolution_ueg (Sem DAS): {result}")
         
         # Ele deve estar apto, mas na data correta (24 meses depois)
         self.assertEqual(result["Status"], "Apto a evolução")
@@ -70,7 +75,7 @@ class TestLogic(unittest.TestCase):
                                         pts_ultima_evolucao=0.0, afastamentos=[], aperfeicoamentos=[], titulacoes=[],
                                         resp_unicas=[], resp_mensais=resp_mensais, dados_tit={})
         result_ok = validar_evolucao(True, "A", carreira_ok, data_inicial)
-        print(f"Resultado test_evolution_ueg (Com DAS): {result_ok}")
+        logger.info(f"Resultado test_evolution_ueg (Com DAS): {result_ok}")
         self.assertEqual(result_ok["Status"], "Apto a evolução")
 
 if __name__ == '__main__':
