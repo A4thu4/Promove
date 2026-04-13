@@ -286,8 +286,10 @@ def validar_evolucao(
     # Recalcula estados finais para a mensagem de observação se não evoluiu
     motivos = []
     status = "Apto a evolução" if evolucao else "Não apto a evolução"
+    required_min_months = reqs.min_months_special if apo_especial else reqs.min_months_level_1
+
     if apo_especial: motivos.append("Aposentadoria Especial")
-    
+
     if not evolucao:
         # Pega dados da última linha da carreira para checar por que não evoluiu
         last_row = carreira[-1]
@@ -308,7 +310,7 @@ def validar_evolucao(
             pts_req = req_h * reqs.points_per_hour
             motivos.append(f"aperfeiçoamento insuficiente ({aperf_f:.2f}/{pts_req:.2f} pts - {req_h}h)")
 
-        if meses_f < reqs.min_months_level_1:
+        if meses_f < required_min_months:
              motivos.append(f"interstício insuficiente ({meses_f}/{reqs.min_months_level_1} meses)")
 
     obs = "; ".join(motivos) if motivos else "-"

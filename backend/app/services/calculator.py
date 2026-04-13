@@ -51,19 +51,33 @@ def run_calculation(input_data: EvolutionInput) -> EvolutionOutput:
     )
 
     # Formatar CareerRows
-    carreira_rows = [
-        CareerRow(
-            data=r[0],
-            efetivo=round(r[1], 4),
-            desempenho=round(r[2], 4),
-            aperfeicoamento=round(r[3], 4),
-            titulacao=round(r[4], 4),
-            resp_unica=round(r[5], 4),
-            resp_mensal=round(r[6], 4),
-            acumulado=round(r[7], 4)
-        )
-        for r in carreira_raw
-    ]
+    carreira_rows = []
+    for r in carreira_raw:
+        if input_data.is_ueg:
+            # UEG layout: [data, efetivo, desempenho, titulacao, resp_unica, resp_mensal, acumulado]
+            row = CareerRow(
+                data=r[0],
+                efetivo=round(r[1], 4),
+                desempenho=round(r[2], 4),
+                aperfeicoamento=0.0,
+                titulacao=round(r[3], 4),
+                resp_unica=round(r[4], 4),
+                resp_mensal=round(r[5], 4),
+                acumulado=round(r[6], 4)
+            )
+        else:
+            # Geral layout: [data, efetivo, desempenho, aperfeicoamento, titulacao, resp_unica, resp_mensal, acumulado]
+            row = CareerRow(
+                data=r[0],
+                efetivo=round(r[1], 4),
+                desempenho=round(r[2], 4),
+                aperfeicoamento=round(r[3], 4),
+                titulacao=round(r[4], 4),
+                resp_unica=round(r[5], 4),
+                resp_mensal=round(r[6], 4),
+                acumulado=round(r[7], 4)
+            )
+        carreira_rows.append(row)
 
     resumo = EvolutionResult(
         status=resumo_dict["Status"],
