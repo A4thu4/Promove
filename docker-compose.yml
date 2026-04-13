@@ -14,7 +14,7 @@ services:
       - ALGORITHM=${ALGORITHM}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
     volumes:
-      - ./simulador-promove.db:/app/simulador-promove.db
+      - ./app.db:/app.db
     networks:
       - promove-network
 
