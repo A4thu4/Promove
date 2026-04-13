@@ -12,11 +12,21 @@ ENV/
 env/
 .env
 
-# Next.js
+# Next.js / Frontend
 .next/
 out/
 build/
+dist/
 node_modules/
+.npm
+.eslintcache
+.stylelintcache
+
+# Flutter / Mobile (se aplicável)
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
 
 # OS
 .DS_Store
@@ -27,16 +37,26 @@ Thumbs.db
 *.xlsx
 audit_script.py
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Env variants
 .env.local
 .env.development
 .env.production
 
-# Secrets / certificates
+# Secrets / certificates / sensitive
 *.pem
 *.key
 *.p12
 *.pfx
+*.crt
+*.cert
+auth_token*
+credentials.json
+client_secret.json
 
 # Logs and caches
 *.log

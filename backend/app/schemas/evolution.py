@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import List, Dict, Optional, Tuple
+from typing import List
 
 class AfastamentoSchema(BaseModel):
     data: date
