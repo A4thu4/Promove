@@ -31,8 +31,8 @@ async def calculate_and_save(
     result = run_calculation(input_data)
     
     # Save to history
-    input_dict = input_data.model_dump()
-    result_dict = result.model_dump()
+    input_dict = input_data.model_dump(mode="json")
+    result_dict = result.model_dump(mode="json")
     
     db_history = History(
         user_id=current_user.id,

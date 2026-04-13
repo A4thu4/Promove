@@ -7,8 +7,8 @@ class CareerSettings:
         self.pontos_desempenho_mes = 1.5
         self.pontos_desempenho_mes_ueg = 1.8
         self.desconto_efetivo_dia = 0.0067
-        self.desconto_desempenho_dia = 0.05
-        self.desconto_desempenho_dia_ueg = 0.06
+        self.desconto_desempenho_dia = self.pontos_desempenho_mes / 30
+        self.desconto_desempenho_dia_ueg = self.pontos_desempenho_mes_ueg / 30
         self.niveis = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S']
         self.niveis_ueg = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
 
@@ -23,7 +23,6 @@ class EvolutionRequirement:
         self.min_hours_level_2 = 40.0
         self.points_per_hour = 0.09
         self.min_desempenho_points = 2.4
-        self.min_desempenho_points_ueg = 3.6
 
 DEFAULT_SETTINGS = CareerSettings()
 DEFAULT_REQUIREMENTS = EvolutionRequirement()

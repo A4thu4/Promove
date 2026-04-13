@@ -20,15 +20,25 @@ build/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Next.js
+# Next.js / Frontend
 .next/
 out/
 build/
+dist/
 node_modules/
 .vercel
 .turbo
 *.tsbuildinfo
 next-env.d.ts
+.npm
+.eslintcache
+.stylelintcache
+
+# Flutter / Mobile (se aplicável)
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
 
 # OS
 .DS_Store
@@ -54,11 +64,16 @@ audit_script.py
 .env.development
 .env.production
 
-# Secrets / certificates
+# Secrets / certificates / sensitive
 *.pem
 *.key
 *.p12
 *.pfx
+*.crt
+*.cert
+auth_token*
+credentials.json
+client_secret.json
 
 # Logs and caches
 *.log

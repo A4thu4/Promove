@@ -12,8 +12,7 @@ def _build_carreira(data_inicio: date, is_ueg: bool) -> list:
         if data_inicio.month == 12 \
         else date(data_inicio.year, data_inicio.month + 1, 1)
 
-    cols = 7 if is_ueg else 8  # UEG = 7 colunas, Geral = 8
-    # Simplificado: sempre 8 (coluna aperf zerada para UEG)
+    cols = 7 if is_ueg else 8  # UEG = 7 colunas (sem aperf), Geral = 8
     return [[data_base + relativedelta(months=i)] + [0.0] * cols
             for i in range(settings.data_conclusao)]
 
@@ -36,11 +35,6 @@ def consolidar_grupo(valores: List[Dict], limite: int) -> float:
 
     return sum(sorted(resultados, reverse=True)[:limite])
 
-def zerar_carreira(carreira: List[List]) -> None:
-    for linha in carreira:
-        for j in range(1, len(linha)):
-            linha[j] = 0.0
-
 def calcular_carreira(
     is_ueg: bool,
     data_enquadramento: date,
@@ -53,6 +47,12 @@ def calcular_carreira(
     dados_tit: Dict[str, float],
     pts_ultima_evolucao: float = 0.0,
 ):
+
+    # Índices das colunas (data está no índice 0)
+    idx_tit         = 3 if is_ueg else 4
+    idx_resp_unica  = 4 if is_ueg else 5
+    idx_resp_mensal = 5 if is_ueg else 6
+    idx_acumulado   = 6 if is_ueg else 7
 
     carreira = _build_carreira(data_inicial, is_ueg)
 
@@ -115,7 +115,7 @@ def calcular_carreira(
             data_aplica = _proximo_mes_1(data_c)
             for linha in carreira:
                 if linha[0] == data_aplica:
-                    linha[4] += validado
+                    linha[idx_tit] += validado
                     break
 
     # 4. Responsabilidades Únicas
@@ -131,7 +131,7 @@ def calcular_carreira(
         if validado > 0:
             for linha in carreira:
                 if linha[0] == d_aplica:
-                    linha[5] += validado
+                    linha[idx_resp_unica] += validado
                     total_pts_resp += validado
                     break
 
@@ -194,7 +194,7 @@ def calcular_carreira(
 
     if retro_total > 0:
         validado = min(retro_total, max(0.0, settings.limite_resp - total_pts_resp))
-        carreira[0][6] += validado
+        carreira[0][idx_resp_mensal] += validado
         total_pts_resp += validado
 
     # Consolida RM Futuro
@@ -205,16 +205,12 @@ def calcular_carreira(
         if validado > 0:
             for linha in carreira:
                 if linha[0] == d_aplica:
-                    linha[6] += validado
+                    linha[idx_resp_mensal] += validado
                     total_pts_resp += validado
                     break
 
     # 6. Acumulado
     ult_evo = pts_ultima_evolucao or 0.0
-      # UEG não tem coluna de aperfeiçoamento
-
-    # Índice da coluna de acumulado
-    idx_acumulado = 6 if is_ueg else 7
 
     for i in range(len(carreira)):
         pts_mes_total = sum(carreira[i][1:idx_acumulado])
@@ -230,8 +226,9 @@ def validar_evolucao(
     apo_especial: bool = False
 ) -> Dict:
 
-    idx_nivel = settings.niveis.index(nivel_atual) if not is_ueg else settings.niveis_ueg.index(nivel_atual)
-    novo_nivel = settings.niveis[idx_nivel + 1] if nivel_atual != settings.niveis[-1] else settings.niveis[-1]
+    niveis = settings.niveis_ueg if is_ueg else settings.niveis
+    idx_nivel = niveis.index(nivel_atual)
+    novo_nivel = niveis[idx_nivel + 1] if nivel_atual != niveis[-1] else niveis[-1]
 
     evolucao = None
     implement = None
@@ -266,7 +263,7 @@ def validar_evolucao(
         # 1. Rápida (apenas não-UEG): 96pts + 12m + 40h aperf
         apto_rapida = (not is_ueg and atingiu_12 and pontos >= reqs.min_points_level_2 and 
                        aperf_final >= reqs.min_hours_level_2 * reqs.points_per_hour and 
-                       desempenho_final >= reqs.min_desempenho_points_ueg)
+                       desempenho_final >= reqs.min_desempenho_points)
 
         # 2. Padrão: 48pts + 18m + 60h aperf
         apto_padrao = (atingiu_18 and pontos >= reqs.min_points_level_1 and 
@@ -284,8 +281,10 @@ def validar_evolucao(
     # Recalcula estados finais para a mensagem de observação se não evoluiu
     motivos = []
     status = "Apto a evolução" if evolucao else "Não apto a evolução"
+    required_min_months = reqs.min_months_special if apo_especial else reqs.min_months_level_1
+
     if apo_especial: motivos.append("Aposentadoria Especial")
-    
+
     if not evolucao:
         # Pega dados da última linha da carreira para checar por que não evoluiu
         last_row = carreira[-1]
@@ -306,8 +305,8 @@ def validar_evolucao(
             pts_req = req_h * reqs.points_per_hour
             motivos.append(f"aperfeiçoamento insuficiente ({aperf_f:.2f}/{pts_req:.2f} pts - {req_h}h)")
 
-        if meses_f < reqs.min_months_level_1:
-             motivos.append(f"interstício insuficiente ({meses_f}/{reqs.min_months_level_1} meses)")
+        if meses_f < required_min_months:
+             motivos.append(f"interstício insuficiente ({meses_f}/{required_min_months} meses)")
 
     obs = "; ".join(motivos) if motivos else "-"
     
