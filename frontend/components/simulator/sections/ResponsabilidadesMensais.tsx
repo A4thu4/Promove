@@ -9,7 +9,6 @@ import {
   DADOS_AGENTE,
   DADOS_UNICOS,
 } from '@/lib/constants';
-import type { RespMensal } from '@/lib/types';
 
 // ── Tipos internos ─────────────────────────────────────────────────────────────
 
@@ -17,11 +16,10 @@ interface SubSectionConfig {
   label:      string;
   tipoBase:   string;          // prefixo usado em GRUPO_REAL do backend
   opcoes:     Record<string, number>;
-  retroativo: boolean;         // se permite datas antes do enquadramento
 }
 
 // ── Configuração das sub-seções ────────────────────────────────────────────────
-// Aqui você habilita/desabilita seções por carreira
+// Aqui habilita/desabilita seções por carreira
 
 function getSubSections(isUeg: boolean): SubSectionConfig[] {
   const base: SubSectionConfig[] = [
@@ -29,37 +27,31 @@ function getSubSections(isUeg: boolean): SubSectionConfig[] {
       label:      'Exercício de Cargo em Comissão',
       tipoBase:   'C. Comissão',
       opcoes:     DADOS_CARGOS,
-      retroativo: true,
     },
     {
       label:      'Exercício de Função Comissionada/Gratificada',
       tipoBase:   'F. Comissionada',
       opcoes:     DADOS_FUNC_C,
-      retroativo: true,
     },
     {
       label:      'Exercício de Função Designada',
       tipoBase:   'F. Designada',
       opcoes:     DADOS_UNICOS,
-      retroativo: true,
     },
     {
       label:      'Atuação como Agente de Contratação / Gestor/Fiscal de Contratos',
       tipoBase:   'At. Agente',
       opcoes:     DADOS_AGENTE,
-      retroativo: false,
     },
     {
       label:      'Atuação em Conselho, Comitê, Câmara Técnica, Comissão ou Grupo de Trabalho',
       tipoBase:   'At. Conselho',
       opcoes:     DADOS_UNICOS,
-      retroativo: false,
     },
     {
       label:      'Exercício em Atuação Prioritária',
       tipoBase:   'At. Prioritária',
       opcoes:     DADOS_UNICOS,
-      retroativo: false,
     },
   ];
 
@@ -68,7 +60,6 @@ function getSubSections(isUeg: boolean): SubSectionConfig[] {
       label:      'Execução de Projeto de Ensino, Pesquisa e/ou Extensão com Captação de Recursos',
       tipoBase:   'Ex. Projeto',
       opcoes:     DADOS_UNICOS,
-      retroativo: false,
     });
   }
 
@@ -201,7 +192,7 @@ function RespMensalSubSection({ config, disabled, dataFim }: SubSectionProps) {
       {itensDestaSessao.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {itensDestaSessao.map(item => {
-            // Calcula tempo em meses pra exibição
+            // Calcula tempo em meses para exibição
             const ini = new Date(item.inicio);
             const fim = new Date(item.fim);
             const meses = (fim.getFullYear() - ini.getFullYear()) * 12

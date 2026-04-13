@@ -49,7 +49,7 @@ function getSubSections(isUeg: boolean): UnicoConfig[] {
     },
   ];
 
-  // Pós-doc só existe no PROMOVE (app/data_utils.py tem DADOS_CURSOS)
+  // Pós-doc só existe no GERAL
   if (!isUeg) {
     base.push({
       label:     'Estágio Pós-doutoral Desenvolvido no Órgão',
@@ -62,7 +62,7 @@ function getSubSections(isUeg: boolean): UnicoConfig[] {
   return base;
 }
 
-// Data do decreto (igual ao data_utils.py)
+// Data do decreto
 const DECRETO_DATE = '2025-10-22';
 
 // ── Sub-componente ─────────────────────────────────────────────────────────────

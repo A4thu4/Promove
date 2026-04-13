@@ -2,7 +2,7 @@
 
 import { useSimulator } from '@/context/simulator-context';
 import { useAuth } from '@/context/auth-context';
-import { api, toISODate } from '@/lib/api';
+import { api } from '@/lib/api';
 import { DADOS_ARTIGO, DADOS_LIVRO, DADOS_PESQUISAS, DADOS_REGISTROS, DADOS_CURSOS } from '@/lib/constants';
 
 import { Obrigatorios }               from './sections/Obrigatorios';

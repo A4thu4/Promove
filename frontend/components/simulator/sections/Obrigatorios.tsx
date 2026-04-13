@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useSimulator } from '@/context/simulator-context';
 import { Card } from '@/components/ui/Card';
 import { NIVEIS, NIVEIS_UEG } from '@/lib/constants';
@@ -32,7 +32,7 @@ export function Obrigatorios() {
     return e;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }

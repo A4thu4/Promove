@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { v4 as uuid } from 'uuid';
 import type {
   DadosObrigatorios, Afastamento, Aperfeicoamento,
@@ -42,7 +42,7 @@ const INITIAL_STATE: SimulatorState = {
 type Action =
   | { type: 'SET_IS_UEG'; payload: boolean }
   | { type: 'SET_APO_ESPECIAL'; payload: boolean }
-  | { type: 'SET_OBRIGATORIOS'; payload: DadosObrigatorios }
+  | { type: 'SET_OBRIGATORIOS'; payload: DadosObrigatorios | null }
   | { type: 'ADD_AFASTAMENTO'; payload: Omit<Afastamento, 'id'> }
   | { type: 'REMOVE_AFASTAMENTO'; payload: string }
   | { type: 'CLEAR_AFASTAMENTOS' }

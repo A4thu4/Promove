@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
+
 interface CardProps {
   title?: string;
   subtitle?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

@@ -23,8 +23,6 @@ pip-delete-this-directory.txt
 # Next.js / Frontend
 .next/
 out/
-build/
-dist/
 node_modules/
 .vercel
 .turbo
@@ -86,9 +84,6 @@ pnpm-debug.log*
 .ruff_cache/
 .coverage
 coverage/
-htmlcov/
-.tox/
-.hypothesis/
 htmlcov/
 .tox/
 .hypothesis/

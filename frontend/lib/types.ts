@@ -1,6 +1,6 @@
 export interface Afastamento {
   id: string;
-  data: string;       // DD/MM/YYYY
+  data: string;
   dias: number;
 }
 
