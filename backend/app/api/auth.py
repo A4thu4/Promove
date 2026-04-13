@@ -4,14 +4,9 @@ from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from pydantic import BaseModel
 
-try:
-    from app.db.session import get_db
-    from app.crud.user import get_user_by_email, create_user, UserCreate
-    from app.core.security import verify_password, create_access_token, SECRET_KEY, ALGORITHM
-except ImportError:
-    from backend.app.db.session import get_db
-    from backend.app.crud.user import get_user_by_email, create_user, UserCreate
-    from backend.app.core.security import verify_password, create_access_token, SECRET_KEY, ALGORITHM
+from backend.app.db.session import get_db
+from backend.app.crud.user import get_user_by_email, create_user, UserCreate
+from backend.app.core.security import verify_password, create_access_token, SECRET_KEY, ALGORITHM
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

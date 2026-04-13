@@ -1,10 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 
-try:
-    from app.db.session import Base
-except ImportError:
-    from backend.app.db.session import Base
+from backend.app.db.session import Base
 
 class User(Base):
     __tablename__ = "users"

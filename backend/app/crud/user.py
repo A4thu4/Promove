@@ -1,12 +1,8 @@
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
-try:
-    from app.models.user import User
-    from app.core.security import get_password_hash
-except ImportError:
-    from backend.app.models.user import User
-    from backend.app.core.security import get_password_hash
+from backend.app.models.user import User
+from backend.app.core.security import get_password_hash
 
 class UserCreate(BaseModel):
     email: EmailStr

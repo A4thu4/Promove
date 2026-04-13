@@ -1,6 +1,7 @@
 
 export const NIVEIS     = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S'];
 export const NIVEIS_UEG = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'];
+export const DECRETO_DATE       = '2025-10-22'
 
 export const DADOS_TIT_PROMOVE: Record<string, number> = {
     'Nenhuma': 0,

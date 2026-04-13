@@ -2,10 +2,7 @@ from sqlalchemy import Column, Integer, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
-try:
-    from app.db.session import Base
-except ImportError:
-    from backend.app.db.session import Base
+from backend.app.db.session import Base
 
 class History(Base):
     __tablename__ = "histories"

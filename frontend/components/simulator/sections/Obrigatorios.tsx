@@ -45,7 +45,7 @@ export function Obrigatorios() {
 
   function handleReset() {
     setForm({ nivelAtual: '', dataEnquadramento: '', dataInicio: '', pontosExcedentes: 0 });
-    dispatch({ type: 'SET_OBRIGATORIOS', payload: null as any });
+    dispatch({ type: 'SET_OBRIGATORIOS', payload: null });
     // Limpa tudo que depende do enquadramento
     dispatch({ type: 'CLEAR_AFASTAMENTOS' });
     dispatch({ type: 'CLEAR_APERFEICOAMENTOS' });

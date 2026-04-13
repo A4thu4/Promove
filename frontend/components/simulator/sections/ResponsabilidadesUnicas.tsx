@@ -9,6 +9,7 @@ import {
   DADOS_PESQUISAS,
   DADOS_REGISTROS,
   DADOS_CURSOS,
+  DECRETO_DATE,
 } from '@/lib/constants';
 import type { RespUnica } from '@/lib/types';
 
@@ -61,9 +62,6 @@ function getSubSections(isUeg: boolean): UnicoConfig[] {
 
   return base;
 }
-
-// Data do decreto
-const DECRETO_DATE = '2025-10-22';
 
 // ── Sub-componente ─────────────────────────────────────────────────────────────
 
