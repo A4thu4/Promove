@@ -1,5 +1,9 @@
-from ..core.logic import calcular_carreira, validar_evolucao
-from ..schemas.evolution import EvolutionInput, EvolutionOutput, CareerRow, EvolutionResult
+try:
+    from app.core.logic import calcular_carreira, validar_evolucao
+    from app.schemas.evolution import EvolutionInput, EvolutionOutput, CareerRow, EvolutionResult
+except ImportError:
+    from backend.app.core.logic import calcular_carreira, validar_evolucao
+    from backend.app.schemas.evolution import EvolutionInput, EvolutionOutput, CareerRow, EvolutionResult
 
 dados_tit = {
     'Nenhuma': 0.0,

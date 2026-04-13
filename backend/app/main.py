@@ -5,8 +5,14 @@ load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.api import auth, evolution
-from backend.app.db.session import engine, Base
+
+try:
+    from app.api import auth, evolution
+    from app.db.session import engine, Base
+except ImportError:
+    from backend.app.api import auth, evolution
+    from backend.app.db.session import engine, Base
+
 
 # Criar tabelas no banco de dados
 Base.metadata.create_all(bind=engine)

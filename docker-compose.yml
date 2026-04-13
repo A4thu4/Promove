@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -10,12 +8,13 @@ services:
     environment:
       - APP_NAME=PROMOVE API
       - DEBUG=True
-      - API_V1_STR=/api/v1
-      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
-      - ALGORITHM=HS256
-      - BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+      - DATABASE_URL=${DATABASE_URL}
+      - API_V1_STR=${API_V1_STR}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
     volumes:
-      - ./backend/sql_app.db:/app/sql_app.db
+      - ./simulador-promove.db:/app/simulador-promove.db
     networks:
       - promove-network
 
