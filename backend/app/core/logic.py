@@ -35,11 +35,6 @@ def consolidar_grupo(valores: List[Dict], limite: int) -> float:
 
     return sum(sorted(resultados, reverse=True)[:limite])
 
-def zerar_carreira(carreira: List[List]) -> None:
-    for linha in carreira:
-        for j in range(1, len(linha)):
-            linha[j] = 0.0
-
 def calcular_carreira(
     is_ueg: bool,
     data_enquadramento: date,
@@ -311,7 +306,7 @@ def validar_evolucao(
             motivos.append(f"aperfeiçoamento insuficiente ({aperf_f:.2f}/{pts_req:.2f} pts - {req_h}h)")
 
         if meses_f < required_min_months:
-             motivos.append(f"interstício insuficiente ({meses_f}/{reqs.min_months_level_1} meses)")
+             motivos.append(f"interstício insuficiente ({meses_f}/{required_min_months} meses)")
 
     obs = "; ".join(motivos) if motivos else "-"
     
