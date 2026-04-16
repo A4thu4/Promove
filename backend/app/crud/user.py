@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, EmailStr
+
 from backend.app.models.user import User
 from backend.app.core.security import get_password_hash
-from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
     email: EmailStr

@@ -11,13 +11,23 @@ venv/
 ENV/
 env/
 .env
+*.egg-info/
+dist/
+build/
+.Python
+*.so
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Next.js / Frontend
 .next/
 out/
-build/
-dist/
 node_modules/
+.vercel
+.turbo
+*.tsbuildinfo
+next-env.d.ts
 .npm
 .eslintcache
 .stylelintcache
@@ -31,14 +41,19 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
+.directory
 
 # Project specific
 *.csv
 *.xlsx
 audit_script.py
 
-# Databases
+# Database
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3
 
@@ -60,8 +75,15 @@ client_secret.json
 
 # Logs and caches
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 coverage/
+htmlcov/
+.tox/
+.hypothesis/
