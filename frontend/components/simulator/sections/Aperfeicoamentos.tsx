@@ -132,6 +132,8 @@ export function Aperfeicoamentos() {
               >
                 {item.data} — {item.horas}h
                 <button
+                  type="button"
+                  aria-label={`Remover aperfeiçoamento de ${item.data} — ${item.horas} horas`}
                   onClick={() => dispatch({ type: 'REMOVE_APERFEICOAMENTO', payload: item.id })}
                   className="ml-1 text-purple-400 hover:text-red-500 font-bold"
                 >×</button>

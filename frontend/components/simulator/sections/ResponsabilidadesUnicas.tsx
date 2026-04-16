@@ -197,6 +197,8 @@ function RespUnicaSubSection({ config, disabled, dataEnquadramento }: SubUnicaPr
                     (+{(item.quantidade * (config.opcoes[item.tipo] ?? 0)).toFixed(1)}pts)
                   </span>
                   <button
+                    type="button"
+                    aria-label={`Remover item ${item.data} — ${item.quantidade}× ${item.tipo}`}
                     onClick={() => dispatch({ type: 'REMOVE_RESP_UNICA', payload: item.id })}
                     className="ml-1 text-teal-400 hover:text-red-500 font-bold text-sm leading-none"
                   >×</button>

@@ -100,6 +100,8 @@ export function Afastamentos() {
                 >
                   {item.data.slice(0, 7)} — {item.dias}d
                   <button
+                    type="button"
+                    aria-label={`Remover afastamento de ${item.data.slice(0, 7)} (${item.dias} dias)`}
                     onClick={() => dispatch({ type: 'REMOVE_AFASTAMENTO', payload: item.id })}
                     className="ml-1 text-gray-400 hover:text-red-500 font-bold"
                   >

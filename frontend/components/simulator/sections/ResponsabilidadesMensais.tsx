@@ -205,6 +205,8 @@ function RespMensalSubSection({ config, disabled, dataFim }: SubSectionProps) {
                 {item.tipo.split(': ')[1]} — {meses}m
                 {item.semDataFim && ' (em curso)'}
                 <button
+                  type="button"
+                  aria-label={`Remover ${item.tipo.split(': ')[1]}`}
                   onClick={() => dispatch({ type: 'REMOVE_RESP_MENSAL', payload: item.id })}
                   className="ml-1 text-indigo-400 hover:text-red-500 font-bold text-sm leading-none"
                 >×</button>

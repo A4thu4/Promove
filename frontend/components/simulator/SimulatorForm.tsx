@@ -18,6 +18,31 @@ export function SimulatorForm() {
   const { state, dispatch } = useSimulator();
   const { token } = useAuth();
 
+  function handleIsUegChange(nextIsUeg: boolean) {
+    if (nextIsUeg === state.isUeg) return;
+
+    if (nextIsUeg) {
+      const confirmed = window.confirm(
+        'Ao trocar para Carreira UEG, os dados já preenchidos serão reiniciados para evitar incompatibilidades com as regras da UEG. Deseja continuar?'
+      );
+
+      if (!confirmed) return;
+
+      const apoEspecial = state.apoEspecial;
+
+      dispatch({ type: 'RESET' });
+
+      if (apoEspecial) {
+        dispatch({ type: 'SET_APO_ESPECIAL', payload: true });
+      }
+
+      dispatch({ type: 'SET_IS_UEG', payload: true });
+      return;
+    }
+
+    dispatch({ type: 'SET_IS_UEG', payload: false });
+  }
+
   async function handleCalcular() {
     if (!state.obrigatorios) {
       dispatch({ type: 'SET_ERROR', payload: 'Preencha os dados obrigatórios primeiro.' });
@@ -97,7 +122,7 @@ export function SimulatorForm() {
             type="checkbox"
             className="w-4 h-4 accent-green-600"
             checked={state.isUeg}
-            onChange={e => dispatch({ type: 'SET_IS_UEG', payload: e.target.checked })}
+            onChange={e => handleIsUegChange(e.target.checked)}
           />
           <span className="text-sm font-medium text-gray-700">Carreira UEG</span>
         </label>
