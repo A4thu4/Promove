@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api import auth, evolution
 from backend.app.db.session import engine, Base
 
-
 # Criar tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
 
