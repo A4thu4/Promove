@@ -100,6 +100,8 @@ export function Titulacoes() {
               <span key={t.id} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-sm text-blue-800">
                 {t.data} — {t.tipo}
                 <button
+                  type="button"
+                  aria-label={`Remover titulação ${t.tipo} de ${t.data}`}
                   onClick={() => dispatch({ type: 'REMOVE_TITULACAO', payload: t.id })}
                   className="ml-1 text-blue-400 hover:text-red-500 font-bold"
                 >×</button>

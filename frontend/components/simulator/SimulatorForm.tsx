@@ -18,6 +18,20 @@ export function SimulatorForm() {
   const { state, dispatch } = useSimulator();
   const { token } = useAuth();
 
+  function isAuthError(err: any) {
+    const status = err?.status ?? err?.response?.status;
+    const message = String(err?.message ?? '').toLowerCase();
+
+    return (
+      status === 401 ||
+      status === 403 ||
+      message.includes('unauthorized') ||
+      message.includes('forbidden') ||
+      message.includes('token') ||
+      message.includes('auth')
+    );
+  }
+
   async function handleCalcular() {
     if (!state.obrigatorios) {
       dispatch({ type: 'SET_ERROR', payload: 'Preencha os dados obrigatórios primeiro.' });
@@ -72,8 +86,22 @@ export function SimulatorForm() {
         })),
       };
 
-      const fn = token ? api.calculateAndSave : api.calculate;
-      const resultado = await fn(payload);
+      let resultado;
+
+      if (token) {
+        resultado = await api.calculateAndSave(payload);
+      } else {
+        try {
+          resultado = await api.calculateAndSave(payload);
+        } catch (err: any) {
+          if (!isAuthError(err)) {
+            throw err;
+          }
+
+          resultado = await api.calculate(payload);
+        }
+      }
+
       dispatch({ type: 'SET_RESULTADO', payload: resultado });
     } catch (err: any) {
       dispatch({ type: 'SET_ERROR', payload: err.message });
