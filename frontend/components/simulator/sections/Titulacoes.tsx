@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSimulator } from '@/context/simulator-context';
 import { Card } from '@/components/ui/Card';
 import { DADOS_TIT_PROMOVE, DADOS_TIT_UEG } from '@/lib/constants';
+
+function parseLocalDate(dateString: string) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 
 export function Titulacoes() {
   const { state, dispatch } = useSimulator();
@@ -15,20 +20,30 @@ export function Titulacoes() {
   const [tipo, setTipo]   = useState(tiposDisponiveis[0] ?? '');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (!tiposDisponiveis.includes(tipo)) {
+      setTipo(tiposDisponiveis[0] ?? '');
+      setError('');
+    }
+  }, [tiposDisponiveis, tipo]);
+
   const disabled = !state.obrigatorios;
 
   function handleAdd() {
     if (!data) { setError('Informe a data de validação.'); return; }
     if (!tipo) { setError('Selecione o tipo de titulação.'); return; }
 
-    // Verifica interstício de 12 meses
+    // Verifica interstício exato de 12 meses em relação à última titulação
     const ultimaData = state.titulacoes.length > 0
-      ? Math.max(...state.titulacoes.map(t => new Date(t.data).getTime()))
+      ? Math.max(...state.titulacoes.map(t => parseLocalDate(t.data).getTime()))
       : null;
 
     if (ultimaData) {
-      const diff = (new Date(data).getTime() - ultimaData) / (1000 * 60 * 60 * 24 * 30);
-      if (Math.abs(diff) < 12) {
+      const novaData = parseLocalDate(data);
+      const dataMinima = new Date(ultimaData);
+      dataMinima.setMonth(dataMinima.getMonth() + 12);
+
+      if (novaData < dataMinima) {
         setError('Interstício mínimo de 12 meses entre titulações (art. 44, §10).');
         return;
       }
