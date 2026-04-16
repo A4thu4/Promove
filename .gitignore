@@ -13,7 +13,6 @@ env/
 .env
 *.egg-info/
 dist/
-build/
 .Python
 *.so
 *.egg
@@ -23,6 +22,7 @@ pip-delete-this-directory.txt
 # Next.js / Frontend
 .next/
 out/
+build/
 node_modules/
 .vercel
 .turbo
