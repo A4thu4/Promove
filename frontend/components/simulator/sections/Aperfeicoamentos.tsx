@@ -24,13 +24,21 @@ export function Aperfeicoamentos() {
       setError(`Carga horária mínima por atividade é ${MIN_HORAS} horas.`);
       return;
     }
+
+    const horasAdicionadas = Number(horas);
+
+    if (totalHoras + horasAdicionadas > MAX_HORAS) {
+      setError(`A soma das atividades não pode ultrapassar ${MAX_HORAS} horas. Restam ${horasRestantes} horas disponíveis.`);
+      return;
+    }
+
     if (state.obrigatorios && data < state.obrigatorios.dataInicio) {
       setError('Data não pode ser anterior à data de início dos pontos.');
       return;
     }
 
     setError('');
-    dispatch({ type: 'ADD_APERFEICOAMENTO', payload: { data, horas: Number(horas) } });
+    dispatch({ type: 'ADD_APERFEICOAMENTO', payload: { data, horas: horasAdicionadas } });
     setData(''); setHoras('');
   }
 
