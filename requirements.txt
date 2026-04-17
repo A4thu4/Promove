@@ -11,3 +11,4 @@ sqlalchemy>=2.0.0
 passlib[bcrypt]
 python-jose[cryptography]
 python-dotenv
+pytest>=8.0.0

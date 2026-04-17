@@ -14,7 +14,6 @@ O sistema PROMOVE foi refatorado para uma arquitetura moderna e escalável, sepa
   - Interface moderna e responsiva.
   - Gerenciamento de estado de autenticação.
   - Dashboard para histórico de simulações.
-- **Antigo (Legado)**: O sistema anterior em Streamlit ainda está disponível nas pastas `app/` e `ueg/`.
 
 ---
 
@@ -56,13 +55,22 @@ npm install
 npm run dev
 ```
 
+#### 3. Testes
+```bash
+# Execute na raiz do projeto
+python -m pytest -q
+
+# Executa apenas os testes de regra de negócio
+python -m pytest -q tests/test_logic.py
+```
+
 ---
 
 ## 🔐 Segurança e Dados
 
 - **Autenticação**: Sistema completo de Registro e Login usando **JWT**.
 - **Histórico**: Usuários logados podem salvar e visualizar suas simulações anteriores no Dashboard.
-- **Banco de Dados**: Utiliza SQLite por padrão (`sql_app.db`), facilmente migrável para PostgreSQL/MySQL alterando a `DATABASE_URL` no `.env`.
+- **Banco de Dados**: Utiliza SQLite por padrão (`app.db`), facilmente migrável para PostgreSQL/MySQL alterando a `DATABASE_URL` no `.env`.
 
 ---
 
@@ -70,22 +78,31 @@ npm run dev
 
 ```bash
 📦 Promove/
-├── backend/                # API FastAPI
+├── backend/                 # API FastAPI
 │   ├── app/
-│   │   ├── api/            # Endpoints (Auth, Evolution)
-│   │   ├── core/           # Lógica, Configurações e Segurança
-│   │   ├── crud/           # Operações de Banco de Dados
-│   │   ├── db/             # Sessão e Base SQLAlchemy
-│   │   ├── models/         # Modelos de Tabela (User, History)
-│   │   └── schemas/        # Schemas Pydantic (Validação)
-│   └── tests_logic.py      # Testes unitários da lógica
-├── frontend/               # Frontend Next.js
-│   ├── app/                # Páginas (Login, Register, Dashboard)
-│   ├── components/         # Componentes Reutilizáveis
-│   └── context/            # AuthContext (Estado Global)
-├── requirements.txt        # Dependências do Backend
-├── setup.ps1               # Script de Instalação Automática
-└── run.ps1                 # Script de Execução Automática
+│   │   ├── api/             # Endpoints (Auth, Evolution)
+│   │   ├── core/            # Lógica, Configurações e Segurança
+│   │   ├── crud/            # Operações de Banco de Dados
+│   │   ├── db/              # Sessão e Base SQLAlchemy
+│   │   ├── models/          # Modelos de Tabela (User, History)
+│   │   ├── schemas/         # Schemas Pydantic (Validação)
+│   │   ├── services/        # Serviços de negócio
+│   │   └── main.py          # Ponto de entrada da API FastAPI
+│   └── Dockerfile           # Build e execução do backend
+├── frontend/                # Frontend Next.js
+│   ├── app/                 # Páginas (Login, Register, Dashboard)
+│   ├── components/          # Componentes reutilizáveis
+│   ├── context/             # AuthContext (Estado global)
+│   ├── lib/                 # Utilitários, tipos e cliente de API
+│   ├── public/
+│   │   └── assets/          # Arquivos estáticos (favicon e imagens)
+│   └── Dockerfile           # Build e execução do frontend
+├── tests/
+│   └── test_logic.py        # Testes unitários da lógica de evolução
+├── pytest.ini               # Configuração de descoberta dos testes
+├── requirements.txt         # Dependências do backend
+├── setup.ps1                # Script de instalação automática
+└── run.ps1                  # Script de execução automática
 ```
 
 ---
