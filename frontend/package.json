@@ -14,9 +14,11 @@
     "next": "^16.2.3",
     "react": "^18",
     "react-dom": "^18",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

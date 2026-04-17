@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
 from backend.app.schemas.evolution import EvolutionInput, EvolutionOutput
 from backend.app.services.calculator import run_calculation
 from backend.app.api.auth import get_current_user
 from backend.app.models.user import User
 from backend.app.models.history import History
 from backend.app.db.session import get_db
-from sqlalchemy.orm import Session
-import json
 
 router = APIRouter()
 
@@ -22,11 +22,9 @@ async def calculate_and_save(
 ):
     result = run_calculation(input_data)
     
-    # Save to history (converting to dict for JSON column)
-    # Pydantic v2 use model_dump(), v1 use dict()
-    # Let's use a safe way
-    input_dict = json.loads(input_data.model_dump_json()) if hasattr(input_data, "model_dump_json") else input_data.dict()
-    result_dict = json.loads(result.model_dump_json()) if hasattr(result, "model_dump_json") else result.dict()
+    # Save to history
+    input_dict = input_data.model_dump(mode="json")
+    result_dict = result.model_dump(mode="json")
     
     db_history = History(
         user_id=current_user.id,

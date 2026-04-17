@@ -1,0 +1,17 @@
+*.pyo
+.Python
+*.so
+*.egg
+*.egg-info
+build
+.venv
+venv
+.env
+.git
+.gitignore
+.idea
+.vscode
+*.md
+node_modules
+.next
+*.log

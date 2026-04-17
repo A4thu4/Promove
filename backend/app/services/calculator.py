@@ -1,60 +1,83 @@
-from ..core.logic import calcular_matriz_carreira, verificar_evolucao, DEFAULT_SETTINGS
-from ..schemas.evolution import EvolutionInput, EvolutionOutput, CareerRow, EvolutionResult
+from backend.app.core.logic import calcular_carreira, validar_evolucao
+from backend.app.schemas.evolution import EvolutionInput, EvolutionOutput, CareerRow, EvolutionResult
+
+dados_tit = {
+    'Nenhuma': 0.0,
+    'Graduação': 6.0,
+    'Especialização': 8.0,
+    'Mestrado': 24.0,
+    'Doutorado': 48.0,
+}
+
+dados_tit_ueg = {
+    **dados_tit,
+    'Pós-graduação em Nível de Certificação': 6,
+    'Pós-doutorado – igual a 6 meses': 6,
+    'Pós-doutorado - (6 a 12 meses)': 8,
+    'Pós-doutorado - (13 a 24 meses)': 12,
+    'Pós-doutorado - (25 a 48 meses)': 24,
+    'Pós-doutorado - (maior ou igual a 48 meses)': 48,
+}
+
 
 def run_calculation(input_data: EvolutionInput) -> EvolutionOutput:
     # Converter Schemas para Tuplas/Formatos esperados pela logic.py
-    afastamentos = [(a.data, a.dias) for a in input_data.afastamentos]
+    afastamentos     = [(a.data, a.dias) for a in input_data.afastamentos]
     aperfeicoamentos = [(a.data, a.horas) for a in input_data.aperfeicoamentos]
-    titulacoes = [(t.data, t.tipo) for t in input_data.titulacoes]
-    resp_unicas = [(r.data, r.pontos) for r in input_data.resp_unicas]
-    
-    # Responsabilidades Mensais: (tipo, ini, fim, pontos)
-    resp_mensais = [(rm.tipo, rm.inicio, rm.fim, rm.pontos) for rm in input_data.resp_mensais]
-    
-    # Dados titulação (ex: {'Mestrado': 18.0}) - Precisamos de um mapeamento real ou padrão
-    # Por enquanto usamos um padrão (pode vir do config futuramente)
-    dados_tit = {
-        'Aperfeiçoamento': 4.0,
-        'Especialização': 9.0,
-        'Mestrado': 18.0,
-        'Doutorado': 36.0
-    }
+    titulacoes       = [(t.data, t.tipo) for t in input_data.titulacoes]
+    resp_unicas      = [(r.data, r.pontos) for r in input_data.resp_unicas]
+    resp_mensais     = [(rm.tipo, rm.inicio, rm.fim, rm.pontos) for rm in input_data.resp_mensais]
+    dados_titulacao  = dados_tit_ueg if input_data.is_ueg else dados_tit
 
-    carreira_raw = calcular_matriz_carreira(
+    carreira_raw = calcular_carreira(
         is_ueg=input_data.is_ueg,
-        data_inicio=input_data.data_inicio,
         data_enquadramento=input_data.data_enquadramento,
+        data_inicial=input_data.data_inicio,
         afastamentos=afastamentos,
         aperfeicoamentos=aperfeicoamentos,
         titulacoes=titulacoes,
         resp_unicas=resp_unicas,
         resp_mensais=resp_mensais,
-        dados_tit=dados_tit,
-        pts_remanescentes=input_data.pts_remanescentes,
-        apo_especial=input_data.apo_especial
+        dados_tit=dados_titulacao,
+        pts_ultima_evolucao=input_data.pts_remanescentes,
     )
 
-    resumo_dict = verificar_evolucao(
+    resumo_dict = validar_evolucao(
         is_ueg=input_data.is_ueg,
         nivel_atual=input_data.nivel_atual,
         carreira=carreira_raw,
-        data_inicio=input_data.data_inicio,
-        apo_special=input_data.apo_especial
+        data_inicial=input_data.data_inicio,
+        apo_especial=input_data.apo_especial
     )
 
     # Formatar CareerRows
     carreira_rows = []
     for r in carreira_raw:
-        carreira_rows.append(CareerRow(
-            data=r[0],
-            efetivo=round(r[1], 2),
-            desempenho=round(r[2], 2),
-            aperfeicoamento=round(r[3], 2),
-            titulacao=round(r[4], 2),
-            resp_unica=round(r[5], 2),
-            resp_mensal=round(r[6], 2),
-            acumulado=round(r[7], 2)
-        ))
+        if input_data.is_ueg:
+            # UEG layout: [data, efetivo, desempenho, titulacao, resp_unica, resp_mensal, acumulado]
+            row = CareerRow(
+                data=r[0],
+                efetivo=round(r[1], 4),
+                desempenho=round(r[2], 4),
+                aperfeicoamento=0.0,
+                titulacao=round(r[3], 4),
+                resp_unica=round(r[4], 4),
+                resp_mensal=round(r[5], 4),
+                acumulado=round(r[6], 4)
+            )
+        else:
+            # Geral layout: [data, efetivo, desempenho, aperfeicoamento, titulacao, resp_unica, resp_mensal, acumulado]
+            row = CareerRow(
+                data=r[0],
+                efetivo=round(r[1], 4),
+                desempenho=round(r[2], 4),
+                aperfeicoamento=round(r[3], 4),
+                titulacao=round(r[4], 4),
+                resp_unica=round(r[5], 4),
+                resp_mensal=round(r[6], 4),
+                acumulado=round(r[7], 4)
+            )
+        carreira_rows.append(row)
 
     resumo = EvolutionResult(
         status=resumo_dict["Status"],
