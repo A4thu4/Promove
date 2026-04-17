@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useSimulator } from '@/context/simulator-context';
 import { Card } from '@/components/ui/Card';
 import { NIVEIS, NIVEIS_UEG } from '@/lib/constants';
@@ -16,6 +16,18 @@ export function Obrigatorios() {
     pontosExcedentes:  state.obrigatorios?.pontosExcedentes  ?? 0,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Sincroniza com hidratações externas (ex.: "abrir no simulador" a partir do lote).
+  useEffect(() => {
+    if (state.obrigatorios) {
+      setForm({
+        nivelAtual:        state.obrigatorios.nivelAtual,
+        dataEnquadramento: state.obrigatorios.dataEnquadramento,
+        dataInicio:        state.obrigatorios.dataInicio,
+        pontosExcedentes:  state.obrigatorios.pontosExcedentes,
+      });
+    }
+  }, [state.obrigatorios]);
 
   function validate() {
     const e: Record<string, string> = {};

@@ -6,8 +6,9 @@ load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api import auth, evolution
+from backend.app.api import auth, batch, evolution
 from backend.app.db.session import engine, Base
+from backend.app.models import batch_history  # noqa: F401  (registra no metadata)
 
 # Criar tabelas no banco de dados
 Base.metadata.create_all(bind=engine)
@@ -29,6 +30,7 @@ app.add_middleware(
 # Incluir Rotas
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(evolution.router, prefix="/evolution", tags=["evolution"])
+app.include_router(batch.router, prefix="/batch", tags=["batch"])
 
 @app.get("/")
 async def root():

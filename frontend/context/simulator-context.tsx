@@ -61,7 +61,19 @@ type Action =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_RESULTADO'; payload: EvolutionOutput }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'HYDRATE_FROM_BATCH'; payload: BatchHydratePayload };
+
+export interface BatchHydratePayload {
+  isUeg: boolean;
+  apoEspecial: boolean;
+  obrigatorios: DadosObrigatorios;
+  afastamentos: Omit<Afastamento, 'id'>[];
+  aperfeicoamentos: Omit<Aperfeicoamento, 'id'>[];
+  titulacoes: Omit<Titulacao, 'id'>[];
+  respUnicas: Omit<RespUnica, 'id'>[];
+  respMensais: Omit<RespMensal, 'id'>[];
+}
 
 function reducer(state: SimulatorState, action: Action): SimulatorState {
   switch (action.type) {
@@ -108,6 +120,22 @@ function reducer(state: SimulatorState, action: Action): SimulatorState {
     case 'SET_RESULTADO': return { ...state, resultado: action.payload, error: null };
     case 'SET_ERROR':     return { ...state, error: action.payload };
     case 'RESET':         return INITIAL_STATE;
+
+    case 'HYDRATE_FROM_BATCH': {
+      const p = action.payload;
+      return {
+        ...INITIAL_STATE,
+        isUeg: p.isUeg,
+        apoEspecial: p.apoEspecial,
+        obrigatorios: p.obrigatorios,
+        afastamentos:     p.afastamentos.map(x     => ({ id: uuid(), ...x })),
+        aperfeicoamentos: p.aperfeicoamentos.map(x => ({ id: uuid(), ...x })),
+        titulacoes:       p.titulacoes.map(x       => ({ id: uuid(), ...x })),
+        respUnicas:       p.respUnicas.map(x       => ({ id: uuid(), ...x })),
+        respMensais:      p.respMensais.map(x      => ({ id: uuid(), ...x })),
+      };
+    }
+
     default:              return state;
   }
 }

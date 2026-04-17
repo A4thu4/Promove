@@ -82,3 +82,36 @@ export interface EvolutionOutput {
   resumo: EvolutionResult;
   carreira: CareerRow[];
 }
+
+// ─── Cálculo Múltiplo ────────────────────────────────────────────────────
+
+export interface BatchServidorInfo {
+  processo_sei: string;
+  servidor: string;
+  cpf: string;
+  vinculo: string;
+}
+
+export interface BatchRowResult {
+  info: BatchServidorInfo;
+  input: CalculoInput;
+  resumo: EvolutionResult;
+}
+
+export interface BatchCalculationOutput {
+  id?: number | null;
+  filename: string;
+  total_linhas: number;
+  is_ueg: boolean;
+  apo_especial: boolean;
+  resultados: BatchRowResult[];
+}
+
+export interface BatchHistoryItem {
+  id: number;
+  created_at: string;
+  filename: string;
+  is_ueg: boolean;
+  apo_especial: boolean;
+  total_linhas: number;
+}

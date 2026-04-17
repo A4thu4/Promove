@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from 'react';
 import { useSimulator } from '@/context/simulator-context';
 import { useAuth } from '@/context/auth-context';
 import { api } from '@/lib/api';
+import { consumePendingBatchInput } from '@/lib/batch-handoff';
 import { DADOS_ARTIGO, DADOS_LIVRO, DADOS_PESQUISAS, DADOS_REGISTROS, DADOS_CURSOS } from '@/lib/constants';
 
 import { Obrigatorios }               from './sections/Obrigatorios';
@@ -17,6 +19,14 @@ import type { CalculoInput } from '@/lib/types';
 export function SimulatorForm() {
   const { state, dispatch } = useSimulator();
   const { token } = useAuth();
+
+  // Hidratação a partir de "Abrir no simulador" vindo do Cálculo Múltiplo.
+  useEffect(() => {
+    const pending = consumePendingBatchInput();
+    if (pending) {
+      dispatch({ type: 'HYDRATE_FROM_BATCH', payload: pending });
+    }
+  }, [dispatch]);
 
   function handleIsUegChange(nextIsUeg: boolean) {
     if (nextIsUeg === state.isUeg) return;

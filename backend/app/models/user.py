@@ -13,3 +13,4 @@ class User(Base):
     full_name = Column(String)
 
     histories = relationship("History", back_populates="owner")
+    batch_histories = relationship("BatchHistory", back_populates="owner")

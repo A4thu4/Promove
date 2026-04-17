@@ -1,17 +1,25 @@
-import type { CalculoInput, EvolutionOutput } from './types';
+import type {
+  BatchCalculationOutput,
+  BatchHistoryItem,
+  CalculoInput,
+  EvolutionOutput,
+} from './types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
+function authHeaders(): Record<string, string> {
   const token = typeof window !== 'undefined'
     ? localStorage.getItem('token')
     : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...authHeaders(),
       ...options?.headers,
     },
   });
@@ -22,6 +30,60 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   return res.json();
+}
+
+async function uploadBatch(
+  path: string,
+  file: File,
+  is_ueg: boolean,
+  apo_especial: boolean,
+): Promise<BatchCalculationOutput> {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('is_ueg', String(is_ueg));
+  fd.append('apo_especial', String(apo_especial));
+
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    headers: { ...authHeaders() },
+    body: fd,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail ?? 'Erro na requisição');
+  }
+
+  return res.json();
+}
+
+async function downloadBlob(path: string, init?: RequestInit): Promise<void> {
+  const res = await fetch(`${BASE}${path}`, {
+    ...init,
+    headers: {
+      ...authHeaders(),
+      ...init?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail ?? 'Erro na requisição');
+  }
+
+  const disposition = res.headers.get('Content-Disposition') ?? '';
+  const match = disposition.match(/filename="?([^"]+)"?/i);
+  const filename = match?.[1] ?? 'resultado.xlsx';
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export const api = {
@@ -55,6 +117,27 @@ export const api = {
     }),
 
   history: () => request<any[]>('/evolution/history'),
+
+  // Batch (Cálculo Múltiplo)
+  batchCalculate: (file: File, is_ueg: boolean, apo_especial: boolean) =>
+    uploadBatch('/batch/calculate', file, is_ueg, apo_especial),
+
+  batchCalculateAndSave: (file: File, is_ueg: boolean, apo_especial: boolean) =>
+    uploadBatch('/batch/calculate-save', file, is_ueg, apo_especial),
+
+  batchHistory: () => request<BatchHistoryItem[]>('/batch/history'),
+
+  batchHistoryDetail: (id: number) =>
+    request<BatchCalculationOutput>(`/batch/history/${id}`),
+
+  batchExportSaved: (id: number) => downloadBlob(`/batch/history/${id}/export`),
+
+  batchExportFromOutput: (output: BatchCalculationOutput) =>
+    downloadBlob('/batch/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(output),
+    }),
 };
 
 // Converte DD/MM/YYYY → YYYY-MM-DD para o backend

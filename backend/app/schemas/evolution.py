@@ -60,3 +60,36 @@ class CareerRow(BaseModel):
 class EvolutionOutput(BaseModel):
     resumo: EvolutionResult
     carreira: List[CareerRow]
+
+
+# ── Cálculo Múltiplo (upload de planilha Excel) ─────────────────────────────
+
+class BatchServidorInfo(BaseModel):
+    processo_sei: str = ""
+    servidor: str = ""
+    cpf: str = ""
+    vinculo: str = ""
+
+
+class BatchRowResult(BaseModel):
+    info: BatchServidorInfo
+    input: EvolutionInput
+    resumo: EvolutionResult
+
+
+class BatchCalculationOutput(BaseModel):
+    id: int | None = None
+    filename: str
+    total_linhas: int
+    is_ueg: bool = False
+    apo_especial: bool = False
+    resultados: List[BatchRowResult]
+
+
+class BatchHistoryItem(BaseModel):
+    id: int
+    created_at: str
+    filename: str
+    is_ueg: bool
+    apo_especial: bool
+    total_linhas: int
