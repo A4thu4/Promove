@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { SimulatorProvider } from '@/context/simulator-context';
 import { SimulatorForm }     from '@/components/simulator/SimulatorForm';
 import Navbar                from '@/components/navbar';
@@ -8,6 +9,14 @@ export default function Home() {
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-6">
         <header className="mb-6 text-center">
+          <Image
+            src="/assets/logomarca.png"
+            alt="Logomarca SEAD"
+            width={5000}
+            height={80}
+            priority
+            className="mx-auto mb-4 h-auto w-auto max-h-20 object-contain"
+          />
           <h1 className="text-3xl font-bold text-gray-900">
             PROMOVE — Simulador de Evoluções Funcionais
           </h1>

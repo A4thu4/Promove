@@ -13,8 +13,8 @@ def _build_carreira(data_inicio: date, is_ueg: bool) -> list:
         else date(data_inicio.year, data_inicio.month + 1, 1)
 
     # Mantém exatamente as colunas numéricas usadas pelos índices da carreira.
-    # UEG: efetivo, desempenho, titulação, resp. única, resp. mensal, acumulado.
-    # Geral: efetivo, desempenho, aperfeiçoamento, titulação, resp. única, resp. mensal, acumulado.
+    # UEG: efetivo, desempenho, titulação, resp. Única, resp. Mensal, acumulado.
+    # Geral: efetivo, desempenho, aperfeiçoamento, titulação, resp. Única, resp. Mensal, acumulado.
     cols = 6 if is_ueg else 7
     return [[data_base + relativedelta(months=i)] + [0.0] * cols
             for i in range(settings.data_conclusao)]

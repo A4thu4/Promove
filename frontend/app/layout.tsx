@@ -6,6 +6,9 @@ import React from "react";
 export const metadata: Metadata = {
   title: "PROMOVE - Sistema de Evolução Funcional",
   description: "Cálculo de progressão e promoção para servidores",
+  icons: {
+    icon: "/assets/brasao.png",
+  },
 };
 
 export default function RootLayout({
