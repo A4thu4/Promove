@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import { SimulatorProvider } from '@/context/simulator-context';
-import { SimulatorForm }     from '@/components/simulator/SimulatorForm';
-import Navbar                from '@/components/navbar';
+import {SimulatorProvider} from '@/context/simulator-context';
+import {SimulatorForm} from '@/components/simulator/SimulatorForm';
+import Navbar from '@/components/navbar';
 
 export default function Home() {
   return (
@@ -12,10 +12,11 @@ export default function Home() {
           <Image
             src="/assets/logomarca.png"
             alt="Logomarca SEAD"
-            width={5000}
-            height={80}
+            width={860}
+            height={189}
             priority
-            className="mx-auto mb-4 h-auto w-auto max-h-20 object-contain"
+            className="mx-auto mb-4 object-contain"
+            style={{ width: 'min(860px, 100%)', height: 'auto' }}
           />
           <h1 className="text-3xl font-bold text-gray-900">
             PROMOVE — Simulador de Evoluções Funcionais
