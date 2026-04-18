@@ -233,86 +233,108 @@ def validar_evolucao(
     idx_nivel = niveis.index(nivel_atual)
     novo_nivel = niveis[idx_nivel + 1] if nivel_atual != niveis[-1] else niveis[-1]
 
+    idx_acumulado = 6 if is_ueg else 7
+
+    min_12 = data_inicial + relativedelta(months=reqs.min_months_level_2)
+    min_padrao_months = reqs.min_months_special if apo_especial else reqs.min_months_level_1
+    min_padrao = data_inicial + relativedelta(months=min_padrao_months)
+
+    aperf_rapida_min = reqs.min_hours_level_2 * reqs.points_per_hour  # 40h → 3.6 pts
+    aperf_padrao_min = (
+        reqs.min_hours_level_1 * reqs.points_per_hour if not is_ueg else 0.0
+    )  # 60h → 5.4 pts
+    exercicio_min = reqs.min_desempenho_points  # 2.4 pts
+
+    exercicio_acum = 0.0
+    aperf_acum = 0.0
+
     evolucao = None
     implement = None
     meses_total = 0
-    pts_alcancado = 0
-    pts_excedente = 0
+    pts_alcancado = 0.0
+    pts_excedente = 0.0
 
-    idx_acumulado = 6 if is_ueg else 7
+    final_exercicio = 0.0
+    final_aperf = 0.0
+    final_pontos = 0.0
+    final_meses = 0
+
     for i in range(len(carreira)):
-        d_atual = carreira[i][0]
-        pontos = carreira[i][idx_acumulado]
+        row = carreira[i]
+        d_atual = row[0]
+        pontos = row[idx_acumulado]
         meses = (d_atual.year - data_inicial.year) * 12 + (d_atual.month - data_inicial.month)
-        
-        # Interstícios
-        min_12 = data_inicial + relativedelta(months=reqs.min_months_level_2)
-        min_15 = data_inicial + relativedelta(months=reqs.min_months_special)
-        min_18 = data_inicial + relativedelta(months=reqs.min_months_level_1)
 
-        if d_atual < min_12: continue
+        exercicio_acum += row[1]
+        if not is_ueg:
+            aperf_acum += row[3]
 
-        # Acumulados de Desempenho e Aperfeiçoamento
-        # exercício_final = round(sum(r[1] for r in carreira if r[0] <= d_atual), 2)
-        desempenho_final = round(sum(r[2] for r in carreira if r[0] <= d_atual), 2)
-        aperf_final = round(sum(r[3] for r in carreira if r[0] <= d_atual), 2) if not is_ueg else 0.0
+        final_exercicio = round(exercicio_acum, 2)
+        final_aperf = round(aperf_acum, 2)
+        final_pontos = pontos
+        final_meses = meses
 
-        atingiu_12 = d_atual >= min_12
-        atingiu_18 = d_atual >= (min_15 if apo_especial else min_18)
-        
-        # Verificação de Evolução (Rápida ou Padrão)
-        aperf_req = (reqs.min_hours_level_1 if not is_ueg else 0) * reqs.points_per_hour
-        
-        # 1. Rápida (apenas não-UEG): 96pts + 12m + 40h aperf
-        apto_rapida = (not is_ueg and atingiu_12 and pontos >= reqs.min_points_level_2 and 
-                       aperf_final >= reqs.min_hours_level_2 * reqs.points_per_hour and 
-                       desempenho_final >= reqs.min_desempenho_points)
+        if d_atual < min_12:
+            continue
 
-        # 2. Padrão: 48pts + 18m + 60h aperf
-        apto_padrao = (atingiu_18 and pontos >= reqs.min_points_level_1 and 
-                       aperf_final >= aperf_req and desempenho_final >= reqs.min_desempenho_points)
+        exercicio_ok = final_exercicio >= exercicio_min
 
-        if apto_rapida or apto_padrao:
-            evolucao      = d_atual
-            implement     = _proximo_mes_1(d_atual)
-            meses_total   = meses
+        # Rápida (não-UEG): pontuação >= 96 atingida entre 12 e 18 meses (ou 15 p/ apo especial),
+        # com no mínimo 40h de aperfeiçoamento e 2.4 em efetivo exercício.
+        if not is_ueg and d_atual < min_padrao:
+            if (
+                pontos >= reqs.min_points_level_2
+                and final_aperf >= aperf_rapida_min
+                and exercicio_ok
+            ):
+                evolucao = d_atual
+                implement = _proximo_mes_1(d_atual)
+                meses_total = meses
+                pts_alcancado = pontos
+                pts_excedente = pontos - reqs.min_points_level_1
+                break
+            continue
+
+        # Padrão: 48 pts + 18m (ou 15 p/ apo especial) + 60h aperfeiçoamento (só não-UEG)
+        # + 2.4 em efetivo exercício.
+        if (
+            pontos >= reqs.min_points_level_1
+            and final_aperf >= aperf_padrao_min
+            and exercicio_ok
+        ):
+            evolucao = d_atual
+            implement = _proximo_mes_1(d_atual)
+            meses_total = meses
             pts_alcancado = pontos
-            pts_excedente = pontos - 48
+            pts_excedente = pontos - reqs.min_points_level_1
             break
 
-    # Pendências (Análise simplificada para o retorno)
-    # Recalcula estados finais para a mensagem de observação se não evoluiu
-    motivos = []
     status = "Apto a evolução" if evolucao else "Não apto a evolução"
-    required_min_months = reqs.min_months_special if apo_especial else reqs.min_months_level_1
-
-    if apo_especial: motivos.append("Aposentadoria Especial")
+    motivos: List[str] = []
+    if apo_especial:
+        motivos.append("Aposentadoria Especial")
 
     if not evolucao:
-        # Pega dados da última linha da carreira para checar por que não evoluiu
-        last_row = carreira[-1]
-        pts_f = last_row[idx_acumulado]
-        des_f = round(sum(r[2] for r in carreira), 2)
-        aperf_f = round(sum(r[3] for r in carreira), 2) if not is_ueg else 0.0
-        
-        meses_f = (last_row[0].year - data_inicial.year) * 12 + (last_row[0].month - data_inicial.month)
-        
-        if pts_f < reqs.min_points_level_1:
-            motivos.append(f"pontuação insuficiente ({pts_f:.2f}/48)")
-        
-        if des_f < reqs.min_desempenho_points:
-            motivos.append(f"desempenho insuficiente ({des_f:.2f}/{reqs.min_desempenho_points})")
-            
-        if not is_ueg and aperf_f < (reqs.min_hours_level_1 * reqs.points_per_hour):
-            req_h = reqs.min_hours_level_1
-            pts_req = req_h * reqs.points_per_hour
-            motivos.append(f"aperfeiçoamento insuficiente ({aperf_f:.2f}/{pts_req:.2f} pts - {req_h}h)")
-
-        if meses_f < required_min_months:
-             motivos.append(f"interstício insuficiente ({meses_f}/{required_min_months} meses)")
+        if final_meses < min_padrao_months:
+            motivos.append(
+                f"interstício insuficiente ({final_meses}/{min_padrao_months} meses)"
+            )
+        if final_pontos < reqs.min_points_level_1:
+            motivos.append(
+                f"pontuação insuficiente ({final_pontos:.2f}/{int(reqs.min_points_level_1)} pts)"
+            )
+        if not is_ueg and final_aperf < aperf_padrao_min:
+            req_h = int(reqs.min_hours_level_1)
+            motivos.append(
+                f"aperfeiçoamento insuficiente ({final_aperf:.2f}/{aperf_padrao_min:.2f} pts - {req_h}h)"
+            )
+        if final_exercicio < exercicio_min:
+            motivos.append(
+                f"efetivo exercício insuficiente ({final_exercicio:.2f}/{exercicio_min:.2f} pts)"
+            )
 
     obs = "; ".join(motivos) if motivos else "-"
-    
+
     return {
         "Status": status,
         "Observação": obs,

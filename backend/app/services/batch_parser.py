@@ -76,13 +76,14 @@ def ler_planilha(file_bytes: bytes) -> pd.DataFrame:
     ].copy()
 
     df["Vínculo"] = df["Vínculo"].astype(str).str.strip() if "Vínculo" in df.columns else ""
+    df["CPF"] = df["CPF"].astype(str).str.strip()
     df["Processo SEI"] = (
         df["Processo SEI"].astype(str).str.strip() if "Processo SEI" in df.columns else ""
     )
 
-    # Dedup por Vínculo preenchido
-    v = df["Vínculo"].astype(str).str.strip()
-    com_v = df[v.ne("")].drop_duplicates(subset=["Vínculo"], keep="first")
+    # Dedup por (Vínculo, CPF) — mantém linhas com o mesmo Vínculo quando o CPF difere.
+    v = df["Vínculo"]
+    com_v = df[v.ne("")].drop_duplicates(subset=["Vínculo", "CPF"], keep="first")
     sem_v = df[v.eq("")]
     df = pd.concat([com_v, sem_v], ignore_index=True)
 
