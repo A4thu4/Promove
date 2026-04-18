@@ -73,7 +73,7 @@ export default function BatchDetailPage() {
                 <h1 className="text-2xl font-bold">{output.filename}</h1>
                 <p className="text-sm text-gray-600">
                   {output.total_linhas} servidor(es) ·{' '}
-                  {output.is_ueg ? 'UEG' : 'Promove'}
+                  {output.is_ueg ? 'UEG' : 'Geral'}
                   {output.apo_especial ? ' · Aposentadoria Especial' : ''}
                 </p>
               </div>

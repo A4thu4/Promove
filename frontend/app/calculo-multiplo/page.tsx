@@ -90,7 +90,7 @@ export default function CalculoMultiploPage() {
                   checked={!isUeg}
                   onChange={() => setIsUeg(false)}
                 />
-                Promove
+                GERAL
               </label>
               <label className="inline-flex items-center gap-2">
                 <input

@@ -13,7 +13,7 @@ export default function Navbar() {
           PROMOVE
         </Link>
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-gray-600 hover:text-primary-600">Simulador</Link>
+          <Link href="/" className="text-gray-600 hover:text-primary-600">Simulador Individual</Link>
           <Link href="/calculo-multiplo" className="text-gray-600 hover:text-primary-600">Cálculo Múltiplo</Link>
           {user ? (
             <>
