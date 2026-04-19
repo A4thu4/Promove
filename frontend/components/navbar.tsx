@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
+import { api } from "@/lib/api";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await api.logout().catch(() => {});
+    logout();
+  };
 
   return (
     <nav className="bg-white border-b shadow-sm mb-8">
@@ -21,7 +27,7 @@ export default function Navbar() {
               <div className="flex items-center gap-3 border-l pl-6">
                 <span className="text-sm font-medium text-gray-700">{user.full_name || user.email}</span>
                 <button 
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-sm text-red-600 hover:text-red-800"
                 >
                   Sair

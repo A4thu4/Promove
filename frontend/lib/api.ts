@@ -7,19 +7,12 @@ import type {
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-function authHeaders(): Record<string, string> {
-  const token = typeof window !== 'undefined'
-    ? localStorage.getItem('token')
-    : null;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
+    credentials: 'include',
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...authHeaders(),
       ...options?.headers,
     },
   });
@@ -45,7 +38,7 @@ async function uploadBatch(
 
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { ...authHeaders() },
+    credentials: 'include',
     body: fd,
   });
 
@@ -59,9 +52,9 @@ async function uploadBatch(
 
 async function downloadBlob(path: string, init?: RequestInit): Promise<void> {
   const res = await fetch(`${BASE}${path}`, {
+    credentials: 'include',
     ...init,
     headers: {
-      ...authHeaders(),
       ...init?.headers,
     },
   });
@@ -102,6 +95,9 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password, full_name }),
     }),
+
+  logout: () =>
+    request('/auth/logout', { method: 'POST' }),
 
   // Evolution
   calculate: (data: CalculoInput) =>

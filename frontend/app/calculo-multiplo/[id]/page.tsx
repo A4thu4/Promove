@@ -11,20 +11,20 @@ import type { BatchCalculationOutput } from '@/lib/types';
 export default function BatchDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const [output, setOutput] = useState<BatchCalculationOutput | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && !token) {
+    if (!isLoading && !user) {
       router.push('/login');
     }
-  }, [token, isLoading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!user) return;
     const id = Number(params.id);
     if (!id) {
       setError('ID de lote inválido.');
@@ -41,7 +41,7 @@ export default function BatchDetailPage() {
         setError(err?.message ?? 'Erro ao carregar lote.');
         setLoading(false);
       });
-  }, [token, params.id]);
+  }, [user, params.id]);
 
   async function handleExport() {
     if (!output?.id) return;

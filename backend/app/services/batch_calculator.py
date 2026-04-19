@@ -62,21 +62,27 @@ def run_batch(
     )
 
 
+def _safe_cell(value: object) -> object:
+    if isinstance(value, str) and value and value[0] in ("=", "+", "-", "@"):
+        return "'" + value
+    return value
+
+
 def to_excel_bytes(output: BatchCalculationOutput) -> bytes:
     linhas = []
     for r in output.resultados:
         linhas.append(
             {
-                "Status": r.resumo.status,
-                "Observação": r.resumo.observacao,
-                "Processo SEI": r.info.processo_sei,
-                "Servidor": r.info.servidor,
-                "CPF": r.info.cpf,
-                "Vínculo": r.info.vinculo,
-                "Próximo Nível": r.resumo.proximo_nivel,
-                "Data da Pontuação Atingida": r.resumo.data_pontuacao,
-                "Data da Implementação": r.resumo.data_implementacao,
-                "Interstício de Evolução": r.resumo.intersticio,
+                "Status": _safe_cell(r.resumo.status),
+                "Observação": _safe_cell(r.resumo.observacao),
+                "Processo SEI": _safe_cell(r.info.processo_sei),
+                "Servidor": _safe_cell(r.info.servidor),
+                "CPF": _safe_cell(r.info.cpf),
+                "Vínculo": _safe_cell(r.info.vinculo),
+                "Próximo Nível": _safe_cell(r.resumo.proximo_nivel),
+                "Data da Pontuação Atingida": _safe_cell(r.resumo.data_pontuacao),
+                "Data da Implementação": _safe_cell(r.resumo.data_implementacao),
+                "Interstício de Evolução": _safe_cell(r.resumo.intersticio),
                 "Pontuação Alcançada": r.resumo.pontuacao_alcancada,
                 "Pontos Excedentes": r.resumo.pontos_excedentes,
             }

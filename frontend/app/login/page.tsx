@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/navbar";
+import { api } from "@/lib/api";
 
 export default function Page() {
   const [email, setEmail] = useState("");
@@ -19,30 +20,11 @@ export default function Page() {
     setLoading(true);
     setError("");
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", email);
-      formData.append("password", password);
-
-      const response = await fetch("http://localhost:8000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || "Falha no login");
-      }
-
-      const { access_token } = await response.json();
-      
-      // Get user info (email)
-      // In a real app, you might have a /me endpoint
-      // For now, let's just use the email
-      login(access_token, { id: 0, email, full_name: "" });
+      await api.login(email, password);
+      login({ id: 0, email, full_name: "" });
       router.push("/");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha no login");
     } finally {
       setLoading(false);
     }

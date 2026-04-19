@@ -14,17 +14,17 @@ import { Titulacoes }                 from './sections/Titulacoes';
 import { ResponsabilidadesMensais }   from './sections/ResponsabilidadesMensais';
 import { ResponsabilidadesUnicas }    from './sections/ResponsabilidadesUnicas';
 import { ResultsPanel }               from './ResultsPanel';
-import type { CalculoInput } from '@/lib/types';
+import type { CalculoInput, EvolutionOutput} from '@/lib/types';
 
 export function SimulatorForm() {
-  const { state, dispatch } = useSimulator();
-  const { token } = useAuth();
+  const {state, dispatch} = useSimulator();
+  const {user} = useAuth();
 
   // Hidratação a partir de "Abrir no simulador" vindo do Cálculo Múltiplo.
   useEffect(() => {
     const pending = consumePendingBatchInput();
     if (pending) {
-      dispatch({ type: 'HYDRATE_FROM_BATCH', payload: pending });
+      dispatch({type: 'HYDRATE_FROM_BATCH', payload: pending});
     }
   }, [dispatch]);
 
@@ -33,37 +33,37 @@ export function SimulatorForm() {
 
     if (nextIsUeg) {
       const confirmed = window.confirm(
-        'Ao trocar para Carreira UEG, os dados já preenchidos serão reiniciados para evitar incompatibilidades com as regras da UEG. Deseja continuar?'
+          'Ao trocar para Carreira UEG, os dados já preenchidos serão reiniciados para evitar incompatibilidades com as regras da UEG. Deseja continuar?'
       );
 
       if (!confirmed) return;
 
       const apoEspecial = state.apoEspecial;
 
-      dispatch({ type: 'RESET' });
+      dispatch({type: 'RESET'});
 
       if (apoEspecial) {
-        dispatch({ type: 'SET_APO_ESPECIAL', payload: true });
+        dispatch({type: 'SET_APO_ESPECIAL', payload: true});
       }
 
-      dispatch({ type: 'SET_IS_UEG', payload: true });
+      dispatch({type: 'SET_IS_UEG', payload: true});
       return;
     }
 
-    dispatch({ type: 'SET_IS_UEG', payload: false });
+    dispatch({type: 'SET_IS_UEG', payload: false});
   }
 
   async function handleCalcular() {
     if (!state.obrigatorios) {
-      dispatch({ type: 'SET_ERROR', payload: 'Preencha os dados obrigatórios primeiro.' });
+      dispatch({type: 'SET_ERROR', payload: 'Preencha os dados obrigatórios primeiro.'});
       return;
     }
 
-    dispatch({ type: 'SET_LOADING', payload: true });
-    dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({type: 'SET_LOADING', payload: true});
+    dispatch({type: 'SET_ERROR', payload: null});
 
     try {
-      const { obrigatorios } = state;
+      const {obrigatorios} = state;
 
       // Monta o mapa de pontos para R.Únicas
       const dadosRu = {
@@ -72,12 +72,12 @@ export function SimulatorForm() {
       };
 
       const payload: CalculoInput = {
-        is_ueg:            state.isUeg,
-        nivel_atual:       obrigatorios.nivelAtual,
-        data_inicio:       obrigatorios.dataInicio,
-        data_enquadramento:obrigatorios.dataEnquadramento,
+        is_ueg: state.isUeg,
+        nivel_atual: obrigatorios.nivelAtual,
+        data_inicio: obrigatorios.dataInicio,
+        data_enquadramento: obrigatorios.dataEnquadramento,
         pts_remanescentes: obrigatorios.pontosExcedentes,
-        apo_especial:      state.apoEspecial,
+        apo_especial: state.apoEspecial,
 
         afastamentos: state.afastamentos.map(a => ({
           data: a.data + '-01',   // YYYY-MM-01 (backend usa só mês/ano)
@@ -85,7 +85,7 @@ export function SimulatorForm() {
         })),
 
         aperfeicoamentos: state.aperfeicoamentos.map(a => ({
-          data:  a.data,
+          data: a.data,
           horas: a.horas,
         })),
 
@@ -95,21 +95,21 @@ export function SimulatorForm() {
         })),
 
         resp_unicas: state.respUnicas.map(r => ({
-          data:   r.data,
+          data: r.data,
           pontos: r.quantidade * (dadosRu[r.tipo] ?? 0),
         })),
 
         resp_mensais: state.respMensais.map(r => ({
-          tipo:   r.tipo,
+          tipo: r.tipo,
           inicio: r.inicio,
-          fim:    r.fim,
+          fim: r.fim,
           pontos: r.pontos,
         })),
       };
 
-      let resultado;
+      let resultado: EvolutionOutput;
 
-      if (token) {
+      if (user) {
         resultado = await api.calculateAndSave(payload);
       } else {
         resultado = await api.calculate(payload);

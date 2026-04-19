@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/navbar";
+import { api } from "@/lib/api";
 
 export default function Page() {
   const [email, setEmail] = useState("");
@@ -18,20 +19,11 @@ export default function Page() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, full_name: fullName, password }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || "Falha no cadastro");
-      }
+      await api.register(email, password, fullName);
 
       router.push("/login?registered=true");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha no cadastro");
     } finally {
       setLoading(false);
     }

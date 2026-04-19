@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 from backend.app.models.user import User
 from backend.app.core.security import get_password_hash
@@ -8,6 +8,17 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str = None
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("A senha deve ter no mínimo 8 caracteres")
+        if not any(c.isupper() for c in v):
+            raise ValueError("A senha deve conter ao menos uma letra maiúscula")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("A senha deve conter ao menos um número")
+        return v
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()

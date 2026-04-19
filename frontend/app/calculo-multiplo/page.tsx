@@ -9,7 +9,7 @@ import { api } from '@/lib/api';
 import type { BatchCalculationOutput } from '@/lib/types';
 
 export default function CalculoMultiploPage() {
-  const { token } = useAuth();
+  const { user } = useAuth();
 
   const [file, setFile] = useState<File | null>(null);
   const [isUeg, setIsUeg] = useState(false);
@@ -135,7 +135,7 @@ export default function CalculoMultiploPage() {
             >
               {loading && mode === 'simulate' ? 'Processando...' : 'Simular'}
             </button>
-            {token && (
+            {user && (
               <button
                 type="button"
                 className="btn-primary bg-green-600 hover:bg-green-700"
@@ -145,7 +145,7 @@ export default function CalculoMultiploPage() {
                 {loading && mode === 'save' ? 'Processando...' : 'Calcular e Salvar'}
               </button>
             )}
-            {!token && (
+            {!user && (
               <span className="text-xs text-gray-500">
                 Faça login para salvar o lote no seu histórico.
               </span>

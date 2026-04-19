@@ -9,20 +9,20 @@ import { api } from "@/lib/api";
 import type { BatchHistoryItem } from "@/lib/types";
 
 export default function Page() {
-  const { token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [batchHistory, setBatchHistory] = useState<BatchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !token) {
+    if (!isLoading && !user) {
       router.push("/login");
     }
-  }, [token, isLoading, router]);
+  }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!user) return;
     Promise.all([api.history(), api.batchHistory()])
       .then(([individual, batch]) => {
         setHistory(individual);
@@ -30,7 +30,7 @@ export default function Page() {
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [user]);
 
   if (isLoading || loading) {
     return <div className="text-center mt-20">Carregando...</div>;
