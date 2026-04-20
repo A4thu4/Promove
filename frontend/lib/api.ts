@@ -5,7 +5,7 @@ import type {
   EvolutionOutput,
 } from './types';
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -98,6 +98,31 @@ export const api = {
 
   logout: () =>
     request('/auth/logout', { method: 'POST' }),
+
+  verifyEmail: (token: string) =>
+    request<{ detail: string }>('/auth/verify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ token }).toString(),
+    }),
+
+  resendVerification: (email: string) =>
+    request<{ detail: string }>('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  forgotPassword: (email: string) =>
+    request<{ detail: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, new_password: string) =>
+    request<{ detail: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, new_password }),
+    }),
 
   // Evolution
   calculate: (data: CalculoInput) =>

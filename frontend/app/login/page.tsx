@@ -57,17 +57,22 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full bg-primary-600 text-white py-2 px-4 rounded hover:bg-primary-700 disabled:opacity-50"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Não tem conta? <Link href="/register" className="text-primary-600 hover:underline">Cadastre-se</Link>
-        </p>
+        <div className="mt-4 text-center text-sm text-gray-600 space-y-2">
+          <p>
+            <Link href="/forgot-password" className="text-primary-600 hover:underline">Esqueci minha senha</Link>
+          </p>
+          <p>
+            Não tem conta? <Link href="/register" className="text-primary-600 hover:underline">Cadastre-se</Link>
+          </p>
+        </div>
       </main>
     </>
   );

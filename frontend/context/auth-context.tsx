@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
-  id: number;
-  email: string;
+  id?: number;
+  email?: string;
   full_name?: string;
 }
 
@@ -22,21 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const savedName = sessionStorage.getItem('display_name');
+    if (savedName) {
+      setUser({ id: 0, full_name: savedName });
     }
     setIsLoading(false);
   }, []);
 
   const login = (newUser: User) => {
     setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
+    if (newUser.full_name) {
+      sessionStorage.setItem('display_name', newUser.full_name);
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('display_name');
   };
 
   return (

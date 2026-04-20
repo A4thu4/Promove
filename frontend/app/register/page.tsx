@@ -12,6 +12,7 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [registered, setRegistered] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,14 +21,28 @@ export default function Page() {
     setError("");
     try {
       await api.register(email, password, fullName);
-
-      router.push("/login?registered=true");
+      setRegistered(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha no cadastro");
     } finally {
       setLoading(false);
     }
   };
+
+  if (registered) {
+    return (
+      <>
+        <Navbar />
+        <main className="max-w-md mx-auto p-6 bg-white shadow rounded-lg mt-10 text-center">
+          <h1 className="text-2xl font-bold mb-4">Conta criada!</h1>
+          <div className="bg-blue-50 text-blue-700 p-4 rounded mb-4">
+            Enviamos um link de verificação para <strong>{email}</strong>. Verifique seu e-mail antes de fazer login.
+          </div>
+          <Link href="/login" className="text-primary-600 hover:underline">Ir para o Login</Link>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
