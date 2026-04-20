@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends
+import os
+
+from fastapi import APIRouter, Depends, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from backend.app.schemas.evolution import EvolutionInput, EvolutionOutput
@@ -9,15 +13,22 @@ from backend.app.models.history import History
 from backend.app.db.session import get_db
 
 router = APIRouter()
+limiter = Limiter(
+    key_func=get_remote_address,
+    enabled=os.getenv("TESTING", "").lower() not in ("true", "1"),
+)
 
 @router.post("/calculate", response_model=EvolutionOutput)
-async def calculate_evolution(input_data: EvolutionInput):
+@limiter.limit("30/minute")
+async def calculate_evolution(request: Request, input_data: EvolutionInput):
     return run_calculation(input_data)
 
 @router.post("/calculate-save", response_model=EvolutionOutput)
+@limiter.limit("20/minute")
 async def calculate_and_save(
-    input_data: EvolutionInput, 
-    db: Session = Depends(get_db), 
+    request: Request,
+    input_data: EvolutionInput,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     result = run_calculation(input_data)

@@ -1,5 +1,9 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+import os
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from backend.app.api.auth import get_current_user
@@ -18,6 +22,10 @@ from backend.app.services.batch_calculator import (
 )
 
 router = APIRouter()
+limiter = Limiter(
+    key_func=get_remote_address,
+    enabled=os.getenv("TESTING", "").lower() not in ("true", "1"),
+)
 
 
 async def _process_upload(
@@ -38,7 +46,9 @@ async def _process_upload(
 
 
 @router.post("/calculate", response_model=BatchCalculationOutput)
+@limiter.limit("30/minute")
 async def batch_calculate(
+    request: Request,
     file: UploadFile = File(...),
     is_ueg: bool = Form(False),
     apo_especial: bool = Form(False),
@@ -48,7 +58,9 @@ async def batch_calculate(
 
 
 @router.post("/calculate-save", response_model=BatchCalculationOutput)
+@limiter.limit("20/minute")
 async def batch_calculate_and_save(
+    request: Request,
     file: UploadFile = File(...),
     is_ueg: bool = Form(False),
     apo_especial: bool = Form(False),
