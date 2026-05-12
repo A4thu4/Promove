@@ -262,7 +262,7 @@ def build_aperfeicoamentos(key_prefix="aperf"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=DECRETO_DATE,
+                min_value=st.session_state.data_inicial,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data"
             )
