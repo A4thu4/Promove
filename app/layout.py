@@ -381,12 +381,11 @@ def build_titulacoes(key_prefix="tit"):
                 if data_conclusao < (ultima_titulacao + relativedelta(months=12)) or data_conclusao < (ultima_titulacao - relativedelta(months=12)):
                     st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
         
-        if st.session_state.obrigatorios:
+        if st.session_state.obrigatorios and data_conclusao and tipo_tit != 'Nenhuma':
             if ultima_titulacao is None or (data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1)) or data_conclusao < (ultima_titulacao - relativedelta(months=12) + relativedelta(days=1))):
-                if tipo_tit != 'Nenhuma':
-                    st.session_state.titulacoes.append((data_conclusao, tipo_tit))
-                    st.session_state[f"{key_prefix}_reset_fields"] = True
-                    st.rerun()
+                st.session_state.titulacoes.append((data_conclusao, tipo_tit))
+                st.session_state[f"{key_prefix}_reset_fields"] = True
+                st.rerun()
 
     if cleared:
         st.session_state.titulacoes.clear()
