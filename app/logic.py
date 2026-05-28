@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, date
-from dateutil.relativedelta import relativedelta
-import pandas as pd
 
-from data_utils import DATA_CONCLUSAO, NIVEIS, destacar_obs
+import pandas as pd
+from dateutil.relativedelta import relativedelta
+
+from data_utils import DATA_CONCLUSAO, NIVEIS
       
 def zerar_carreira(carreira):
     # ZERA todos os campos de cálculo antes de começar
@@ -39,7 +40,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
 # ---------- APLICA AFASTAMENTOS ---------- #
     afastamentos_dict = {}
-    for mes, faltas in sorted(afastamentos, key=lambda data: data[0]):
+    for mes, faltas in sorted(afastamentos, key=lambda data: data[0] if data and data[0] is not None else date.min):
         mes = mes.date() if isinstance(mes, datetime) else mes
         
         # Calcula data de aplicação (dia 1 do mês seguinte)
@@ -99,7 +100,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
 # ---------- APLICA APERFEIÇOAMENTOS ---------- #
     total_horas = 0
-    for data_conclusao, horas_curso in sorted(aperfeicoamentos, key=lambda data: data[0]):
+    for data_conclusao, horas_curso in sorted(aperfeicoamentos, key=lambda data: data[0] if data and data[0] is not None else date.min):
         data_conclusao = data_conclusao.date() if isinstance(data_conclusao, datetime) else data_conclusao
 
         if data_conclusao.month == 12:
@@ -130,7 +131,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     ultima_titulacao = None
     LIMITE_TIT = 144
     
-    for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0]):
+    for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0] if data and data[0] is not None else date.min):
         data_concl = data_concl.date() if isinstance(data_concl, datetime) else data_concl
 
         # Bloqueia se já teve uma titulação nos últimos 12 meses (dupla confirmação)
@@ -162,7 +163,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     LIMITE_RESP = 144
 
     ru_dict = {}
-    for data, pontos in sorted(resp_unicas, key=lambda data: data[0]):
+    for data, pontos in sorted(resp_unicas, key=lambda data: data[0] if data and data[0] is not None else date.min):
         data = data.date() if isinstance(data, datetime) else data
 
         if data.month == 12:
@@ -223,7 +224,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     retro_bruto = defaultdict(lambda: defaultdict(list))
 
     # Ordena pela data de início 
-    for tipo, inicio_resp, fim_resp, tempo, pontos in sorted(resp_mensais, key=lambda data: data[1]):
+    for tipo, inicio_resp, fim_resp, tempo, pontos in sorted(resp_mensais, key=lambda data: data[1] if data and data[1] is not None else date.min):
         inicio_resp = inicio_resp.date() if isinstance(inicio_resp, datetime) else inicio_resp
         inicio_resp = date(inicio_resp.year, inicio_resp.month, inicio_resp.day)
        
@@ -649,13 +650,13 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
     
     df= ler_planilha_excel(arquivo)
     if df.empty:
-        return
+        return None
 
     ids_processados = set()
 
     servidores = extrair_dados_basicos(df)
     if not servidores:
-        return
+        return None
     
     for i, servidor in enumerate(servidores):
         processo_sei = servidor["Processo"]

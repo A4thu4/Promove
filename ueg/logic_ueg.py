@@ -39,7 +39,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
 
 # ---------- APLICA AFASTAMENTOS ---------- #
     afastamentos_dict = {}
-    for mes, faltas in sorted(afastamentos, key=lambda data: data[0]):
+    for mes, faltas in sorted(afastamentos, key=lambda data: data[0] if data and data[0] is not None else date.min):
         mes = mes.date() if isinstance(mes, datetime) else mes
         
         # Calcula data de aplicação (dia 1 do mês seguinte)
@@ -104,7 +104,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     ultima_titulacao = None
     LIMITE_TIT = 144
     
-    for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0]):
+    for data_concl, tipo in sorted(titulacoes, key=lambda data: data[0] if data and data[0] is not None else date.min):
         data_concl = data_concl.date() if isinstance(data_concl, datetime) else data_concl
 
         # Bloqueia se já teve uma titulação nos últimos 12 meses (dupla confirmação)
@@ -136,7 +136,7 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     LIMITE_RESP = 144
 
     ru_dict = {}
-    for data, pontos in sorted(resp_unicas, key=lambda data: data[0]):
+    for data, pontos in sorted(resp_unicas, key=lambda data: data[0] if data and data[0] is not None else date.min):
         data = data.date() if isinstance(data, datetime) else data
 
         if data.month == 12:
@@ -592,13 +592,13 @@ def calcular_planilha(arquivo, apo_especial_m:bool):
     
     df = ler_planilha_excel(arquivo)
     if df.empty:
-        return
+        return None
     
     ids_processados = set()
 
     servidores = extrair_dados_basicos(df)
     if not servidores:
-        return
+        return None
     
     for i, servidor in enumerate(servidores):
         processo_sei = servidor["Processo"]

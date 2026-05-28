@@ -4,6 +4,8 @@ import os
 import io
 import gc
 
+from pandas import DataFrame
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
@@ -238,17 +240,31 @@ def main():
 
                     dados_planilha = arquivo_tratado.getvalue()
                     df = calcular_planilha(dados_planilha, apo_especial_m)
-                    
+
+                    # tratar retorno inesperado de calcular_planilha
+                    if not df:
+                        st.error("Erro: o processamento da planilha não retornou dados. Verifique o conteúdo da planilha e as colunas obrigatórias.")
+                        del arquivo_tratado, dados_planilha
+                        st.stop()
+
                     # Atribuí os novos resultados
                     st.session_state.df_planilha = df[0]
                     st.session_state.df_results = df[1]
                     df_pview = df[2]
                     ids_processados = df[3]
-                    
+                    diagnostico_obrigatorios = df[4] if len(df) > 4 else None
+
                     del arquivo_tratado, dados_planilha 
                     
             except Exception as e:
+                import traceback
                 st.error(f"Erro no processamento: {str(e)}")
+                try:
+                    with st.expander("Traceback do erro (clique para abrir)"):
+                        st.code(traceback.format_exc())
+                except Exception:
+                    print("Erro no processamento:", e)
+                    traceback.print_exc()
                 st.stop()
             finally:
                 st.session_state.calculando = False
@@ -268,8 +284,9 @@ def main():
             
             st.rerun()
 
-        if st.session_state.df_planilha is not None and not st.session_state.df_planilha.empty:
-            renderizar_planilha(st.session_state.df_planilha)
+        if st.session_state.df_planilha is not None:
+            df_plan = st.session_state.df_planilha
+            renderizar_planilha(df_plan)
 
         if st.session_state.df_results is not None and not st.session_state.df_results.empty:
             st.markdown("<h2 class='center'>Resultado(s) da Simulação</h2>", unsafe_allow_html=True)
@@ -397,4 +414,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        try:
+            st.error(f"Erro não tratado: {e}")
+            with st.expander("Traceback (clique para abrir)"):
+                st.code(traceback.format_exc())
+        except Exception:
+            print("Erro não tratado:", e)
+            traceback.print_exc()

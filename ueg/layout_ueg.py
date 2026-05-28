@@ -1,9 +1,11 @@
-import streamlit as st
-import pandas as pd
-
-from data_utils_ueg import DECRETO_DATE, MIN_DATE, MAX_DATE, NIVEIS, val_states
-from dateutil.relativedelta import relativedelta
 from datetime import date
+
+import pandas as pd
+import streamlit as st
+from dateutil.relativedelta import relativedelta
+
+
+from data_utils_ueg import MIN_DATE, MAX_DATE, NIVEIS, val_states
 
 
 def ensure_states() -> None:
@@ -101,10 +103,10 @@ def build_obrigatorios(key_prefix="obg"):
         if not st.session_state.data_inicial:
             st.error("O campo 'Data inicial' é obrigatório. Preencha com a data da última evolução ou do último enquadramento.")
         
-        if pts_remanescentes == None:
+        if pts_remanescentes is None:
             st.error("O campo 'Pontos Remanescentes da Última Evolução' é obrigatório. Caso não haja pontuação remanescente, preencha com o número 0 (zero).")
         
-        if st.session_state.data_inicial and st.session_state.enquadramento and nivel_atual in NIVEIS and pts_remanescentes != None:
+        if st.session_state.data_inicial and st.session_state.enquadramento and nivel_atual in NIVEIS and pts_remanescentes is not None:
             st.session_state.pts_ultima_evolucao = float(pts_remanescentes)
             st.session_state.nivel_atual = nivel_atual if nivel_atual else 'A'
             st.session_state.obrigatorios = [(nivel_atual, st.session_state.data_inicial, st.session_state.enquadramento,  float(pts_remanescentes))]
@@ -170,13 +172,13 @@ def build_afastamentos(key_prefix="afast"):
             st.error("Preencha o campo 'Mês do Afastamento' com a data completa no formato DD/MM/AAAA. O cálculo levará em conta apenas o mês e o ano, independemente do dia preenchido. ")
         
         if not qntd_faltas or qntd_faltas == 0:
-            st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor númerico acima de 0 (zero).")
+            st.error("Preencha o campo 'Quantitativo Total de Afastamentos no Mês' com um valor numérico acima de 0 (zero).")
         
-        if st.session_state.obrigatorios and mes_faltas:
+        if st.session_state.obrigatorios and mes_faltas is not None:
             if any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
                 st.warning("Mês e ano já registrados.")
-            if qntd_faltas > 0 and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
-                st.session_state.afastamentos.append((mes_faltas, int(qntd_faltas)))
+            if 0 < qntd_faltas and not any((mes.month, mes.year) == (mes_faltas.month, mes_faltas.year) for mes, _ in st.session_state.afastamentos):
+                st.session_state.afastamentos.append((mes_faltas, qntd_faltas))
                 st.session_state[f"{key_prefix}_reset_fields"] = True
                 st.rerun()
 
@@ -193,7 +195,7 @@ def build_afastamentos(key_prefix="afast"):
         with cl[1]: st.write(f"**Total de Afastamentos: {total_afast}**")
         
         cols = st.columns(6)
-        for i, (mes, faltas) in enumerate(sorted(st.session_state.afastamentos, key=lambda data: data[0])):
+        for i, (mes, faltas) in enumerate(sorted(st.session_state.afastamentos, key=lambda data: data[0] if data and data[0] is not None else date.min)):
             col = cols[i % 6]
             with col:
                 st.write(f"Data: {mes.strftime('%m/%Y')}.") 
@@ -264,7 +266,7 @@ def build_titulacoes(key_prefix="tit"):
                 "Data de Validação",
                 format="DD/MM/YYYY",
                 value=None,
-                min_value=DECRETO_DATE,
+                min_value=st.session_state.data_inicial,
                 max_value=MAX_DATE,
                 key=f"{key_prefix}_data"
             )
@@ -300,9 +302,8 @@ def build_titulacoes(key_prefix="tit"):
                 if data_conclusao < (ultima_titulacao + relativedelta(months=12)) or data_conclusao < (ultima_titulacao - relativedelta(months=12)):
                     st.warning("Limite de titulações excedido no período (art. 44, § 10.: poderá ser validada uma titulação acadêmica por ano civil, com interstício mínimo de 12 (doze) meses entre uma e outra validação).") 
         
-        if st.session_state.obrigatorios:
-            if ultima_titulacao is None or (data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1)) or data_conclusao < (ultima_titulacao - relativedelta(months=12) + relativedelta(days=1))):
-                if tipo_tit != 'Nenhuma':
+        if st.session_state.obrigatorios and data_conclusao and tipo_tit != 'Nenhuma':
+            if ultima_titulacao is None or (data_conclusao > (ultima_titulacao + relativedelta(months=12) - relativedelta(days=1)) or data_conclusao < (ultima_titulacao - relativedelta(months=12))):
                     st.session_state.titulacoes.append((data_conclusao, tipo_tit))
                     st.session_state[f"{key_prefix}_reset_fields"] = True
                     st.rerun()
@@ -321,7 +322,7 @@ def build_titulacoes(key_prefix="tit"):
         with cl[1]: st.write(f"**Total de Titulações: {total_tit}**")
         
         cols = st.columns(4)
-        for i, (data, tipo) in enumerate(sorted(st.session_state.titulacoes, key=lambda data: data[0])):
+        for i, (data, tipo) in enumerate(sorted(st.session_state.titulacoes, key=lambda data: data[0] if data and data[0] is not None else date.min)):
             col = cols[i % 4]
             with col:
                 st.write(f"Data: {data.strftime('%d/%m/%Y')}." )
@@ -1152,7 +1153,7 @@ def build_responsabilidades_unicas(key_prefix="resp_unic"):
 
         all_lists = ["artigos_lista", "livros_lista", "pesquisas_lista", "registros_lista", "resp_unicas"]
 
-        for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0])):
+        for i, (data, qntd, tipo) in enumerate(sorted(all_items, key=lambda data: data[0] if data and data[0] is not None else date.min)):
             col = cols[i % 4]
             with col:
                 st.write(f"Data: {data.strftime('%d/%m/%Y')} ")
