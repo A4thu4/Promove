@@ -187,6 +187,10 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         except ValueError:
             falta_int = 0
 
+        # Fevereiro completo (28+ dias) conta como mês inteiro (30 dias) p/ zerar a pontuação
+        if data_mes.month == 2 and falta_int >= 28:
+            falta_int = 30
+
         if data_mes.month == 12:
             data_aplicacao = date(data_mes.year + 1, 1, 1)
         else:

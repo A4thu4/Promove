@@ -42,7 +42,11 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     afastamentos_dict = {}
     for mes, faltas in sorted(afastamentos, key=lambda data: data[0] if data and data[0] is not None else date.min):
         mes = mes.date() if isinstance(mes, datetime) else mes
-        
+
+        # Fevereiro completo (28+ dias) conta como mês inteiro (30 dias) p/ zerar a pontuação
+        if mes.month == 2 and faltas >= 28:
+            faltas = 30
+
         # Calcula data de aplicação (dia 1 do mês seguinte)
         if mes.month == 12:
             data_aplicacao = date(mes.year + 1, 1, 1)
