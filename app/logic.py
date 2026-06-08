@@ -43,20 +43,22 @@ def calcular_evolucao(enquadramento, data_inicial, nivel_atual, carreira, ult_ev
     for mes, faltas in sorted(afastamentos, key=lambda data: data[0] if data and data[0] is not None else date.min):
         mes = mes.date() if isinstance(mes, datetime) else mes
 
-        # Fevereiro completo (28+ dias) conta como mês inteiro (30 dias) p/ zerar a pontuação
-        if mes.month == 2 and faltas >= 28:
-            faltas = 30
-
         # Calcula data de aplicação (dia 1 do mês seguinte)
         if mes.month == 12:
             data_aplicacao = date(mes.year + 1, 1, 1)
         else:
             data_aplicacao = date(mes.year, mes.month + 1, 1)
-        
+
         if data_aplicacao in afastamentos_dict:
             afastamentos_dict[data_aplicacao] += faltas
         else:
             afastamentos_dict[data_aplicacao] = faltas
+
+    # Fevereiro completo (28+ dias somando o mês inteiro) conta como 30 dias p/ zerar a pontuação.
+    # data_aplicacao é o dia 1 do mês seguinte -> mês 3 (março) corresponde a afastamento em fevereiro.
+    for data_aplicacao in list(afastamentos_dict):
+        if data_aplicacao.month == 3 and afastamentos_dict[data_aplicacao] >= 28:
+            afastamentos_dict[data_aplicacao] = 30
 
     # --- Dias anteriores à Data de Início (faltas automáticas) só para Efetivo/Desempenho ---
     # Importante: essas faltas NÃO devem afetar Responsabilidades (nem normal, nem retro).

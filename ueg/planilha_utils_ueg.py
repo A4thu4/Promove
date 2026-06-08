@@ -177,6 +177,7 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
     meses = [m for m in mes_falta_raw.split(";") if m.strip()]
     faltas = [f for f in qntd_faltas_raw.split(";") if f.strip()]
 
+    faltas_por_aplicacao = {}
     for mes_str, falta_str in zip(meses, faltas):
         data_mes = pd.to_datetime(mes_str, dayfirst=True, errors="coerce")
         if pd.isna(data_mes):
@@ -187,16 +188,19 @@ def processar_afastamentos(df, i, afastamentos_dict, carreira):
         except ValueError:
             falta_int = 0
 
-        # Fevereiro completo (28+ dias) conta como mês inteiro (30 dias) p/ zerar a pontuação
-        if data_mes.month == 2 and falta_int >= 28:
-            falta_int = 30
-
         if data_mes.month == 12:
             data_aplicacao = date(data_mes.year + 1, 1, 1)
         else:
             data_aplicacao = date(data_mes.year, data_mes.month + 1, 1)
 
-        afastamentos_dict[data_aplicacao] = afastamentos_dict.get(data_aplicacao, 0) + falta_int
+        faltas_por_aplicacao[data_aplicacao] = faltas_por_aplicacao.get(data_aplicacao, 0) + falta_int
+
+    # Fevereiro completo (28+ dias somando o mês inteiro) conta como 30 dias p/ zerar a pontuação.
+    # data_aplicacao é o dia 1 do mês seguinte -> mês 3 (março) corresponde a afastamento em fevereiro.
+    for data_aplicacao, total in faltas_por_aplicacao.items():
+        if data_aplicacao.month == 3 and total >= 28:
+            total = 30
+        afastamentos_dict[data_aplicacao] = afastamentos_dict.get(data_aplicacao, 0) + total
 
     # ---------- aplica afastamentos e desempenho ----------
     for linha in carreira:
